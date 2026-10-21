@@ -57,3 +57,11 @@
 A checklist de cada epic decompõe essas tarefas em subtarefas e oferece aceites objetivos. Não marcar concluídas sem teste no mesmo SHA e evidência revisável.
 
 E06-01: [inventário por SHA](e06-current-evidence.md). E06-02..06 seguem abertos; esta marcação aceita somente o inventário.
+
+
+## Integração verificada — 21/10/2026
+
+[Estado e matriz AC-01..24 por SHA](completion-20261021.md). PRs281/284/286/288
+mergeados; dependência031 implementada em backend/Web/Compose. CI288162PASS,
+3SKIP; não equivale a aceite global. Instrumentação, flag UX/rollback, pacote
+Android atual, paridade completa, aparelho e piloto continuam abertos.

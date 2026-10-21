@@ -98,3 +98,11 @@ já existente. Não é revisão independente R3 de implementação financeira.
 A missão atual autoriza branches, commits, PRs e squash merges elegíveis;
 substitui as restrições históricas “sem merge autorizado” para esta execução.
 Deploy de produção, aparelho físico e aceite humano permanecem gates externos.
+
+
+## Integração verificada — 21/10/2026
+
+[Estado e matriz AC-01..24 por SHA](completion-20261021.md). PRs281/284/286/288
+mergeados; dependência031 implementada em backend/Web/Compose. CI288162PASS,
+3SKIP; não equivale a aceite global. Instrumentação, flag UX/rollback, pacote
+Android atual, paridade completa, aparelho e piloto continuam abertos.

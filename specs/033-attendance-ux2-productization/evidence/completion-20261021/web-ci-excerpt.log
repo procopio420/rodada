@@ -1,0 +1,87 @@
+2026-10-21T14:00:52.8499614Z ##[command]/usr/bin/docker pull mirror.gcr.io/library/postgres:17
+2026-10-21T14:01:00.3164447Z Status: Downloaded newer image for mirror.gcr.io/library/postgres:17
+2026-10-21T14:01:00.3175366Z mirror.gcr.io/library/postgres:17
+2026-10-21T14:01:00.3229156Z ##[command]/usr/bin/docker create --name 12d625f53ab04d6d998816ae3f91289e_mirrorgcriolibrarypostgres17_9f23c6 --label 5b0662 --network github_network_bc4d2537134c4b64a02f44428439590a --network-alias postgres -p 5432:5432 --health-cmd "pg_isready -U rodada_test -d rodada_web_e2e" --health-interval 5s --health-timeout 5s --health-retries 10 -e "POSTGRES_DB=rodada_web_e2e" -e "POSTGRES_USER=rodada_test" -e "POSTGRES_PASSWORD=local-ci-only" -e GITHUB_ACTIONS=true -e CI=true mirror.gcr.io/library/postgres:17
+2026-10-21T14:01:10.3814086Z   node-version: 22
+2026-10-21T14:01:10.3814545Z   check-latest: false
+2026-10-21T14:01:24.9659332Z   check-latest: false
+2026-10-21T14:02:12.0917954Z ##[group]Run npm run test:auth
+2026-10-21T14:02:12.0918185Z [36;1mnpm run test:auth[0m
+2026-10-21T14:02:12.1998473Z > rodada-web@0.1.0 test:auth
+2026-10-21T14:02:12.2912179Z # Subtest: parallel and late requests share one successful rotation
+2026-10-21T14:02:12.2948088Z # Subtest: failures release the entry and do not prevent a later successful refresh
+2026-10-21T14:02:12.3041621Z # Subtest: distinct credentials are isolated and bounded pending work is retained
+2026-10-21T14:02:12.3186766Z # Subtest: expired success rotates again rather than retaining credentials indefinitely
+2026-10-21T14:02:12.3372255Z ##[group]Run npm run test:tenant
+2026-10-21T14:02:12.3372539Z [36;1mnpm run test:tenant[0m
+2026-10-21T14:02:12.4064436Z > rodada-web@0.1.0 test:tenant
+2026-10-21T14:02:13.9895357Z # Subtest: 421 JSON POSTs preserve status and body with exactly one backend request
+2026-10-21T14:02:14.0336615Z # Subtest: successful and forbidden JSON POSTs preserve Unicode payloads
+2026-10-21T14:02:14.0813430Z # Subtest: 307 cannot replay a JSON mutation to another URL
+2026-10-21T14:02:14.0833583Z # Subtest: real connection failures remain rejected transport errors
+2026-10-21T14:02:14.1272445Z # Subtest: response streaming and caller cancellation remain intact
+2026-10-21T14:02:14.1299540Z # Subtest: an already cancelled mutation never reaches the backend
+2026-10-21T14:02:14.2145994Z # Subtest: streamed JSON retains the exact UTF8 Content-Length required by DRF
+2026-10-21T14:02:14.3729431Z # Subtest: P1 aliases preserve suffix, do not rewrite other modules and reject malformed QR
+2026-10-21T14:02:14.3731602Z # Subtest: candidate hostname is not derived from venue slug and excludes platform hosts
+2026-10-21T14:02:14.3733983Z # Subtest: tenant rewrites use internal loopback HTTP listener behind TLS proxy
+2026-10-21T14:02:14.3837111Z ##[group]Run npm run test:identity
+2026-10-21T14:02:14.3837372Z [36;1mnpm run test:identity[0m
+2026-10-21T14:02:14.4549949Z > rodada-web@0.1.0 test:identity
+2026-10-21T14:02:14.5440411Z # Subtest: two tabs sharing a table show the same physical location but distinct financial references
+2026-10-21T14:02:14.5481144Z # Subtest: a table move changes presentation without changing the tab identity
+2026-10-21T14:02:14.5483023Z # Subtest: no table, anonymous, and closed history have safe labels
+2026-10-21T14:02:27.8294557Z ##[group]Run npm run test:table-service
+2026-10-21T14:02:27.8294860Z [36;1mnpm run test:table-service[0m
+2026-10-21T14:02:27.9091124Z > rodada-web@0.1.0 test:table-service
+2026-10-21T14:02:28.6489397Z # Subtest: table-service gateway requires authentication and rejects financial paths
+2026-10-21T14:02:28.6637463Z # Subtest: tenant guard preserves authority and upstream failures before auth dispatch
+2026-10-21T14:02:28.6774300Z [36;1m  npm run test:visual -- printing.spec.ts[0m
+2026-10-21T14:02:28.9945765Z ##[group]Run npm run test:integration
+2026-10-21T14:02:28.9946029Z [36;1mnpm run test:integration[0m
+2026-10-21T14:02:29.0653951Z > rodada-web@0.1.0 test:integration
+2026-10-21T14:02:46.2006047Z   ✓    1 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 360 (4.6s)
+2026-10-21T14:02:49.2088164Z   ✓    2 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 390 (3.0s)
+2026-10-21T14:02:52.1982267Z   ✓    3 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 430 (3.0s)
+2026-10-21T14:02:55.3331840Z   ✓    4 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 1280 (3.1s)
+2026-10-21T14:02:58.9092900Z   ✓    5 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 360 (3.6s)
+2026-10-21T14:03:01.0280788Z   ✓    6 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 390 (2.1s)
+2026-10-21T14:03:03.0239073Z   ✓    7 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 430 (2.0s)
+2026-10-21T14:03:05.5498317Z   ✓    8 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 1280 (2.5s)
+2026-10-21T14:03:24.9323101Z   ✓    9 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (19.4s)
+2026-10-21T14:03:42.9603163Z   ✓   10 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (18.0s)
+2026-10-21T14:04:00.8987133Z   ✓   11 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (17.9s)
+2026-10-21T14:04:18.9383406Z   ✓   12 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (18.0s)
+2026-10-21T14:04:36.4230549Z   ✓   13 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 360 (17.4s)
+2026-10-21T14:04:53.8272663Z   ✓   14 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 390 (17.4s)
+2026-10-21T14:05:11.4162952Z   ✓   15 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 430 (17.6s)
+2026-10-21T14:05:14.2447580Z   ✓   16 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (2.8s)
+2026-10-21T14:05:15.7203755Z   ✓   17 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (1.5s)
+2026-10-21T14:05:19.9377735Z   ✓   18 tests/integration/attendance-removal.spec.ts:4:5 › Attendance cancels a confirmed unpaid item through canonical financial reversal (4.2s)
+2026-10-21T14:05:23.5014032Z   ✓   19 tests/integration/attendance-settlement-recovery.spec.ts:46:5 › Attendance lost Payment ACK reads canonical automatic settlement without another Close (3.5s)
+2026-10-21T14:05:25.6503273Z   ✓   20 tests/integration/attendance-settlement-recovery.spec.ts:66:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (2.1s)
+2026-10-21T14:05:27.8105285Z   ✓   21 tests/integration/attendance-settlement-recovery.spec.ts:93:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (2.2s)
+2026-10-21T14:05:29.5346950Z   ✓   22 tests/integration/attendance-settlement-recovery.spec.ts:117:33 › Canonical CLOSED receipt clears schema 1 without Close or another Payment (1.7s)
+2026-10-21T14:05:31.2491969Z   ✓   23 tests/integration/attendance-settlement-recovery.spec.ts:117:33 › Canonical CLOSED receipt clears schema 2 without Close or another Payment (1.7s)
+2026-10-21T14:05:33.0931420Z   ✓   24 tests/integration/attendance-settlement-recovery.spec.ts:139:51 › Confirmed receipt preserves intent on canonical CLOSED identity mismatch (1.8s)
+2026-10-21T14:05:34.9438195Z   ✓   25 tests/integration/attendance-settlement-recovery.spec.ts:139:51 › Confirmed receipt preserves intent on canonical CLOSED balance mismatch (1.8s)
+2026-10-21T14:05:38.9356793Z   ✓   26 tests/integration/attendance-settlement-recovery.spec.ts:162:42 › Attendance draft blocks a new full receipt and preserves partial lost-ACK recovery 360 (4.0s)
+2026-10-21T14:05:43.5657046Z   ✓   27 tests/integration/attendance-settlement-recovery.spec.ts:162:42 › Attendance draft blocks a new full receipt and preserves partial lost-ACK recovery 390 (4.6s)
+2026-10-21T14:05:47.6348648Z   ✓   28 tests/integration/attendance-settlement-recovery.spec.ts:162:42 › Attendance draft blocks a new full receipt and preserves partial lost-ACK recovery 430 (4.1s)
+2026-10-21T14:05:51.6344101Z   ✓   29 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 (4.0s)
+2026-10-21T14:05:54.1532762Z   ✓   30 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 (2.5s)
+2026-10-21T14:05:56.6002500Z   ✓   31 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 (2.4s)
+2026-10-21T14:05:59.0634402Z   ✓   32 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 (2.5s)
+2026-10-21T14:06:00.8761410Z   ✓   33 tests/integration/attendance-ux2-workspace.spec.ts:37:5 › UX2 real committed order lost ACK reload reconciles one intent and ledger (1.8s)
+2026-10-21T14:06:02.5255364Z   ✓   34 tests/integration/attendance-ux2-workspace.spec.ts:53:5 › UX2 real cleaning records both canonical lifecycle transitions (1.6s)
+2026-10-21T14:06:05.7009057Z   ✓   35 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (3.2s)
+2026-10-21T14:06:07.4325952Z   ✓   36 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (1.7s)
+2026-10-21T14:06:08.8232027Z   ✓   37 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (1.4s)
+2026-10-21T14:06:10.1890886Z   ✓   38 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (1.4s)
+2026-10-21T14:06:11.5767861Z   ✓   39 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (1.4s)
+2026-10-21T14:06:18.8559417Z   ✓   40 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (7.3s)
+2026-10-21T14:14:02.8564862Z   ✓  130 tests/integration/spending-limit-modes.spec.ts:14:5 › manager changes canonical policy; lost ACK reload reuses the original intent (3.6s)
+2026-10-21T14:14:04.7091660Z   ✓  131 tests/integration/spending-limit-modes.spec.ts:75:5 › cookie swap after editor session read cannot change another Venue (1.8s)
+2026-10-21T14:14:06.8457424Z   ✓  132 tests/integration/spending-limit-modes.spec.ts:115:5 › Guest uses the same WARN_ONLY ledger and labels excess without claiming a block (2.1s)
+2026-10-21T14:15:53.7353298Z   3 skipped
+2026-10-21T14:15:53.7353921Z   162 passed (13.4m)
