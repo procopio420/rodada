@@ -189,6 +189,11 @@ def test_native_apis_raw_vs_gdi_and_service_queue_enumeration(monkeypatch):
     spool.WritePrinter.assert_not_called()
     assert gui.DrawText.call_count > 2 and spool.StartPage.call_count > 1
     spool.StartDocPrinter.assert_not_called()
+    gui.DrawText.side_effect = OSError("Synthetic GDI failure")
+    with pytest.raises(OSError):
+        windows.rendered("Synthetic Queue", "Teste", 48, deadline=time.monotonic() + 55)
+    spool.AbortDoc.assert_called_once_with(1)
+    gui.DrawText.side_effect = None
     assert (
         windows.raw("Synthetic Queue", b"\x1b@Synthetic\n", deadline=time.monotonic() + 55) == "41"
     )
@@ -251,3 +256,37 @@ def test_tcp_connection_delay_past_deadline_sends_no_bytes(monkeypatch):
         delivery.submit(task, delivery.prepare(task), deadline=55).outcome == "DELIVERY_UNCERTAIN"
     )
     connection.sendall.assert_not_called()
+
+
+def test_raw_failure_aborts_open_spool_document_without_retry(monkeypatch):
+    import sys
+
+    from rodada_printer_agent.transports import NativeWindows
+
+    spool = MagicMock()
+    spool.StartDocPrinter.return_value = 41
+    spool.WritePrinter.side_effect = OSError("Synthetic spool failure")
+    monkeypatch.setitem(sys.modules, "win32print", spool)
+    task = job("WINDOWS_RAW")
+    transport = Transports(NativeWindows())
+    result = transport.submit(task, transport.prepare(task), deadline=time.monotonic() + 55)
+    assert result.outcome == "DELIVERY_UNCERTAIN"
+    spool.AbortPrinter.assert_called_once_with(spool.OpenPrinter.return_value)
+    spool.ClosePrinter.assert_called_once()
+    spool.StartDocPrinter.assert_called_once()
+
+
+def test_failed_journal_persistence_never_enters_spool():
+    store, windows = Store(), MagicMock()
+    windows.enumerate.return_value = []
+    cycle = DeliveryCycle(Transports(windows))
+
+    class Api:
+        def post(self, path, body, token=""):
+            return {"job": job()} if path == "me/claim/" else {}
+
+    store.save = MagicMock(side_effect=OSError("Synthetic disk full"))
+    with pytest.raises(OSError):
+        cycle.tick(Api(), store.state, store, True)
+    windows.rendered.assert_not_called()
+    windows.raw.assert_not_called()
