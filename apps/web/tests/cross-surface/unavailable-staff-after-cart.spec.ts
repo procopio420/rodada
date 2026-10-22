@@ -37,7 +37,6 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     await page.getByRole("dialog").getByRole("textbox").fill("E2E05 staff");
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
-  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     await addCatalogItem(page, product.name);
     await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
     await expect(dialog.getByRole("button", { name: /^Enviar / })).toBeEnabled();

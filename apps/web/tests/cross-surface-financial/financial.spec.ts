@@ -42,7 +42,7 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   expect(deliveries.map((d: { order_item_id: string }) => d.order_item_id).sort()).toEqual(readyItems.map(i => i.id).sort());
   await expect(page.locator(".dataRow").filter({ has: page.getByText("Prontos para entrega", { exact: true }) }).locator("strong")).toHaveText("7");
   await page.getByText("Ver mais das entregas (7)", { exact: true }).click();
-  await expect(page.locator("#operacao details .movement")).toHaveCount(7);
+  await expect(page.locator("#operacao details ul[aria-label=\"Entregas prontas\"] > li")).toHaveCount(7);
   await writeFile("../../artifacts/projection-browser.json", JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), database_instance_id: fixture.database_instance_id,
     venue_id: fixture.venue_id, tab_ids: projectedTabs, item_ids: readyItems.map(i => i.id), dispatch_ids: deliveries.map((d: { id: string }) => d.id),

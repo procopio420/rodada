@@ -72,7 +72,6 @@ test("revoked Web session cannot replay captured UI intent and new login require
   await page.getByRole("dialog").getByRole("textbox").fill(table.label);
   await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
   const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
-  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await addCatalogItem(page, "Android Post Drop Test Soda");
   await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
   let payload = "", target = "";
