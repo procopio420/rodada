@@ -87,7 +87,8 @@ class AttendanceMetricsTests(TestCase):
         assert first["bill_to_tab_closed"]["mean_seconds"] == 90
         assert first["bill_to_tab_closed"]["missing"] == 1
         assert first["calls"]["SERVICE_REQUEST"]["created_to_completed"]["missing"] == 1
-        assert "client_intent_started" in first["not_instrumented"]
+        assert "client_steps" in first["not_instrumented"]
+        assert "client_intent_started" not in first["not_instrumented"]
         assert str(foreign_tab.pk) not in str(first)
 
     def test_permissions_and_anonymous(self):
