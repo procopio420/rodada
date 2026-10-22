@@ -18,19 +18,29 @@ PLATFORMS = ("WEB", "ANDROID")
 
 class TelemetryInput(serializers.Serializer):
     event_id = serializers.UUIDField()
-    version = serializers.IntegerField(min_value=1, max_value=1)
+    version = serializers.IntegerField(min_value=1, max_value=2)
     platform = serializers.ChoiceField(choices=PLATFORMS)
     event = serializers.ChoiceField(choices=EVENTS)
     duration_ms = serializers.IntegerField(min_value=0, max_value=3600000, required=False)
+    intent_ref = serializers.RegexField(r"\A[a-f0-9]{64}\Z", required=False)
+    origin_session = serializers.UUIDField(required=False)
+    essential_steps = serializers.IntegerField(min_value=1, max_value=200, required=False)
 
     def to_internal_value(self, data):
-        if not isinstance(data, dict) or set(data) - {"event_id", "version", "platform", "event", "duration_ms"}:
+        if not isinstance(data, dict) or set(data) - {"event_id", "version", "platform", "event", "duration_ms", "intent_ref", "origin_session", "essential_steps"}:
             raise serializers.ValidationError({"non_field_errors": ["Unknown telemetry fields."]})
         return super().to_internal_value(data)
 
     def validate(self, data):
         if "duration_ms" in data and data["event"] != "confirm_acknowledged":
             raise serializers.ValidationError({"duration_ms": "Only confirmation can carry a duration."})
+        if "essential_steps" in data and data["event"] != "confirm_acknowledged":
+            raise serializers.ValidationError({"essential_steps": "Only confirmation can carry observed actions."})
+        if data["version"] == 2:
+            if "intent_ref" not in data or "origin_session" not in data:
+                raise serializers.ValidationError({"non_field_errors": ["v2 requires hashed intent and original session."]})
+        elif any(key in data for key in ("intent_ref", "origin_session", "essential_steps")):
+            raise serializers.ValidationError({"version": "v1 cannot carry v2 dimensions."})
         return data
 
 class AttendanceTelemetryThrottle(SimpleRateThrottle):
@@ -53,11 +63,15 @@ class AttendanceTelemetryIngestView(APIView):
         payload.is_valid(raise_exception=True)
         data = payload.validated_data
         venue = request.auth.venue
+        if data["version"] == 2 and str(data["origin_session"]) != str(request.auth.pk):
+            return Response({"code": "TELEMETRY_SESSION_CHANGED"}, status=403)
         fingerprint = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
         with transaction.atomic():
             try:
                 with transaction.atomic():
-                    AttendanceTelemetryReceipt.objects.create(id=data["event_id"], venue=venue, fingerprint=fingerprint)
+                    AttendanceTelemetryReceipt.objects.create(
+                        id=data["event_id"], venue=venue, fingerprint=fingerprint,
+                        intent_ref=data.get("intent_ref", ""))
             except IntegrityError:
                 receipt = AttendanceTelemetryReceipt.objects.filter(pk=data["event_id"], venue=venue).first()
                 if receipt is not None and receipt.fingerprint == fingerprint:
@@ -67,8 +81,11 @@ class AttendanceTelemetryIngestView(APIView):
                 venue=venue, business_date=business_date(venue), platform=data["platform"],
                 event=data["event"])
             duration = data.get("duration_ms")
+            steps = data.get("essential_steps")
             AttendanceTelemetryDaily.objects.filter(pk=row.pk).update(
                 count=F("count") + 1,
                 duration_total_ms=F("duration_total_ms") + (duration or 0),
-                duration_observed=F("duration_observed") + int(duration is not None))
+                duration_observed=F("duration_observed") + int(duration is not None),
+                essential_steps_total=F("essential_steps_total") + (steps or 0),
+                essential_steps_observed=F("essential_steps_observed") + int(steps is not None))
         return Response({"accepted": True, "duplicate": False}, status=202)
