@@ -7,6 +7,7 @@ test("UX2 emits same opaque intent hash and observed cart actions without leakin
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   const session = await page.evaluate(async () => {
     const response = await fetch("/api/auth/me");
     if (!response.ok) throw new Error("Missing staff session");
