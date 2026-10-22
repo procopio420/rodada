@@ -82,6 +82,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
     sending.current = true; setBusy(true);
     const startedAt = performance.now();
     recordIntentMetric("attempt");
+    if (!intentRef.current) sendIntentMetric("intent_started");
     sendIntentMetric("confirm_attempted");
     const recovering = !!intentRef.current;
     if (recovering) { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered"); }
