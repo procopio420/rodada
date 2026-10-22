@@ -137,3 +137,22 @@ test("UX2 payment form retains an exit after a concurrent canonical close",async
  await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-pay-race"]').click();await page.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});await receipt.getByRole("button",{name:/^Receber R/}).click();
  tab.state="CLOSED";tab.exposure_cents=0;tab.version++;await page.clock.runFor(16000);await expect(receipt.getByText(/A comanda não está aberta para recebimento/)).toBeVisible();await expect(receipt.getByRole("button",{name:"Registrar recebimento",exact:true})).toBeDisabled();await receipt.getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Conta encerrada.",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Marina",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Mesa 08",exact:true})).toBeVisible();await page.locator(".ux2TablePage").getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("button",{name:"Mesas",exact:true})).toBeEnabled();expect(mutations).toBe(0);
 });
+
+for (const width of [360, 390, 430, 1280]) test(`UX2 keyboard navigation and enlarged text remain usable at ${width}px`, async ({ page }) => {
+ await page.setViewportSize({ width, height: 844 });
+ await fixture(page, "normal", true);
+ await page.goto("/attendance");
+ await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+ const now = page.getByRole("button", { name: "Agora", exact: true });
+ const tables = page.getByRole("button", { name: "Mesas", exact: true });
+ await expect(now).toBeVisible();
+ await expect(tables).toBeVisible();
+ await now.focus();
+ await page.keyboard.press("Tab");
+ await expect(page.locator(":focus-visible")).toHaveCount(1);
+ await tables.focus();
+ await page.keyboard.press("Enter");
+ await expect(page.getByLabel("Buscar mesa ou comanda")).toBeVisible();
+ await layoutAndA11y(page);
+ await page.screenshot({ path: `visual-artifacts/033/ux2-font200-keyboard-${width}.png`, fullPage: true });
+});
