@@ -36,7 +36,7 @@
 - [ ] AC-21 Falha de rede e de readback, repetição idempotente, troca de operador, revogação e app morto passam em Web/Android real.
 - [ ] AC-22 Screenshots 360/390/430/desktop, fonte ampliada, TalkBack/foco/teclado e teste de toque mostram CTA sem scroll desnecessário e sem overlap.
 - [ ] AC-23 Observabilidade da UX 2.0 mede passos essenciais, tempo intenção→produção, erros/recuperações e disponibilidade de mesas, sem exigir comparação com UX anterior nem gerar trabalho extra ao garçom.
-- [ ] AC-24 CI, revisão independente R3, feature rollout por Venue/role e rollback comprovado; nenhum P0/P1 aberto; aceite humano do operador/piloto antes do GO.
+- [ ] AC-24 CI, revisão independente R3, políticas canônicas por Venue/role e reversão técnica de release comprovadas; nenhum P0/P1 aberto; aceite humano do operador/piloto antes do GO. UX 2.0 é a experiência padrão, sem retorno à UX legada.
 
 **GO global exige AC-01..24 PASS e dependências críticas aceitas.** É permitido liberar cortes menores sem declararem “Atendimento 2.0 concluído”, desde que gates próprios de cada slice estejam satisfeitos.
 
