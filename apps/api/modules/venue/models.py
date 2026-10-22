@@ -115,6 +115,7 @@ class VenueDomain(models.Model):
         return super().save(*args, **kwargs)
 
 class AttendanceTelemetryDaily(models.Model):
+    id = models.BigAutoField(primary_key=True)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     business_date = models.DateField()
     platform = models.CharField(max_length=8)
