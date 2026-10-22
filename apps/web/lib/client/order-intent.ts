@@ -5,13 +5,18 @@ import { apiCall, asApiError, type StaffSessionView } from "./staff-auth";
 
 const storageKey = "rodada.intent.staff-order.v1";
 
-// Fire-and-forget operational telemetry; order confirmation must not wait for metrics.
+// Best-effort telemetry never owns an order or refreshes financial authentication.
+let telemetryInFlight = 0;
 function sendIntentMetric(event: "intent_started" | "confirm_attempted" | "confirm_failed" | "confirm_recovered" | "confirm_acknowledged", durationMs?: number) {
   try {
+    if (telemetryInFlight >= 8) return;
     const payload = { version: 1, event_id: crypto.randomUUID(), platform: "WEB", event,
       ...(durationMs === undefined ? {} : { duration_ms: Math.max(0, Math.min(3600000, Math.round(durationMs))) }) };
-    void apiCall("/api/pos/attendance/telemetry/", { method: "POST", body: JSON.stringify(payload) }).catch(() => {});
-  } catch { /* Telemetry never affects payment or ordering. */ }
+    telemetryInFlight++;
+    void fetch("/api/attendance-telemetry", { method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(1500) }).catch(() => {}).finally(() => { telemetryInFlight--; });
+  } catch { /* Optional diagnostics cannot interrupt confirmation. */ }
 }
 
 type IntentMetric = "attempt" | "failure" | "recovery" | "confirmed";
@@ -59,7 +64,7 @@ function assertSaved(i: Intent) {
   if (sessionStorage.getItem(storageKey) !== JSON.stringify(i)) throw new Error("Order envelope changed");
 }
 
-export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>) {
+export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>, observeUx2 = false) {
   const [ready, setReady] = useState(false), [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intentRef = useRef<Intent | null>(null), sending = useRef(false);
@@ -81,11 +86,9 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
     const startedAt = performance.now();
-    recordIntentMetric("attempt");
-    if (!intentRef.current) sendIntentMetric("intent_started");
-    sendIntentMetric("confirm_attempted");
+    if (observeUx2) recordIntentMetric("attempt");
     const recovering = !!intentRef.current;
-    if (recovering) { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered"); }
+    let attempted = false;
     try {
       const auth = await apiCall<StaffSessionView>("/api/auth/me");
       if (!auth.response.ok || !auth.body || !("session" in auth.body)) {
@@ -104,9 +107,15 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
         intentRef.current = i; setPending(i);
       }
       assertSaved(i);
+      if (observeUx2) {
+        if (!recovering) sendIntentMetric("intent_started");
+        else { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered"); }
+        sendIntentMetric("confirm_attempted");
+      }
+      attempted = true;
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
-        recordIntentMetric("failure"); sendIntentMetric("confirm_failed");
+        if (observeUx2) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed"); }
         const error = asApiError(result.body);
         if (!recovering && [400, 409].includes(result.response.status) && initialRejections.has(error.code)) {
           assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
@@ -116,10 +125,12 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
       if (!result.body || !("id" in result.body) || !result.body.id || result.body.tab_id !== i.tab) throw new Error("Missing canonical order");
       const applyConfirmed = await onConfirmed(i.tab, result.body.id, i.schema === 2 ? "repeat" : "draft");
       assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
-      applyConfirmed(); recordIntentMetric("confirmed", performance.now() - startedAt);
-      sendIntentMetric("confirm_acknowledged", performance.now() - startedAt); setMessage("");
+      applyConfirmed();
+      if (observeUx2) { recordIntentMetric("confirmed", performance.now() - startedAt);
+        sendIntentMetric("confirm_acknowledged", performance.now() - startedAt); }
+      setMessage("");
     } catch {
-      recordIntentMetric("failure"); sendIntentMetric("confirm_failed");
+      if (observeUx2 && attempted) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed"); }
       setMessage(intentRef.current ? "Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro."
         : "Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.");
       if (!intentRef.current) setReady(false);
