@@ -8,7 +8,7 @@ from modules.venue.calendar import business_boundary
 
 def _bucket(source):
     return {"source": source, "eligible": 0, "observed": 0, "missing": 0,
-            "invalid": 0, "unverified": 0, "mean_seconds": None, "_seconds": 0.0}
+            "invalid": 0, "unverified": 0, "mean_seconds": None, "_seconds": 0.0, "_samples": []}
 
 
 def _observe(bucket, start, end, *, verified=True):
@@ -21,7 +21,9 @@ def _observe(bucket, start, end, *, verified=True):
         bucket["invalid"] += 1
     else:
         bucket["observed"] += 1
-        bucket["_seconds"] += (end - start).total_seconds()
+        seconds = (end - start).total_seconds()
+        bucket["_seconds"] += seconds
+        bucket["_samples"].append(seconds)
 
 
 def attendance_metrics(*, venue, start, end):
@@ -66,6 +68,9 @@ def attendance_metrics(*, venue, start, end):
         buckets.extend(group.values())
     for bucket in buckets:
         total = bucket.pop("_seconds")
+        samples = sorted(bucket.pop("_samples"))
+        bucket["p50_seconds"] = round(samples[(len(samples) - 1) // 2], 3) if samples else None
+        bucket["p95_seconds"] = round(samples[max(0, (95 * len(samples) + 99) // 100 - 1)], 3) if samples else None
         if bucket["observed"]:
             bucket["mean_seconds"] = round(total / bucket["observed"], 3)
     return {"start": start, "end": end, "timezone": venue.timezone,
