@@ -1,9 +1,6 @@
 """Privacy-minimal, bounded-schema UX2 telemetry ingestion."""
-import uuid
-from datetime import timedelta
 from django.db import IntegrityError, transaction
 from django.db.models import F
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,6 +19,11 @@ class TelemetryInput(serializers.Serializer):
     platform = serializers.ChoiceField(choices=PLATFORMS)
     event = serializers.ChoiceField(choices=EVENTS)
     duration_ms = serializers.IntegerField(min_value=0, max_value=3600000, required=False)
+
+    def to_internal_value(self, data):
+        if not isinstance(data, dict) or set(data) - {"event_id", "version", "platform", "event", "duration_ms"}:
+            raise serializers.ValidationError("Unknown telemetry fields.")
+        return super().to_internal_value(data)
 
     def validate(self, data):
         if "duration_ms" in data and data["event"] != "confirm_acknowledged":
