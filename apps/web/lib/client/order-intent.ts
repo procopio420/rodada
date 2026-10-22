@@ -10,7 +10,7 @@ function sendIntentMetric(event: "intent_started" | "confirm_attempted" | "confi
   try {
     const payload = { version: 1, event_id: crypto.randomUUID(), platform: "WEB", event,
       ...(durationMs === undefined ? {} : { duration_ms: Math.max(0, Math.min(3600000, Math.round(durationMs))) }) };
-    void apiCall("/attendance/telemetry/", { method: "POST", body: JSON.stringify(payload) }).catch(() => {});
+    void apiCall("/api/pos/attendance/telemetry/", { method: "POST", body: JSON.stringify(payload) }).catch(() => {});
   } catch { /* Telemetry never affects payment or ordering. */ }
 }
 
