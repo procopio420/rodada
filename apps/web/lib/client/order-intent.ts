@@ -5,6 +5,28 @@ import { apiCall, asApiError, type StaffSessionView } from "./staff-auth";
 
 const storageKey = "rodada.intent.staff-order.v1";
 
+type IntentMetric = "attempt" | "failure" | "recovery" | "confirmed";
+const metricsKey = "rodada.ux2.order-intent-metrics.v1";
+function recordIntentMetric(kind: IntentMetric, durationMs?: number) {
+  try {
+    const raw = sessionStorage.getItem(metricsKey);
+    const previous = raw ? JSON.parse(raw) as Record<string, number> : {};
+    const next = { attempts: previous.attempts || 0, failures: previous.failures || 0,
+      recoveries: previous.recoveries || 0, confirmed: previous.confirmed || 0,
+      total_confirm_duration_ms: previous.total_confirm_duration_ms || 0 };
+    if (kind === "attempt") next.attempts++;
+    if (kind === "failure") next.failures++;
+    if (kind === "recovery") next.recoveries++;
+    if (kind === "confirmed") {
+      next.confirmed++;
+      if (durationMs !== undefined && Number.isFinite(durationMs) && durationMs >= 0)
+        next.total_confirm_duration_ms += Math.round(durationMs);
+    }
+    sessionStorage.setItem(metricsKey, JSON.stringify(next));
+  } catch { /* Diagnostics must never block an order. */ }
+}
+
+
 // AC-23: session-local diagnostic counters. Never include staff, tab or order identifiers.
 type IntentMetric = "attempt" | "failure" | "recovery" | "confirmed";
 const metricsKey = "rodada.ux2.order-intent-metrics.v1";
