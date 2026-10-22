@@ -22,7 +22,7 @@ class TelemetryInput(serializers.Serializer):
 
     def to_internal_value(self, data):
         if not isinstance(data, dict) or set(data) - {"event_id", "version", "platform", "event", "duration_ms"}:
-            raise serializers.ValidationError("Unknown telemetry fields.")
+            raise serializers.ValidationError({"non_field_errors": ["Unknown telemetry fields."]})
         return super().to_internal_value(data)
 
     def validate(self, data):
