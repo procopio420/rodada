@@ -620,7 +620,8 @@ class OperationsViewModel(
         val product = state.products.firstOrNull { it.id == line.product.id }
         if (delta > 0 && (product == null || !product.active || product.availability != "AVAILABLE")) return
         val next = changeDraftQuantity(state.cart, lineId, delta)
-        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.") else state.copy(cart = next)
+        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.")
+            else { if (next != state.cart) recordCartAction(); state.copy(cart = next) }
     }
 
     /**
