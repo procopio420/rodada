@@ -1,9 +1,11 @@
 """Aggregate canonical observations, never infer client intent or delivery."""
 from datetime import timedelta
+from django.db.models import Sum
 
 from modules.dispatch.models import DispatchTask, DispatchTaskType
 from modules.ordering.models import OrderItem, OrderStatus
 from modules.venue.calendar import business_boundary
+from modules.venue.models import AttendanceTelemetryDaily
 
 
 def _bucket(source):
@@ -68,7 +70,8 @@ def attendance_metrics(*, venue, start, end):
         total = bucket.pop("_seconds")
         if bucket["observed"]:
             bucket["mean_seconds"] = round(total / bucket["observed"], 3)
-    return {"start": start, "end": end, "timezone": venue.timezone,
+    client_telemetry = list(AttendanceTelemetryDaily.objects.filter(venue=venue, business_date__gte=start, business_date__lte=end).values("platform", "event").annotate(count_total=Sum("count"), duration_total_ms=__import__("django").db.models.Sum("duration_total_ms"), duration_observed=__import__("django").db.models.Sum("duration_observed")).order_by("platform", "event"))
+    return {"client_telemetry": client_telemetry, "start": start, "end": end, "timezone": venue.timezone,
         "cutoff_hour": venue.business_day_cutoff_hour,
         "cohort": "Order.confirmed_at / DispatchTask.created_at; final timestamps may follow period",
         "production": production, "calls": calls, "manual_delivery": delivery,
