@@ -125,10 +125,9 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
       }
       assertSaved(i);
       const metricOrigin = { key: i.payload.idempotency_key, session: i.session };
-      const actionCount = !recovering
-        ? observedOrderActions?.current.tabId === i.tab
-          ? Math.min(200, observedOrderActions.current.count + 1)
-          : 1
+      const actionCount = !recovering && observedOrderActions?.current.tabId === i.tab
+        && observedOrderActions.current.count > 0
+        ? Math.min(200, observedOrderActions.current.count + 1)
         : undefined;
       if (observeUx2) {
         if (!recovering) sendIntentMetric("intent_started", metricOrigin);
