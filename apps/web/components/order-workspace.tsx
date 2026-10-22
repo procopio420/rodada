@@ -151,7 +151,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
       setSuccess("Pedido confirmado."); setMessage(""); setDraftFeedback("");
       if (presentation === "ux2") setDialogView("tab");
     };
-  });
+  }, presentation === "ux2");
   useEffect(() => {
     if (presentation !== "ux2" || !orderIntent.pending || selected?.id === orderIntent.pending.tab) return;
     let active = true;
