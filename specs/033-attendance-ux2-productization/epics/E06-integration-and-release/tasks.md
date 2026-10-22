@@ -11,7 +11,7 @@
 - [ ] **E06-07 Instrumentação:** métricas reais de intenção→produção, passos, erro, duplicações e giro; provenance/retention e ausência de taps adicionais.
 - [ ] **E06-08 Review:** reviewer independente R3 em endpoints/ledger e security; fixes P0/P1, checks repo branch protection, evidências de versão e logs.
 - [ ] **E06-09 Piloto:** rehearsal com operador/bar, registrar feedback de gargalos; definir GO/NO-GO assinado, rollback e observação inicial pós-release.
-- [ ] **E06-10 Release:** habilitar por Venue/role com flags e kill switch de UX. Reversão não pode apagar pedidos nem mover versões de Tab; documentação e screenshots finais após deploy.
+- [ ] **E06-10 Release:** UX 2.0 é padrão único, sem flag para UX antiga. Validar políticas de domínio/capabilities por Venue/role e plano de reversão técnica de deploy/migrações sem apagar pedidos, alterar ledger ou mover versões de Tab; documentação e evidência final somente após release autorizado.
 
 **Gate:** AC-20..24 PASS + todas AC-01..19 aplicáveis PASS; execução real exige autorização de merge/deploy separada. Capturas do protótipo não contam como validação integrada.
 
