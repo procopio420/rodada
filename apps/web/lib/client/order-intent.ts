@@ -102,8 +102,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
   async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos", origin: "draft" | "repeat" = "draft") {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
-    const startedAt = performance.now();
-    if (observeUx2) recordIntentMetric("attempt");
+    let startedAt = 0;
     const recovering = !!intentRef.current;
     let attempted = false;
     try {
@@ -133,8 +132,10 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
         if (!recovering) sendIntentMetric("intent_started", metricOrigin);
         else { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered", metricOrigin); }
         sendIntentMetric("confirm_attempted", metricOrigin);
+        recordIntentMetric("attempt");
       }
       attempted = true;
+      startedAt = performance.now();
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
         if (observeUx2) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed", metricOrigin); }
