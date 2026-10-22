@@ -14,7 +14,7 @@ class OperationsHttpClient(baseUrl: String) {
             .put("event_id", java.util.UUID.randomUUID().toString())
             .put("platform", "ANDROID").put("event", event)
         if (durationMs != null) body.put("duration_ms", durationMs.coerceIn(0, 3600000))
-        request("POST", "/attendance/telemetry/", body, accessToken)
+        request("POST", "/attendance/telemetry/", body, accessToken, followRedirects = false, timeoutMs = 750)
     }
 
     fun tabs(accessToken: String, includeClosed: Boolean = false, currentNight: Boolean = false): List<TabSummary> {
@@ -361,12 +361,15 @@ class OperationsHttpClient(baseUrl: String) {
         path: String,
         body: JSONObject? = null,
         accessToken: String,
+        followRedirects: Boolean = true,
+        timeoutMs: Int = 10_000,
     ): JSONObject {
         val connection = URL(baseUrl + path).openConnection() as HttpURLConnection
         try {
             connection.requestMethod = method
-            connection.connectTimeout = 10_000
-            connection.readTimeout = 10_000
+            connection.instanceFollowRedirects = followRedirects
+            connection.connectTimeout = timeoutMs
+            connection.readTimeout = timeoutMs
             connection.setRequestProperty("Accept", "application/json")
             connection.setRequestProperty("Authorization", "Bearer $accessToken")
             com.rodada.attendance.auth.OriginatingSessionContext.id.get()?.takeIf { it.isNotBlank() }?.let {
