@@ -164,10 +164,10 @@ O PASS automatizado cobre o cenário de resposta perdida após commit, reinício
 
 ### Backlog técnico da Fase A (ordem de implementação)
 
-1. **AC-24 / E06-10:** flag de apresentação UX033 por Venue/role independente de `table_service_enabled`; provar rollout e rollback preservando drafts/identidade/ledger; regressões API/Web/Android.
+1. **AC-17/18 / Spec031:** UX 2.0 é padrão único para todos os tenants, sem flag de apresentação ou rollback para UX antiga. Validar política canônica de limite `WARN_ONLY`/`ENFORCE` configurável por tenant, com autorização do backend, auditoria e paridade Web/Android. Não confundir com `table_service_enabled`.
 2. **AC-23 / E06-07:** eventos de intenção e conclusão, contagem de passos/erros/duplicações, métricas antes/depois sem tap extra e sem misturar dados sintéticos a observações reais.
 3. **AC-20/21:** anexar recibos do PR300 à matriz por SHA e testar no mesmo candidato as lacunas restantes de identidade, sessão, readback e recuperação nativa; manter corte físico separado.
 4. **AC-22:** completar matriz visual pareada, fonte ampliada, foco/teclado; deixar TalkBack/toque físico explicitamente para Fase B.
-5. **AC-24:** revisão independente autenticada e pacote GO/NO-GO com evidências verificáveis, sem declarar homologação antecipada.
+5. **AC-24:** revisão independente autenticada e pacote GO/NO-GO com evidências verificáveis, sem declarar homologação antecipada. O gate de rollout/rollback da UX antiga fica **não aplicável ao produto brownfield**; preservar somente planos de reversão técnica de deploy/migração, quando necessários.
 
 **Decisão permanece NO-GO global.** Não houve deploy de produção nem homologação física.
