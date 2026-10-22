@@ -3,7 +3,7 @@ import uuid
 from django.test import TestCase
 from rest_framework.test import APIClient
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
-from modules.venue.models import Venue, AttendanceTelemetryDaily
+from modules.venue.models import Venue, AttendanceTelemetryDaily, AttendanceTelemetryReceipt
 
 class AttendanceTelemetryTests(TestCase):
     def setUp(self):
@@ -34,3 +34,33 @@ class AttendanceTelemetryTests(TestCase):
         payload = {"version": 1, "event_id": str(uuid.uuid4()), "platform": "WEB",
             "event": "confirm_failed", "duration_ms": 100, "staff_id": "secret"}
         self.assertEqual(self.client.post("/attendance/telemetry/", payload, format="json").status_code, 400)
+
+    def test_replayed_uuid_with_different_payload_is_a_conflict(self):
+        event_id = str(uuid.uuid4())
+        first = {"version": 1, "event_id": event_id, "platform": "WEB",
+            "event": "confirm_attempted"}
+        self.assertEqual(self.client.post("/attendance/telemetry/", first, format="json").status_code, 202)
+        different = {**first, "event": "confirm_failed"}
+        self.assertEqual(self.client.post("/attendance/telemetry/", different, format="json").status_code, 409)
+        self.assertEqual(AttendanceTelemetryDaily.objects.filter(venue=self.venue).count(), 1)
+        self.assertEqual(AttendanceTelemetryDaily.objects.get(venue=self.venue).count, 1)
+
+    def test_foreign_uuid_is_never_treated_as_local_replay(self):
+        other = Venue.objects.create(name="Other telemetry", slug="telemetry-foreign")
+        event_id = uuid.uuid4()
+        AttendanceTelemetryReceipt.objects.create(
+            id=event_id, venue=other, fingerprint="a" * 64)
+        payload = {"version": 1, "event_id": str(event_id), "platform": "ANDROID",
+            "event": "confirm_attempted"}
+        self.assertEqual(self.client.post("/attendance/telemetry/", payload, format="json").status_code, 409)
+        self.assertFalse(AttendanceTelemetryDaily.objects.filter(venue=self.venue).exists())
+
+    def test_denies_large_payload_and_unauthenticated_requests(self):
+        oversized = self.client.generic("POST", "/attendance/telemetry/", b" " * 8193,
+            content_type="application/json")
+        self.assertEqual(oversized.status_code, 413)
+        self.client.credentials()
+        payload = {"version": 1, "event_id": str(uuid.uuid4()), "platform": "WEB",
+            "event": "confirm_attempted"}
+        self.assertEqual(self.client.post("/attendance/telemetry/", payload, format="json").status_code, 401)
+        self.assertFalse(AttendanceTelemetryDaily.objects.filter(venue=self.venue).exists())

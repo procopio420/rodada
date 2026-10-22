@@ -130,5 +130,6 @@ class AttendanceTelemetryDaily(models.Model):
 
 class AttendanceTelemetryReceipt(models.Model):
     id = models.UUIDField(primary_key=True)
+    fingerprint = models.CharField(max_length=64, default="")
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     received_at = models.DateTimeField(auto_now_add=True, db_index=True)
