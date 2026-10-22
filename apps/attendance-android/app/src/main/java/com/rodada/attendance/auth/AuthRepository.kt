@@ -12,6 +12,14 @@ class AuthRepository internal constructor(context: Context, private val client: 
     private val installationIdStore = InstallationIdStore(appContext)
     private val rotationLock = Any()
 
+    /** Telemetry is best-effort and must never rotate or clear a financial session. */
+    internal fun observationAccessToken(session: StoredSession): String? {
+        val current = secureStore.load() ?: return null
+        if (current.venueId != session.venueId || current.staffId != session.staffId ||
+            current.deviceId != session.deviceId || current.sessionId != session.sessionId) return null
+        return current.tokens.accessToken
+    }
+
     suspend fun restoreSession(): StoredSession? =
         withContext(Dispatchers.IO) {
             val stored = secureStore.load() ?: return@withContext null
