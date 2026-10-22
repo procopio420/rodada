@@ -24,8 +24,7 @@ Tab CLOSED→release de mesa multi-Tab por relação corrente; relatório de gir
 existente continua canônico para limpeza/disponibilidade.
 
 Fontes não instrumentadas são explícitas: passos, início da intenção, tentativas,
-erros de cliente e versão da apresentação. Este slice não fecha AC23, não mede
-antes/depois e não substitui instrumentação Web/Compose nem piloto.
+erros de cliente e versão da apresentação. Este slice não fecha AC23, não exige baseline de UX anterior e não substitui instrumentação Web/Compose nem piloto.
 
 Aceite da slice: permissões/anon/duas Venues, limites de período/cutoff, estação
 snapshot, missing/invalid/provenance, leitura repetida sem mutation e SQL sem N+1.
