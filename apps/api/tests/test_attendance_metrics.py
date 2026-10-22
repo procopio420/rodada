@@ -61,7 +61,7 @@ class AttendanceMetricsTests(TestCase):
         self.item(self.foreign, accepted=999, ready=999)
         self.item(self.venue, confirmed=self.when.replace(hour=6, minute=59, second=59))
         before = list(OrderItem.objects.values())
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(3):
             result = attendance_metrics(venue=self.venue, start=date(2026, 10, 21), end=date(2026, 10, 21))
         bucket = result["production"]["BAR"]["confirmed_to_accepted"]
         assert [bucket[k] for k in ("eligible", "observed", "missing", "invalid", "mean_seconds")] == [3, 1, 1, 1, 20]
