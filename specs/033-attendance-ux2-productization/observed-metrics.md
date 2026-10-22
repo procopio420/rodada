@@ -28,3 +28,15 @@ erros de cliente e versão da apresentação. Este slice não fecha AC23, não e
 
 Aceite da slice: permissões/anon/duas Venues, limites de período/cutoff, estação
 snapshot, missing/invalid/provenance, leitura repetida sem mutation e SQL sem N+1.
+
+## AC-23 — contrato de instrumentação de intenção (pendente de implementação)
+
+- Coorte: intenção de confirmar pedido, iniciada na ação do operador; não inferir esse instante de `Order.confirmed_at`.
+- Web e Android emitem o mesmo contrato versionado: `intent_started`, `confirm_attempted`, `confirm_failed`, `confirm_recovered` e `confirm_acknowledged`.
+- Correlação por identificador opaco da intenção, estável durante recuperação e idempotência; não enviar nome, ID de funcionário, conteúdo do pedido ou payload de pagamento para telemetria.
+- Contar passos essenciais apenas nos fluxos efetivamente instrumentados; nunca derivar passos a partir de pedidos confirmados.
+- Duração intenção→confirmação somente quando os dois marcos são observados na mesma intenção; usar relógio monotônico para duração no cliente, com indicação de amostras ausentes após reinício.
+- Backend valida schema, autenticação, venue do token, limites e deduplicação; persistência agregada por venue/período, sem trilha individual de operador; rejeitar valores arbitrários e cardinalidade ilimitada.
+- Expor denominadores (eligible/observed/missing), tentativas, erros, recuperações e disponibilidade de mesas com definição verificável; separar observações canônicas das observações do cliente.
+- Testes obrigatórios: Web, Android, API, tenant isolation, duplicatas/retry, desconexão/restart, dados ausentes e balcão-only.
+- Não fechar AC-23 com este contrato: somente após implementação, testes e evidências no mesmo SHA.
