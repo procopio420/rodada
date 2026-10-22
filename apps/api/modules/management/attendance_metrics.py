@@ -96,4 +96,4 @@ def attendance_metrics(*, venue, start, end):
         "cohort": "Order.confirmed_at / DispatchTask.created_at; final timestamps may follow period",
         "production": production, "calls": calls, "manual_delivery": delivery,
         "bill_to_tab_closed": bill_close,
-        "not_instrumented": ["full_navigation_step_path", "production_screen_received", "intent_to_production_screen_received"]}
+        "not_instrumented": ["client_steps", "full_navigation_step_path", "production_screen_received", "intent_to_production_screen_received"]}
