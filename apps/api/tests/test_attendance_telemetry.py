@@ -1,9 +1,11 @@
 """Spec033 client telemetry: authenticated tenant isolation and replay safety."""
 import uuid
+import hashlib
 from django.test import TestCase
 from rest_framework.test import APIClient
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.venue.models import Venue, AttendanceTelemetryDaily, AttendanceTelemetryReceipt
+from modules.venue.calendar import business_date
 
 class AttendanceTelemetryTests(TestCase):
     def setUp(self):
@@ -18,6 +20,7 @@ class AttendanceTelemetryTests(TestCase):
             "installation_id": "telemetry-test", "platform": "WEB"}, format="json")
         self.assertEqual(login.status_code, 200)
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        self.session_id = self.client.get("/auth/me/").json()["session"]["id"]
 
     def test_replay_is_idempotent_and_report_is_aggregated(self):
         payload = {"version": 1, "event_id": str(uuid.uuid4()), "platform": "WEB",
@@ -63,4 +66,54 @@ class AttendanceTelemetryTests(TestCase):
         payload = {"version": 1, "event_id": str(uuid.uuid4()), "platform": "WEB",
             "event": "confirm_attempted"}
         self.assertEqual(self.client.post("/attendance/telemetry/", payload, format="json").status_code, 401)
+        self.assertFalse(AttendanceTelemetryDaily.objects.filter(venue=self.venue).exists())
+
+    def v2(self, event="confirm_acknowledged", **fields):
+        return {"version": 2, "event_id": str(uuid.uuid4()), "platform": "WEB",
+            "event": event, "origin_session": self.session_id,
+            "intent_ref": hashlib.sha256(b"independent-random-order-key").hexdigest(), **fields}
+
+    def test_v2_correlates_only_by_ephemeral_hash_and_reports_observed_steps(self):
+        started = self.v2("intent_started")
+        acknowledged = self.v2(essential_steps=4, duration_ms=1500)
+        self.assertEqual(self.client.post("/attendance/telemetry/", started, format="json").status_code, 202)
+        self.assertEqual(self.client.post("/attendance/telemetry/", acknowledged, format="json").status_code, 202)
+        self.assertEqual(self.client.post("/attendance/telemetry/", acknowledged, format="json").status_code, 200)
+        receipts = list(AttendanceTelemetryReceipt.objects.values("intent_ref"))
+        self.assertEqual({row["intent_ref"] for row in receipts}, {started["intent_ref"]})
+        totals = AttendanceTelemetryDaily.objects.get(venue=self.venue, event="confirm_acknowledged")
+        self.assertEqual((totals.count, totals.essential_steps_total, totals.essential_steps_observed,
+            totals.duration_total_ms, totals.duration_observed), (1, 4, 1, 1500, 1))
+        today = business_date(self.venue)
+        response = self.client.get("/management/attendance-metrics/", {"start": today.isoformat(), "end": today.isoformat()})
+        self.assertEqual(response.status_code, 200)
+        results = response.json()["client_telemetry"]
+        confirmed = next(x for x in results if x["event"] == "confirm_acknowledged")
+        self.assertEqual(confirmed["essential_steps_eligible"], 1)
+        self.assertEqual(confirmed["essential_steps_missing"], 0)
+        self.assertEqual(confirmed["mean_essential_steps"], 4.0)
+        self.assertNotIn("intent_ref", str(results))
+        self.assertNotIn("origin_session", str(results))
+
+    def test_missing_step_count_is_coverage_not_a_zero(self):
+        self.assertEqual(self.client.post("/attendance/telemetry/", self.v2(duration_ms=500), format="json").status_code, 202)
+        today = business_date(self.venue)
+        response = self.client.get("/management/attendance-metrics/", {"start": today.isoformat(), "end": today.isoformat()})
+        self.assertEqual(response.status_code, 200)
+        confirmed = next(x for x in response.json()["client_telemetry"] if x["event"] == "confirm_acknowledged")
+        self.assertEqual((confirmed["essential_steps_eligible"], confirmed["essential_steps_observed"],
+            confirmed["essential_steps_missing"], confirmed["mean_essential_steps"]), (1, 0, 1, None))
+
+    def test_v2_is_session_scoped_and_schema_bounded(self):
+        for data in [
+            self.v2(origin_session=str(uuid.uuid4())),
+            self.v2(intent_ref="original-order-id"),
+            self.v2(essential_steps=201),
+            self.v2("confirm_attempted", essential_steps=2),
+            {k: v for k, v in self.v2().items() if k != "intent_ref"},
+            {**self.v2(), "staff_id": "PII"},
+            {**self.v2(), "version": 1},
+        ]:
+            response = self.client.post("/attendance/telemetry/", data, format="json")
+            self.assertEqual(response.status_code, 403 if data.get("origin_session") != self.session_id else 400, data)
         self.assertFalse(AttendanceTelemetryDaily.objects.filter(venue=self.venue).exists())
