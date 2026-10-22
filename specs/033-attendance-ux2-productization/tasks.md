@@ -52,7 +52,7 @@
 - [ ] E06-03 Capturas 360/390/430 + S24-class/desktop, fonte ampliada, teclado, TalkBack.
 - [ ] E06-04 Ensaiar turno vazio/normal/pico com timeout, session swap e dispositivo reiniciado.
 - [ ] E06-05 Instrumentar métricas de fricção e erro sem exigir taps artificiais.
-- [ ] E06-06 Revisão independente R3, flags Venue/role, rollback, GO/NO-GO e homologação do bar.
+- [ ] E06-06 Revisão independente R3, políticas canônicas por Venue/role, reversão técnica de release, GO/NO-GO e homologação do bar.
 
 A checklist de cada epic decompõe essas tarefas em subtarefas e oferece aceites objetivos. Não marcar concluídas sem teste no mesmo SHA e evidência revisável.
 
