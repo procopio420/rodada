@@ -121,33 +121,29 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 
-    suspend fun sendAttendanceTelemetry(session: StoredSession, event: String, durationMs: Long? = null) =
-        authRepository.withAuthorizedAccess(session) { client.sendAttendanceTelemetry(it, event, durationMs) }
+    private val telemetrySlots = java.util.concurrent.Semaphore(8)
+
+    /** Passive telemetry never refreshes auth, retries a sale or delays canonical readback. */
+    fun recordAttendanceTelemetry(session: StoredSession, event: String, durationMs: Long? = null) {
+        if (!telemetrySlots.tryAcquire()) return
+        telemetryScope.launch {
+            try {
+                runCatching {
+                    val token = authRepository.observationAccessToken(session) ?: return@runCatching
+                    client.sendAttendanceTelemetry(token, event, durationMs)
+                }
+            } finally {
+                telemetrySlots.release()
+            }
+        }
+    }
 
     suspend fun confirmOrder(
         session: StoredSession,
         tabId: String,
         lines: List<CartLine>,
         intentId: String,
-    ) = authRepository.withAuthorizedAccess(session) { token ->
-        val startedAt = android.os.SystemClock.elapsedRealtime()
-        telemetryScope.launch {
-            runCatching { client.sendAttendanceTelemetry(token, "confirm_attempted") }
-        }
-        try {
-            val receipt = client.confirmOrder(token, tabId, lines, intentId)
-            val elapsed = android.os.SystemClock.elapsedRealtime() - startedAt
-            telemetryScope.launch {
-                runCatching { client.sendAttendanceTelemetry(token, "confirm_acknowledged", elapsed) }
-            }
-            receipt
-        } catch (error: Exception) {
-            telemetryScope.launch {
-                runCatching { client.sendAttendanceTelemetry(token, "confirm_failed") }
-            }
-            throw error
-        }
-    }
+    ) = authRepository.withAuthorizedAccess(session) { client.confirmOrder(it, tabId, lines, intentId) }
 
     suspend fun collectPayment(
         session: StoredSession,
