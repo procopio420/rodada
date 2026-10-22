@@ -660,6 +660,7 @@ class OperationsViewModel(
             tabId = tabId, lines = lines, clearCartOnConfirmation = clearCartOnConfirmation,
         )
         if (!preserveIntent(intent, session)) return
+        repository.recordAttendanceTelemetry(session, "intent_started")
         loadOrderQueue(session)
         state = state.copy(orderIntentId = key, errorMessage = null,
             noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
@@ -709,6 +710,10 @@ class OperationsViewModel(
                 if (!OrderRecoveryPolicy.canReplay(now, SessionBoundRecoveryIntent(now, session.sessionId), session)) {
                     break
                 }
+                if (now.state != RecoveryState.PENDING) {
+                    ux2OrderRecoveries++
+                    repository.recordAttendanceTelemetry(session, "confirm_recovered")
+                }
                 state = state.copy(submitting = true,
                     noticeMessage = OrderSubmissionStatus.message(now.state))
                 try {
@@ -717,12 +722,15 @@ class OperationsViewModel(
                     val products = repository.products(session)
                     pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
                     ux2OrderAttempts++
+                    repository.recordAttendanceTelemetry(session, "confirm_attempted")
                     val ux2StartedAt = android.os.SystemClock.elapsedRealtime()
                     val receipt = repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
                     val canonical = repository.tabDetail(session, now.tabId)
                     receipt.requireReadback(canonical)
                     ux2OrderConfirmations++
-                    ux2OrderConfirmationDurationMs += android.os.SystemClock.elapsedRealtime() - ux2StartedAt
+                    val ux2Elapsed = android.os.SystemClock.elapsedRealtime() - ux2StartedAt
+                    ux2OrderConfirmationDurationMs += ux2Elapsed
+                    repository.recordAttendanceTelemetry(session, "confirm_acknowledged", ux2Elapsed)
                     pendingMutationIntentStore.remove(now.id)
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {
@@ -736,6 +744,7 @@ class OperationsViewModel(
                 } catch (error: Exception) {
                     if (error is kotlinx.coroutines.CancellationException) throw error
                     ux2OrderFailures++
+                    repository.recordAttendanceTelemetry(session, "confirm_failed")
                     if (error is OperationsApiException && error.status in 400..499) {
                         // A stale price, disabled product, closed Tab or lost authority is not
                         // silently retried on reconnect. Preserve evidence for reconciliation.
