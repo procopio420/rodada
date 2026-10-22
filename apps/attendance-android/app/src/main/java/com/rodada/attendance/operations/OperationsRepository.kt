@@ -116,6 +116,9 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 
+    suspend fun sendAttendanceTelemetry(session: StoredSession, event: String, durationMs: Long? = null) =
+        authRepository.withAuthorizedAccess(session) { client.sendAttendanceTelemetry(it, event, durationMs) }
+
     suspend fun confirmOrder(
         session: StoredSession,
         tabId: String,
