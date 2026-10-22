@@ -4,6 +4,29 @@ import { useEffect, useRef, useState } from "react";
 import { apiCall, asApiError, type StaffSessionView } from "./staff-auth";
 
 const storageKey = "rodada.intent.staff-order.v1";
+
+// AC-23: session-local diagnostic counters. Never include staff, tab or order identifiers.
+type IntentMetric = "attempt" | "failure" | "recovery" | "confirmed";
+const metricsKey = "rodada.ux2.order-intent-metrics.v1";
+function recordIntentMetric(kind: IntentMetric, durationMs?: number) {
+  try {
+    const raw = sessionStorage.getItem(metricsKey);
+    const previous = raw ? JSON.parse(raw) as Record<string, number> : {};
+    const next = { attempts: previous.attempts || 0, failures: previous.failures || 0,
+      recoveries: previous.recoveries || 0, confirmed: previous.confirmed || 0,
+      total_confirm_duration_ms: previous.total_confirm_duration_ms || 0 };
+    if (kind === "attempt") next.attempts++;
+    if (kind === "failure") next.failures++;
+    if (kind === "recovery") next.recoveries++;
+    if (kind === "confirmed") {
+      next.confirmed++;
+      if (durationMs !== undefined && Number.isFinite(durationMs) && durationMs >= 0)
+        next.total_confirm_duration_ms += Math.round(durationMs);
+    }
+    sessionStorage.setItem(metricsKey, JSON.stringify(next));
+  } catch { /* Diagnostics must never block an order. */ }
+}
+
 type Line = { product_id: string; quantity: number; variant_id: string | null; modifier_option_ids: string[]; special_instructions: string };
 type Intent = { schema: 1 | 2; origin?: "repeat"; api_root: "/api/attendance" | "/api/pos"; venue: string; staff: string; session: string; tab: string; captured_at: string;
   payload: { idempotency_key: string; lines: Line[] } };
@@ -47,7 +70,10 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
   async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos", origin: "draft" | "repeat" = "draft") {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
+    const startedAt = performance.now();
+    recordIntentMetric("attempt");
     const recovering = !!intentRef.current;
+    if (recovering) recordIntentMetric("recovery");
     try {
       const auth = await apiCall<StaffSessionView>("/api/auth/me");
       if (!auth.response.ok || !auth.body || !("session" in auth.body)) {
@@ -68,6 +94,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
       assertSaved(i);
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
+        recordIntentMetric("failure");
         const error = asApiError(result.body);
         if (!recovering && [400, 409].includes(result.response.status) && initialRejections.has(error.code)) {
           assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
@@ -77,8 +104,9 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
       if (!result.body || !("id" in result.body) || !result.body.id || result.body.tab_id !== i.tab) throw new Error("Missing canonical order");
       const applyConfirmed = await onConfirmed(i.tab, result.body.id, i.schema === 2 ? "repeat" : "draft");
       assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
-      applyConfirmed(); setMessage("");
+      applyConfirmed(); recordIntentMetric("confirmed", performance.now() - startedAt); setMessage("");
     } catch {
+      recordIntentMetric("failure");
       setMessage(intentRef.current ? "Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro."
         : "Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.");
       if (!intentRef.current) setReady(false);
