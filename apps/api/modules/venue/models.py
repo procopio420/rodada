@@ -113,3 +113,22 @@ class VenueDomain(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
+
+class AttendanceTelemetryDaily(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    business_date = models.DateField()
+    platform = models.CharField(max_length=8)
+    event = models.CharField(max_length=24)
+    count = models.PositiveIntegerField(default=0)
+    duration_total_ms = models.PositiveBigIntegerField(default=0)
+    duration_observed = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["venue", "business_date", "platform", "event"], name="ux2_telemetry_daily_unique")]
+
+
+class AttendanceTelemetryReceipt(models.Model):
+    id = models.UUIDField(primary_key=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True, db_index=True)
