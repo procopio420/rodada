@@ -151,3 +151,23 @@ implementação Web. O que falta é a composição nativa/operacional e mediçã
 `table_service_enabled` continua sendo política de serviço contextual, não flag
 separada de apresentação/rollback033. Os gates técnicos remanescentes não devem
 ser apresentados como se dependessem somente de aparelho físico.
+
+## Fase A — atualização pós-PR #300 (21/10/2026)
+
+PR [#300](https://github.com/procopio420/rodada/pull/300), squash `9da83ac9bb8e7551f6e7fa46006c2497fe76fe26`, integrado na main. Candidato `a6130ee2559ff5efd3081bc77f293bdaa389778a`:
+
+- [Web](https://github.com/procopio420/rodada/actions/runs/39691762284): **SUCCESS**.
+- [Android real POST disconnect](https://github.com/procopio420/rodada/actions/runs/39691762276): **SUCCESS** no job automatizado `real-post-after-commit-disconnect`. O job manual `actual-network-uplink-cut` não foi executado; não inferir corte físico de uplink.
+- Corrigidos quatro testes cross-surface que esperavam botão da superfície Tab após criação (UX2 já abre no catálogo) e o seletor de entregas do Manage no ensaio financeiro.
+
+O PASS automatizado cobre o cenário de resposta perdida após commit, reinício forçado no ambiente instrumental, recuperação e readback entre clientes e fluxo financeiro descartável do ensaio. **Não substitui** aparelho físico, operadora/rede real, PSP, TalkBack, piloto nem R3 autenticado.
+
+### Backlog técnico da Fase A (ordem de implementação)
+
+1. **AC-24 / E06-10:** flag de apresentação UX033 por Venue/role independente de `table_service_enabled`; provar rollout e rollback preservando drafts/identidade/ledger; regressões API/Web/Android.
+2. **AC-23 / E06-07:** eventos de intenção e conclusão, contagem de passos/erros/duplicações, métricas antes/depois sem tap extra e sem misturar dados sintéticos a observações reais.
+3. **AC-20/21:** anexar recibos do PR300 à matriz por SHA e testar no mesmo candidato as lacunas restantes de identidade, sessão, readback e recuperação nativa; manter corte físico separado.
+4. **AC-22:** completar matriz visual pareada, fonte ampliada, foco/teclado; deixar TalkBack/toque físico explicitamente para Fase B.
+5. **AC-24:** revisão independente autenticada e pacote GO/NO-GO com evidências verificáveis, sem declarar homologação antecipada.
+
+**Decisão permanece NO-GO global.** Não houve deploy de produção nem homologação física.
