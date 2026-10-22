@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress
 import java.security.MessageDigest
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -50,6 +51,38 @@ class AttendanceTelemetryV2Test {
             assertNotEquals(started.getString("event_id"), ack.getString("event_id"))
         } finally {
             server.stop(0)
+        }
+    }
+
+    @Test fun telemetryDoesNotFollowCrossHostRedirectOrForwardAccessToken() {
+        val redirected = AtomicInteger(0)
+        val target = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        target.createContext("/trap") { exchange ->
+            redirected.incrementAndGet()
+            exchange.sendResponseHeaders(200, -1)
+            exchange.close()
+        }
+        target.start()
+        val origin = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        origin.createContext("/attendance/telemetry/") { exchange ->
+            exchange.requestBody.close()
+            exchange.responseHeaders.add("Location", "http://127.0.0.1:${target.address.port}/trap")
+            exchange.sendResponseHeaders(302, -1)
+            exchange.close()
+        }
+        origin.start()
+        try {
+            val client = OperationsHttpClient("http://127.0.0.1:${origin.address.port}")
+            try {
+                client.sendAttendanceTelemetry("secret", "intent_started", "original-session", "random-key")
+                fail("Observer must reject redirects")
+            } catch (expected: OperationsApiException) {
+                assertEquals(302, expected.status)
+            }
+            assertEquals(0, redirected.get())
+        } finally {
+            origin.stop(0)
+            target.stop(0)
         }
     }
 }
