@@ -1,9 +1,12 @@
 """Privacy-minimal, bounded-schema UX2 telemetry ingestion."""
+import hashlib
+import json
 from django.db import IntegrityError, transaction
 from django.db.models import F
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
@@ -30,21 +33,34 @@ class TelemetryInput(serializers.Serializer):
             raise serializers.ValidationError({"duration_ms": "Only confirmation can carry a duration."})
         return data
 
+class AttendanceTelemetryThrottle(SimpleRateThrottle):
+    scope = "attendance_telemetry"
+    rate = "120/min"
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {"scope": self.scope, "ident": str(request.auth.pk)}
+
+
 class AttendanceTelemetryIngestView(APIView):
     permission_classes = [IsAuthenticated, RequireCapability]
     required_capability = Capability.ORDER_CONFIRM
+    throttle_classes = (AttendanceTelemetryThrottle,)
 
     def post(self, request):
+        if len(request.body) > 8192:
+            return Response({"code": "TELEMETRY_TOO_LARGE"}, status=413)
         payload = TelemetryInput(data=request.data)
         payload.is_valid(raise_exception=True)
         data = payload.validated_data
         venue = request.auth.venue
+        fingerprint = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
         with transaction.atomic():
             try:
                 with transaction.atomic():
-                    AttendanceTelemetryReceipt.objects.create(id=data["event_id"], venue=venue)
+                    AttendanceTelemetryReceipt.objects.create(id=data["event_id"], venue=venue, fingerprint=fingerprint)
             except IntegrityError:
-                if AttendanceTelemetryReceipt.objects.filter(pk=data["event_id"], venue=venue).exists():
+                receipt = AttendanceTelemetryReceipt.objects.filter(pk=data["event_id"], venue=venue).first()
+                if receipt is not None and receipt.fingerprint == fingerprint:
                     return Response({"accepted": True, "duplicate": True})
                 return Response({"accepted": False, "code": "EVENT_ID_COLLISION"}, status=409)
             row, _ = AttendanceTelemetryDaily.objects.get_or_create(
