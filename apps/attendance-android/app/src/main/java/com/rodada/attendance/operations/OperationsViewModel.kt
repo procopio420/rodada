@@ -631,6 +631,12 @@ class OperationsViewModel(
             clearCartOnConfirmation = true)
     }
 
+    private var ux2OrderAttempts = 0L
+    private var ux2OrderFailures = 0L
+    private var ux2OrderRecoveries = 0L
+    private var ux2OrderConfirmations = 0L
+    private var ux2OrderConfirmationDurationMs = 0L
+
     private fun queueOrder(session: StoredSession, tabId: String, lines: List<PendingOrderLine>,
                            clearCartOnConfirmation: Boolean) {
         if (lines.isEmpty() || state.submitting) return
@@ -638,6 +644,7 @@ class OperationsViewModel(
             .getOrElse { showFailure(it, "Fila local ilegível. Não envie um novo pedido."); return }
             .firstOrNull { it.tabId == tabId }
         if (existing != null) {
+            ux2OrderRecoveries++
             state = state.copy(orderIntentId = existing.idempotencyKey,
                 noticeMessage = "Pedido já guardado. Sua intenção original será reconciliada, sem duplicar.")
             if (existing.state != RecoveryState.ACTION_REQUIRED && existing.state != RecoveryState.FAILED_TERMINAL) {
@@ -709,9 +716,13 @@ class OperationsViewModel(
                     repository.tabDetail(session, now.tabId)
                     val products = repository.products(session)
                     pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
+                    ux2OrderAttempts++
+                    val ux2StartedAt = android.os.SystemClock.elapsedRealtime()
                     val receipt = repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
                     val canonical = repository.tabDetail(session, now.tabId)
                     receipt.requireReadback(canonical)
+                    ux2OrderConfirmations++
+                    ux2OrderConfirmationDurationMs += android.os.SystemClock.elapsedRealtime() - ux2StartedAt
                     pendingMutationIntentStore.remove(now.id)
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {
@@ -724,6 +735,7 @@ class OperationsViewModel(
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
                 } catch (error: Exception) {
                     if (error is kotlinx.coroutines.CancellationException) throw error
+                    ux2OrderFailures++
                     if (error is OperationsApiException && error.status in 400..499) {
                         // A stale price, disabled product, closed Tab or lost authority is not
                         // silently retried on reconnect. Preserve evidence for reconciliation.

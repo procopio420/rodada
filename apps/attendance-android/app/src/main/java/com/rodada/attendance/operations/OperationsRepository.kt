@@ -3,9 +3,14 @@ package com.rodada.attendance.operations
 import com.rodada.attendance.BuildConfig
 import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.StoredSession
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class OperationsRepository(private val authRepository: AuthRepository) {
     private val client = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
+    private val telemetryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     suspend fun pricing(session: StoredSession, tabId: String, command: org.json.JSONObject? = null, action: String = "") =
         authRepository.withAuthorizedAccess(session) {
@@ -116,12 +121,33 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 
+    suspend fun sendAttendanceTelemetry(session: StoredSession, event: String, durationMs: Long? = null) =
+        authRepository.withAuthorizedAccess(session) { client.sendAttendanceTelemetry(it, event, durationMs) }
+
     suspend fun confirmOrder(
         session: StoredSession,
         tabId: String,
         lines: List<CartLine>,
         intentId: String,
-    ) = authRepository.withAuthorizedAccess(session) { client.confirmOrder(it, tabId, lines, intentId) }
+    ) = authRepository.withAuthorizedAccess(session) { token ->
+        val startedAt = android.os.SystemClock.elapsedRealtime()
+        telemetryScope.launch {
+            runCatching { client.sendAttendanceTelemetry(token, "confirm_attempted") }
+        }
+        try {
+            val receipt = client.confirmOrder(token, tabId, lines, intentId)
+            val elapsed = android.os.SystemClock.elapsedRealtime() - startedAt
+            telemetryScope.launch {
+                runCatching { client.sendAttendanceTelemetry(token, "confirm_acknowledged", elapsed) }
+            }
+            receipt
+        } catch (error: Exception) {
+            telemetryScope.launch {
+                runCatching { client.sendAttendanceTelemetry(token, "confirm_failed") }
+            }
+            throw error
+        }
+    }
 
     suspend fun collectPayment(
         session: StoredSession,
