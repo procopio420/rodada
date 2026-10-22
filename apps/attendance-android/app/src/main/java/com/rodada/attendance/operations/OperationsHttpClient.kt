@@ -9,6 +9,14 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
+    fun sendAttendanceTelemetry(accessToken: String, event: String, durationMs: Long? = null) {
+        val body = JSONObject().put("version", 1)
+            .put("event_id", java.util.UUID.randomUUID().toString())
+            .put("platform", "ANDROID").put("event", event)
+        if (durationMs != null) body.put("duration_ms", durationMs.coerceIn(0, 3600000))
+        request("POST", "/attendance/telemetry/", body, accessToken)
+    }
+
     fun tabs(accessToken: String, includeClosed: Boolean = false, currentNight: Boolean = false): List<TabSummary> {
         val tabs = mutableListOf<TabSummary>()
         var offset = 0
