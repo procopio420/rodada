@@ -72,7 +72,7 @@ explicitado; nenhum checkbox global é encerrado com base em execução parcial.
 | 20 | Rehearsal API/DB e CI288 Web/Guest/produção/caixa | Parcial; pacote conjunto Android/IDs corrente |
 | 21 | CI288 perda de rede/readback/replay/operador | Parcial; app morto real corrente |
 | 22 | Visuais dirigidos 360/390/430 e foco/teclado | Parcial; matriz completa, aparelho/TalkBack/toque |
-| 23 | Métricas canônicas de giro existentes | PENDENTE: fricção/intenção e comparativo medido antes/depois |
+| 23 | Métricas canônicas de giro existentes | PENDENTE: fricção/intenção e métricas observadas antes/depois |
 | 24 | Quatro merges com CI crítico e revisão independente do código | PENDENTE: flag UX por Venue/role, rollback ensaiado, aceite humano/piloto |
 
 ## Restante técnico e gates externos
@@ -81,7 +81,7 @@ Ainda há trabalho técnico: instrumentação de fricção/intenção (E06-07), 
 Venue/role com rollback comprovado (E06-10), pacote instrumental Android corrente,
 matriz visual completa e pico50 atual. `table_service_enabled` é política de
 serviço de mesa; não equivale a kill switch da UX033. Relatório de giro não
-substitui latência de intenção nem comparativo antes/depois.
+substitui latência de intenção nem observabilidade da UX 2.0.
 
 Gates externos: aparelho físico S24-class, TalkBack/toque, PSP/hardware quando
 aplicável, operador/bar/piloto e GO humano; deploy de produção exige autorização.
@@ -143,7 +143,7 @@ movimento de mesa. Capturas não equivalem a paridade pixel completa/aparelho.
 | 14/15/20 | Recibo PostgreSQL com IDs/estados após jornada original e giro explícito | Mesmo pacote completo Web+Compose/QR/caixa, não apenas API |
 | 17/18 | Modos031 em main, testes concorrentes e Web162; sem motor financeiro novo | Instrumentação/paridade nativa atual |
 | 22 | 97browser; três capturas de movimento e fonte2 nos casos existentes | Matriz pareada completa, TalkBack/toque/aparelho |
-| 23 | Endpoint agregado canônico e quatro regressões PG novos | Início de intenção, passos, tentativas/erros e versãoUX Web/Compose; comparativo medido |
+| 23 | Endpoint agregado canônico e quatro regressões PG novos | Início de intenção, passos, tentativas/erros e versãoUX Web/Compose; métricas observadas |
 | 24 | PRs pequenos com CI crítico e revisão independente | Flag UX por Venue/role, destino e ensaio de rollback, GO de operador/piloto |
 
 Correção do inventário anterior: pico Web50 existe e passou no CI288; não é gap de
@@ -165,7 +165,7 @@ O PASS automatizado cobre o cenário de resposta perdida após commit, reinício
 ### Backlog técnico da Fase A (ordem de implementação)
 
 1. **AC-17/18 / Spec031:** UX 2.0 é padrão único para todos os tenants, sem flag de apresentação ou rollback para UX antiga. Validar política canônica de limite `WARN_ONLY`/`ENFORCE` configurável por tenant, com autorização do backend, auditoria e paridade Web/Android. Não confundir com `table_service_enabled`.
-2. **AC-23 / E06-07:** eventos de intenção e conclusão, contagem de passos/erros/duplicações, métricas antes/depois sem tap extra e sem misturar dados sintéticos a observações reais.
+2. **AC-23 / E06-07:** eventos de intenção e conclusão, contagem de passos/erros/duplicações, métricas operacionais da UX 2.0 sem tap extra e sem misturar dados sintéticos a observações reais.
 3. **AC-20/21:** anexar recibos do PR300 à matriz por SHA e testar no mesmo candidato as lacunas restantes de identidade, sessão, readback e recuperação nativa; manter corte físico separado.
 4. **AC-22:** completar matriz visual pareada, fonte ampliada, foco/teclado; deixar TalkBack/toque físico explicitamente para Fase B.
 5. **AC-24:** revisão independente autenticada e pacote GO/NO-GO com evidências verificáveis, sem declarar homologação antecipada. O gate de rollout/rollback da UX antiga fica **não aplicável ao produto brownfield**; preservar somente planos de reversão técnica de deploy/migração, quando necessários.
