@@ -106,3 +106,31 @@ class AttendanceMetricsTests(TestCase):
         assert self.report(start="0001-01-01", end="0001-01-01").status_code == 400
         assert self.report(end="2026-11-20").status_code == 200
         assert self.client.post("/management/attendance-metrics/", {}, format="json").status_code == 405
+
+    def test_business_day_boundary_excludes_prior_shift_and_other_tenant(self):
+        # 04:00 local is the first instant of the business day, not midnight.
+        from zoneinfo import ZoneInfo
+        local = ZoneInfo("America/Sao_Paulo")
+        before = datetime(2026, 10, 21, 3, 59, 59, tzinfo=local).astimezone(UTC)
+        at = datetime(2026, 10, 21, 4, 0, 0, tzinfo=local).astimezone(UTC)
+        self.item(self.venue, confirmed=before, accepted=999, ready=999)
+        self.item(self.venue, confirmed=at, accepted=11, ready=22)
+        self.item(self.foreign, confirmed=at, accepted=777, ready=777)
+        result = attendance_metrics(venue=self.venue, start=date(2026, 10, 21),
+                                    end=date(2026, 10, 21))
+        bucket = result["production"]["BAR"]["confirmed_to_accepted"]
+        assert bucket["eligible"] == 1
+        assert bucket["observed"] == 1
+        assert bucket["mean_seconds"] == 11
+        assert result["not_instrumented"]  # Never infer UI intention from server timestamps.
+
+    def test_unobserved_cohorts_have_null_mean_not_zero(self):
+        self.item(self.venue, accepted=None, ready=None)
+        result = attendance_metrics(venue=self.venue, start=date(2026, 10, 21),
+                                    end=date(2026, 10, 21))
+        bucket = result["production"]["BAR"]["confirmed_to_accepted"]
+        assert bucket["eligible"] == 1
+        assert bucket["observed"] == 0
+        assert bucket["missing"] == 1
+        assert bucket["mean_seconds"] is None
+        assert result["manual_delivery"]["mean_seconds"] is None
