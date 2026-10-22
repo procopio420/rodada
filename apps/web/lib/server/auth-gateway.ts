@@ -395,3 +395,19 @@ export async function forwardAuthenticated(
 
   return response;
 }
+
+
+/** Fixed passive UX2 endpoint. Never rotates or clears any staff cookie. */
+export async function forwardPassiveAttendanceTelemetry(
+  request: NextRequest,
+  body: Record<string, unknown>,
+): Promise<NextResponse> {
+  const rejected = rejectCrossOriginMutation(request);
+  if (rejected) return rejected;
+  const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
+  if (!accessToken) return new NextResponse(null, { status: 401 });
+  const result = await backendRequest(request, "/attendance/telemetry/", {
+    method: "POST", body, accessToken, signal: AbortSignal.timeout(1500),
+  });
+  return new NextResponse(null, { status: result.response.ok ? 204 : result.response.status });
+}
