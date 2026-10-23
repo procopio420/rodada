@@ -63,15 +63,16 @@ export async function referencePage(browser: Browser, scene: KdsScene): Promise<
   await page.locator('[data-device="' + device + '"]').click();
   if (scene.station === "KITCHEN") await page.locator('[data-station="KITCHEN"]').click();
   if (scene.mode === "expedite") await page.locator('[data-act="mode"]').first().click();
+  if (scene.scenario) await page.locator(".demoTools > summary").click();
   if (scene.scenario === "simulateChange") await page.locator('[data-act="simulateChange"]').click();
   if (scene.scenario === "peak") await page.locator('[data-scenario="peak"]').click();
   if (scene.scenario === "offline") await page.locator('[data-act="connection"]').click();
   if (scene.large_text) {
-    await page.locator('[data-view="settings"]').first().click();
+    await page.locator('[data-view="settings"]:visible').first().click();
     await page.locator('[data-act="largeText"]').click();
   }
-  if (scene.view !== "queue") await page.locator('[data-view="' + scene.view + '"]').first().click();
-  else if (scene.large_text) await page.locator('[data-view="queue"]').first().click();
+  if (scene.view !== "queue") await page.locator('[data-view="' + scene.view + '"]:visible').first().click();
+  else if (scene.large_text) await page.locator('[data-view="queue"]:visible').first().click();
   if (scene.modal === "allergy") await page.locator('[data-act="ackallergy"]').first().click();
   await page.addStyleTag({ content: normalizer });
   await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
