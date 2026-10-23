@@ -143,8 +143,11 @@ function diffPixels(reference: Buffer, actual: Buffer, threshold: number) {
   const w = Math.max(left.width, right.width), h = Math.max(left.height, right.height);
   const la = new PNG({ width: w, height: h }), ra = new PNG({ width: w, height: h });
   // Fill pads with two different opaque colors: unequal dimensions cannot compare as zero.
-  for (let i = 0; i < w * h; i++) {
-    la.data.set([17, 17, 17, 255], i * 4); ra.data.set([238, 238, 238, 255], i * 4);
+  la.data.fill(17);
+  ra.data.fill(238);
+  for (let i = 3; i < w * h * 4; i += 4) {
+    la.data[i] = 255;
+    ra.data[i] = 255;
   }
   PNG.bitblt(left, la, 0, 0, left.width, left.height, 0, 0);
   PNG.bitblt(right, ra, 0, 0, right.width, right.height, 0, 0);
