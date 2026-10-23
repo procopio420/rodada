@@ -401,12 +401,13 @@ export async function forwardAuthenticated(
 export async function forwardPassiveAttendanceTelemetry(
   request: NextRequest,
   body: Record<string, unknown>,
+  target: "/attendance/telemetry/" | "/production/screen-observations/" = "/attendance/telemetry/",
 ): Promise<NextResponse> {
   const rejected = rejectCrossOriginMutation(request);
   if (rejected) return rejected;
   const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
   if (!accessToken) return new NextResponse(null, { status: 401 });
-  const result = await backendRequest(request, "/attendance/telemetry/", {
+  const result = await backendRequest(request, target, {
     method: "POST", body, accessToken, signal: AbortSignal.timeout(1500),
   });
   return new NextResponse(null, { status: result.response.ok ? 204 : result.response.status });
