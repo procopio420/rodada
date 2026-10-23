@@ -1,0 +1,386 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rodada · KDS UX 2.0</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#100d0a;color:#f3ece1;font:15px/1.42 system-ui,-apple-system,Segoe UI,sans-serif}
+button,select,input{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.42;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #f5a524;outline-offset:3px}
+#app{--bg:#120f0c;--panel:#1b1713;--raised:#252019;--edge:#4d4335;--paper:#f3ece1;--muted:#bbae9b;--faint:#aaa090;--amber:#f5a524;--green:#93db8c;--red:#ff775d;color:var(--paper)}
+.controls{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px;background:#18140f;border-bottom:1px solid #40372c}
+.ctrlgroup{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.ctrlgroup>span{color:#bbae9b;font-size:13px;font-weight:750;margin-right:3px}
+.control{border:1px solid #4b3e30;background:#272119;color:#ded0bd;border-radius:7px;min-height:44px;padding:8px 13px;font-size:13px;font-weight:800}.control.active{background:var(--paper);color:#18130e;border-color:var(--paper)}
+.stage{padding:10px;overflow-x:auto;overflow-y:hidden;background:#0d0b09;min-height:300px}
+.holder{margin:0 auto;width:max-content;max-width:none}
+.surface{display:flex;flex-direction:column;position:relative;container:station / inline-size;width:1200px;height:clamp(500px,calc(100dvh - var(--controls-h,70px) - 25px),920px);background:var(--bg);border:1px solid var(--edge);border-radius:10px;overflow:hidden;box-shadow:0 10px 30px #0006}
+.surface.mobile{width:min(390px,calc(100vw - 22px))}.surface.tablet{width:min(850px,calc(100vw - 22px))}.surface.desktop{width:min(1200px,calc(100vw - 22px))}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 17px;background:#1b1713;border-bottom:1px solid #3a3228;flex:none}
+.heading{display:flex;align-items:center;gap:13px;min-width:0}.wordmark{font-weight:950;font-size:21px;letter-spacing:-1px}.wordmark span{color:var(--amber)}.divider{height:30px;width:1px;background:var(--edge)}
+.sub{font-size:11px;letter-spacing:.8px;font-weight:850;color:var(--muted);text-transform:uppercase}.station{font-size:22px;font-weight:900}
+.headtools{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.headtools button,.tinybutton{min-width:44px;min-height:44px;padding:8px 11px;font-weight:800;font-size:13px;border:1px solid var(--edge);background:var(--raised);color:var(--paper);border-radius:7px}
+.round{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;font-size:14px}
+.summary{display:flex;flex:none;gap:1px;background:#40352a;border-bottom:1px solid #40352a}.summary>div{min-width:0;flex:1;background:#1b1713;padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between}.summary strong{font-size:25px;line-height:1;font-variant-numeric:tabular-nums;font-weight:900}.summary span{font-size:12px;color:var(--muted);font-weight:800}
+.mainnav{flex:none;display:flex;gap:4px;background:#1b1713;border-bottom:1px solid #453b2e;padding:0 12px}.mainnav button{min-height:50px;padding:10px 13px;border:0;border-bottom:3px solid transparent;background:none;color:var(--muted);font-weight:850;font-size:14px}.mainnav button.active{border-bottom-color:var(--amber);color:var(--paper)}
+#alerts{flex:none}.status{margin:8px 14px 0;border:1px solid #745329;background:#332617;color:#f2cea0;border-radius:7px;padding:9px 12px;font-size:13px;font-weight:700}.status.danger{background:#3c1e1b;border-color:#9e4a3d;color:#ffb09e}
+.work{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:16px;scrollbar-color:#635442 #15110e}.work:focus-visible{outline-offset:-3px}
+.sect{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 13px;flex-wrap:wrap}.sect strong{font-size:15px;letter-spacing:.6px;font-weight:900}.sect small{font-size:12px;color:var(--muted)}
+.ticketgrid,.passgrid,.expGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.ticket{min-width:0;position:relative;background:var(--panel);border:1px solid #514638;border-left:5px solid #766654;border-radius:9px;overflow:hidden}.ticket.urgent{border-left-color:var(--amber)}.ticket.overdue{border-left-color:var(--red)}.ticket.allergen{border-top:4px solid var(--red)}.ticket.new{box-shadow:inset 0 0 0 1px var(--amber)}
+.thead{padding:13px 13px 10px;border-bottom:1px solid #40352b}.topline{display:flex;justify-content:space-between;align-items:start;gap:8px}.dest{font-size:22px;font-weight:950;line-height:1.15;overflow-wrap:anywhere}.time{font-size:15px;color:#edb45c;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}.time.late{color:var(--red)}
+.meta{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.4;overflow-wrap:anywhere}.chip{display:inline-block;padding:4px 7px;border-radius:4px;background:#403020;color:#f4ca80;font-weight:900;font-size:11px;letter-spacing:.2px;margin:7px 4px 0 0}.chip.allergy{color:#ffd1c3;background:#5c2b24}.chip.remake{color:#a3e0a9;background:#293b30}.chip.new{background:#4b3822;color:#ffd693}
+.line{padding:12px 13px;border-bottom:1px solid #322b23}.line:last-child{border-bottom:0}.lineTitle{font-size:17px;line-height:1.32;font-weight:900;overflow-wrap:anywhere}.note{font-size:14px;font-weight:800;margin-top:6px;color:#fdbb94;overflow-wrap:anywhere}.note.allergy{color:#ffddd3;border:1px solid #9c4c3d;background:#4a2821;padding:10px;border-radius:6px}
+.phase{font-size:13px;color:var(--muted);margin-top:6px}.phase.good{color:var(--green)}
+.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.actions button{flex:1;min-width:80px;min-height:48px;border-radius:7px;border:1px solid #60513e;padding:9px 11px;font-size:14px;font-weight:850}.primary{background:var(--paper);color:#17130f}.secondary{background:#31291f;color:var(--paper)}.quiet{background:transparent;color:var(--muted)}
+.ticketfoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 12px;background:#201b16}.ticketfoot .more{position:relative;width:100%}.more summary{display:block;padding:11px 12px;min-height:44px;border:1px solid #524637;background:#29221c;color:#e4d8c8;border-radius:6px;font-size:13px;font-weight:850;list-style:none}.more summary::-webkit-details-marker{display:none}.more[open] summary{border-color:#a4844d}.more-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding-top:8px}.more-content button{border:1px solid #5d4b37;border-radius:7px;background:#31291f;color:var(--paper);min-height:44px;font-size:13px;font-weight:800;padding:8px 9px}.more-content button:disabled{opacity:.4}.more-content .all-button{grid-column:1 / -1;background:#e7dac8;color:#17130f}
+.passcard{border:1px solid #544a38;border-left:5px solid var(--green);border-radius:9px;background:#211b16;padding:14px;min-width:0}.passcard.old{border-left-color:var(--red);background:#311d17}.passcard h3{font-size:21px;margin:4px 0 6px}.passcard p{font-size:14px;color:#e3d6c7;margin:9px 0;line-height:1.5}.passcard .green{font-size:12px;color:var(--green);font-weight:900}.passcard.old .green{color:#ffb09e}
+.expCard{background:var(--panel);border:1px solid var(--edge);border-radius:9px;padding:14px}.expCard.completed{border-left:5px solid var(--green)}.expCard.waiting{border-left:5px solid var(--amber)}.expCard h3{margin:0;font-size:20px}.expRow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #3a3228;padding:11px 0;font-size:14px}.expRow .ready{color:var(--green)}.expRow .pending{color:var(--amber)}.nextStep{font-size:14px;font-weight:850;color:#f3ece1;margin:12px 0 6px;line-height:1.45}
+.allDayGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.allDayRow{padding:14px;background:#201b16;border:1px solid var(--edge);border-radius:7px;display:flex;align-items:center;justify-content:space-between;gap:10px}.allDayRow b{font-size:28px;font-variant-numeric:tabular-nums;color:var(--amber)}
+.empty{border:1px dashed #514537;border-radius:8px;padding:32px 14px;text-align:center;color:var(--muted);line-height:1.5}.settings{max-width:670px;background:var(--panel);border:1px solid var(--edge);padding:18px;border-radius:9px}.setting{padding:12px 0;border-bottom:1px solid #40372b;display:flex;justify-content:space-between;gap:12px;align-items:center}.setting input{width:80px;min-height:44px;background:#2d261e;color:var(--paper);border:1px solid #72604a;border-radius:6px;padding:7px}.setting button{border:1px solid #69563d;background:#31291f;color:var(--paper);border-radius:6px;min-height:44px;padding:9px 12px;font-size:13px}.tools{margin:14px 0;display:flex;gap:9px;flex-wrap:wrap}.tools button{background:#30281f;border:1px solid #61503c;color:var(--paper);border-radius:7px;padding:9px 13px;min-height:44px;font-weight:850;font-size:13px}.mutedHelp{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.55}
+.bottombar{display:none;flex:none;background:var(--panel);border-top:1px solid #64503a;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:3}.bottombar button{border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:13px;font-weight:800;min-height:52px;padding:7px 3px;overflow-wrap:anywhere}.bottombar button.active{background:#31291f;color:var(--amber)}
+.footnote{flex:none;padding:8px 15px;font-size:11px;color:#a19483;border-top:1px solid #40362b;line-height:1.4}
+#modalHost:has(.popup){position:absolute;inset:0;z-index:12}.popup{position:absolute;inset:0;background:#090706df;display:flex;justify-content:center;align-items:center;padding:14px;overflow:auto}.modal{width:min(470px,100%);max-height:100%;overflow-y:auto;border-radius:10px;border:1px solid #685441;background:#252019;padding:19px;box-shadow:0 15px 45px #0009}.modal h3{font-size:22px;margin:0 0 10px}.modal p{font-size:14px;color:#d4c5b2;line-height:1.5}.modal label{font-size:14px;line-height:1.6}.modal input[type=checkbox]{width:22px;height:22px;accent-color:var(--amber);vertical-align:middle}.modal select{width:100%;min-height:44px;margin:8px 0;color:var(--paper);background:#31291f;border:1px solid #79644b;border-radius:7px;padding:9px}.modal .line{padding:9px 0}.modal .actions button{min-height:48px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:12px 17px;max-width:90vw;z-index:100;border:1px solid #78603e;background:#33291d;color:var(--paper);border-radius:8px;box-shadow:0 8px 22px #0009;font-size:14px}.toast[hidden]{display:none}
+@container station (max-width:1099px){.ticketgrid,.passgrid,.expGrid,.allDayGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container station (max-width:679px){.mainnav{display:none}.bottombar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.bottombar:has(button:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}.ticketgrid,.passgrid,.expGrid,.allDayGrid{grid-template-columns:1fr}.head{padding:10px 12px}.heading{gap:8px}.wordmark{font-size:17px}.station{font-size:19px}.divider{height:26px}.headtools{gap:5px}.headtools button{font-size:13px;min-height:44px;min-width:44px;padding:7px}.headtools .round{display:none}.summary>div{display:block;padding:10px 9px}.summary strong{font-size:23px}.summary span{display:block;font-size:11px;line-height:1.15;margin-top:4px}.work{padding:12px}.actions button{min-height:52px}.dest{font-size:23px}.footnote{display:none}.ticketfoot .more-content button{font-size:13px}}
+@container station (min-width:680px) and (max-width:950px){.ticketgrid,.passgrid,.expGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Operational attention, escalation and narrow-screen work surfaces. */
+.demoTools{width:100%;border-top:1px solid #42372a;padding:3px 0 0}.demoTools summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:12px;color:#cfbda9;font-weight:850;letter-spacing:.2px}.demoTools .demoActions{display:flex;gap:7px;flex-wrap:wrap;padding:7px 0}.demoTools .demoActions .control{font-size:12px}
+.connection-indicator{display:flex;align-items:center;gap:5px;font-weight:850;font-size:12px;color:#9ed49b}.connection-indicator.offline{color:#ffbaa0}
+.notice-banner{background:#503021!important;border-color:#e7a24d!important;color:#fff0d9!important}
+.notice-banner.danger{background:#4b2521!important;border-color:#ee9279!important;color:#ffdad1!important}
+.ticket.changed{box-shadow:inset 0 0 0 2px #ffb16e}.ticket.blocked{border-top:4px solid #ff775d}
+.note.change{background:#4b3020;border:1px solid #bd7c3a;padding:9px;border-radius:6px;color:#ffe1b5}
+.note.blocked{background:#4c2622;border:1px solid #c96555;padding:9px;border-radius:6px;color:#ffe2dc}
+.pass-archive{border:1px solid #6c4b3c;background:#251b16;border-radius:8px;margin-top:18px}.pass-archive summary{list-style:none;padding:15px;min-height:52px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:9px;color:#ffe0c1;font-weight:900}.pass-archive summary::-webkit-details-marker{display:none}.pass-archive[open] summary{border-bottom:1px solid #6c4b3c}.pass-archive .passgrid{padding:12px}.pass-archive .mutedHelp{margin:0;padding:0 12px 12px}
+.passfilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px;background:#2c241b;border:1px solid #785d3f;border-radius:8px;margin-bottom:15px;font-size:14px;font-weight:850}.passfilter button{margin-left:auto;border:1px solid #997b58;background:#392c20;color:#f3ece1;min-height:44px;border-radius:7px;padding:8px 12px;font-size:13px;font-weight:850}
+.modal input[type=number]{max-width:90px;min-height:44px;background:#31291f;color:#fff;border:1px solid #876b4a;border-radius:7px;padding:8px;margin:6px 8px 8px 0}
+.modal .critical-action{background:#8c3d31;color:white;border-color:#c97767}
+.modal .request-state{border-left:4px solid #f5a524;padding:10px;background:#3e2c1b;margin:9px 0;font-size:13px}
+.expCard .actionLink{min-height:48px;width:100%;font-size:14px}
+.attention-button{width:100%;min-height:48px;border-radius:7px;background:#e8ab67;color:#25160c;border:1px solid #fec385;font-size:14px;font-weight:900}.newchip{background:#f5a524;color:#18120b}.attentionCount{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(max-width:550px){.controls{padding:7px}.ctrlgroup>span{display:none}.control{padding:8px 10px}}
+
+/* Improvements after peak-flow review */
+.chip.overdue-tag{background:#5a2e27;color:#ffd1c3}.chip[hidden]{display:none}
+.status .tinybutton{margin-left:8px;border:1px solid currentColor;color:inherit;background:transparent;min-height:44px;padding:7px 10px}
+.surface.large-text .lineTitle{font-size:23px}.surface.large-text .dest{font-size:27px}.surface.large-text .meta,.surface.large-text .phase{font-size:16px}.surface.large-text .actions button{font-size:17px;min-height:56px}.surface.large-text .note{font-size:16px}.surface.large-text .ticketgrid{gap:16px}
+@media(max-width:679px){.toast{bottom:90px}}
+
+/* UX 2.0 · visual polish: faster scanning, quiet chrome, stronger task contrast. */
+body{background:#0c0a08;-webkit-font-smoothing:antialiased}
+.controls{padding:9px 14px;background:#15110e;column-gap:12px}
+.ctrlgroup{gap:4px}.ctrlgroup>span{font-size:12px;color:#a89a87;letter-spacing:.02em}
+.control{border-radius:8px;background:#251e18;border-color:#403629;color:#cfc2b0;transition:background-color .12s ease,border-color .12s ease,color .12s ease}
+.control:hover{background:#33291f;border-color:#776047}.control.active:hover{background:#fff7eb}
+.demoTools{border-top-color:#30271e}.demoTools summary{min-height:40px;letter-spacing:0;color:#ac9d89}
+.demoTools summary:hover{color:#f3ece1}
+.stage{padding:12px;background:radial-gradient(ellipse at top,#18120c 0%,#0c0a08 65%)}
+.surface{border-color:#554938;border-radius:13px;box-shadow:0 18px 45px #0008}
+.head{background:#191511;padding:12px 18px;border-bottom-color:#393025}
+.wordmark{font-size:22px;letter-spacing:-1.1px}.heading{gap:14px}.sub{font-size:10px;color:#ae9d87;letter-spacing:.11em}
+.station{font-size:23px;letter-spacing:-.035em;line-height:1.13}
+.connection-indicator{gap:7px;color:#abd5a0}
+.connection-indicator::before{content:'';height:7px;width:7px;border-radius:50%;background:#8dcc85;box-shadow:0 0 0 3px #8dcc8518}
+.connection-indicator.offline::before{background:#ff8068;box-shadow:0 0 0 3px #ff80681a}
+.summary{background:#392e23}.summary>div{padding:12px 17px;background:#191511;gap:12px}
+.summary strong{font-size:27px;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.summary span{color:#b7a994;font-size:12px}
+.mainnav{padding:0 15px;gap:6px;background:#191511}
+.mainnav button{display:flex;align-items:center;gap:8px;white-space:nowrap;padding:12px 13px;min-height:48px;border-bottom-width:2px;transition:color .12s ease,background .12s ease}
+.mainnav button:hover,.bottombar button:hover{color:#fff5e7;background:#292118}
+.mainnav button.active{color:#fff2e0;border-bottom-color:#f5a524}
+.nav-glyph{font-size:15px;color:#c0aa8b}.active>.nav-glyph{color:#f5a524}
+.nav-compact{display:none}.nav-count{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:6px;padding:0 5px;background:#3c3023;color:#f8d3a0}
+.active .nav-count{background:#563c1d;color:#ffe3b4}
+.work{padding:18px 18px 24px}
+.sect{margin-bottom:15px;align-items:baseline}.sect strong{font-size:15px;letter-spacing:0;font-weight:850}.sect small{font-size:12px;color:#a89c8a}
+.ticketgrid,.passgrid,.expGrid{gap:14px}
+.ticket{background:#1c1713;border:1px solid #473b30;border-left:4px solid #625446;border-radius:10px;box-shadow:0 2px 8px #0002;transition:border-color .12s ease,background-color .12s ease}
+.ticket.urgent{border-left-color:#dba050}.ticket.overdue{border-left-color:#ed8066}
+.ticket.allergen{border-top:3px solid #ec927f}
+.ticket.new{box-shadow:inset 0 0 0 1px #dfa448,0 2px 8px #0003}
+.ticket.changed{box-shadow:inset 0 0 0 2px #e8aa75,0 3px 11px #0003}
+.thead{padding:13px 14px 12px;background:#211a15;border-bottom-color:#433529}
+.dest{font-size:23px;letter-spacing:-.04em;line-height:1.08}.time{font-size:14px;color:#dfb56c;letter-spacing:-.02em}.time.late{color:#ff9b86}
+.thead .meta{font-size:12px;color:#bcae9c;margin-top:6px}
+.chip{font-size:10px;letter-spacing:.035em;border-radius:5px;padding:4px 7px;margin-top:8px}
+.chip.overdue-tag{background:#503029;color:#ffc7b7}.chip.new{background:#45351d;color:#ffe4b2}
+.line{padding:13px 14px 14px;border-bottom-color:#383026}
+.lineTitle{font-size:17px;letter-spacing:-.01em;line-height:1.32}
+.lineTitle + .phase{margin-top:7px}.phase{margin-top:7px;color:#b9aa95;font-size:12px}.phase.good{color:#a7d49e}
+.note{font-size:13px;line-height:1.4;letter-spacing:.005em;color:#ffbf99;margin-top:8px}
+.note.allergy,.note.blocked,.note.change{line-height:1.48}
+.actions{gap:8px;margin-top:12px}.actions button{border-radius:8px;min-height:48px;font-size:13px;transition:background-color .12s ease,border-color .12s ease,transform .1s ease}
+.actions button:not(:disabled):active,.more-content button:not(:disabled):active{transform:translateY(1px)}
+.actions button.primary{background:#f3ece1;border-color:#d8c7ad;color:#19140f;box-shadow:0 1px 0 #fff3e9 inset}
+.actions button.primary:hover{background:#fff7eb;border-color:#f8dfbb}
+.actions button.secondary{background:#30271e;border-color:#5d4d3b;color:#f2e8db}
+.actions button.secondary:hover{background:#403225;border-color:#8c6e48}
+.actions button.quiet{border-color:#493b2f;background:transparent;color:#c1b3a0}
+.ticketfoot{padding:6px 12px 8px;background:#1b1713}
+.ticketfoot .more{width:100%}
+.more summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;background:transparent;border:1px solid transparent;color:#bdab92;padding:8px 4px;font-size:12px;border-radius:6px;letter-spacing:0}
+.more summary:hover{color:#fff2df;background:#2b221b;border-color:#443526}
+.more[open] summary{color:#f5c88b;border-color:#7c5b37;background:#31261b}
+.disclosure-caret{font-size:18px;font-weight:700;line-height:1;transition:transform .14s ease;display:inline-block}
+.more[open] .disclosure-caret{transform:rotate(180deg)}
+.more-content{padding-bottom:5px}
+.more-content button{border-radius:7px}
+.passcard,.expCard,.allDayRow{border-radius:10px;box-shadow:0 2px 8px #0002}
+.passcard{background:#201a15;border-color:#514738;padding:16px}
+.passcard.old{background:#30221b}
+.passcard h3{font-size:23px;letter-spacing:-.03em}.passcard .green{letter-spacing:.03em}
+.passcard p{line-height:1.52}
+.expCard{background:#1c1713;padding:17px}.expCard h3{letter-spacing:-.03em}
+.expRow{line-height:1.45}.nextStep{font-weight:850}
+.allDayRow{background:#201a14;padding:16px}
+.bottombar{gap:3px;padding-inline:6px;background:#191511;border-top-color:#4a3927}
+.bottombar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;line-height:1.12;font-size:11px;padding:7px 2px;white-space:normal}
+.bottombar button.active{background:#35281c;color:#ffe0aa}
+.bottombar .nav-glyph{font-size:18px}.bottombar .nav-full{display:none}.bottombar .nav-compact{display:inline}
+.bottombar .nav-count{position:absolute;transform:translate(22px,-15px);height:17px;min-width:17px;font-size:10px;padding:0 3px;border-radius:5px}
+.bottombar button{position:relative}
+.status{border-radius:8px;padding:11px 13px;margin:9px 16px 0;line-height:1.45}
+.status .tinybutton{border-radius:7px;font-weight:850}
+.notice-banner{background:#3c2a1c!important;border-color:#a97c3e!important;color:#ffe0ad!important}
+.passfilter,.pass-archive{border-radius:9px}
+.settings{border-radius:10px}
+.empty{background:#1a1510}
+.modal{background:#231c16;border-color:#78604a;border-radius:13px;box-shadow:0 20px 65px #000b}
+.modal h3{letter-spacing:-.02em}.modal .line{border-bottom-color:#44352b}
+.footnote{background:#15110e;color:#a59682}
+@container station (max-width:679px){
+ .head{padding:12px 13px}.wordmark{font-size:18px}.station{font-size:20px}.heading{gap:10px}
+ .summary>div{padding:11px 9px}.summary strong{font-size:24px}.summary span{font-size:11px}
+ .work{padding:13px 12px 20px}.sect{display:grid;gap:2px}.sect small{font-size:12px}
+ .ticketgrid,.passgrid,.expGrid{gap:12px}.thead{padding:13px 13px 11px}.dest{font-size:23px}
+ .line{padding:12px 13px}.actions button{min-height:52px;font-size:14px}
+ .ticketfoot{padding:3px 12px 6px}
+ .bottombar{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+}
+@media(prefers-reduced-motion:reduce){.disclosure-caret{transition:none}.actions button{transition:none}}
+
+</style></head><body>
+<div id="app"><div class="controls"><div class="ctrlgroup"><span>Dispositivo</span><button class="control active" data-device="mobile">Celular</button><button class="control" data-device="tablet">Tablet</button><button class="control" data-device="desktop">Desktop</button></div><div class="ctrlgroup"><span>Estação</span><button class="control active" data-station="BAR">Bar</button><button class="control" data-station="KITCHEN">Cozinha</button></div><details class="demoTools"><summary>▸ Ferramentas de simulação (fora da operação)</summary><div class="demoActions"><button class="control" data-act="new">+ Pedido de teste</button><button class="control" data-act="simulateChange">+ Alteração/cancelamento recebido</button><button class="control" data-act="connection">Alternar rede simulada</button><button class="control" data-scenario="peak">Simular pico · 30</button><button class="control" data-reset="1">↻ Reiniciar</button></div></details></div><div class="stage" id="stage"><div class="holder" id="holder"><div class="surface mobile" id="surface"><header class="head"><div class="heading"><div class="wordmark">rodada<span>.</span></div><div class="divider"></div><div><div class="sub">PRODUÇÃO</div><div class="station" id="stationTitle">Bar</div></div></div><div class="headtools"><span class="round">22:57</span><span id="connectionBtn" class="connection-indicator" role="status">● Online</span></div></header><div class="summary" id="summary"></div><nav class="mainnav" id="nav"></nav><div id="alerts"></div><main class="work" id="work"></main><nav class="bottombar" id="bottom"></nav><footer class="footnote">Protótipo navegável · dados fictícios. Transições, alertas e operações de correção são simulações; não há conexão com a API.</footer><div id="modalHost"></div></div></div></div></div><div class="toast" id="toast" hidden role="status"></div></div>
+<script>
+(function(){'use strict';
+const root=document.getElementById('app'),stage=document.getElementById('stage'),holder=document.getElementById('holder'),surface=document.getElementById('surface'),work=document.getElementById('work');
+let seq=50,device=window.innerWidth<680?'mobile':window.innerWidth<1080?'tablet':'desktop',station='BAR',view='queue',mode='simple',online=true,sound=false,largeText=false,threshold={BAR:5,KITCHEN:12},modal=null,orders=[],history=[],availability={},toastTimer,returnFocus=null,filterReadyOrder=null;
+const sample=()=>[
+ {id:'O921',dest:'FG84',type:'FICHA',age:3,items:[{name:'Chopp Pilsen',qty:2,station:'BAR',quick:true},{name:'Gin tônica',qty:1,station:'BAR',note:'POUCO GELO'}]},
+ {id:'O922',dest:'MESA 12',type:'MESA',age:6,items:[{name:'Água com gás',qty:2,station:'BAR',quick:true},{name:'Burger da casa',qty:1,station:'KITCHEN'},{name:'Burger da casa',qty:1,station:'KITCHEN',note:'SEM CEBOLA'}]},
+ {id:'O923',dest:'MESA 04',type:'MESA',age:13,items:[{name:'Caipirinha',qty:1,station:'BAR',note:'SEM AÇÚCAR'},{name:'Batata frita',qty:1,station:'KITCHEN',phase:'making'},{name:'Calabresa acebolada',qty:1,station:'KITCHEN',note:'BEM PASSADA'}]},
+ {id:'O924',dest:'MESA 08',type:'MESA',age:3,items:[{name:'Pastel de queijo',qty:1,station:'KITCHEN',allergy:'ALERGIA A AMENDOIM — conferir ingredientes e contato cruzado'}]},
+ {id:'O925',dest:'MESA 02',type:'MESA',age:14,items:[{name:'Porção de fritas',qty:1,station:'KITCHEN',ready:1,phase:'ready',readyAge:14},{name:'Refrigerante lata',qty:2,station:'BAR',ready:2,phase:'ready',quick:true,readyAge:3}]}
+];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function build(data){const created=Date.now()-data.age*60000;return{id:data.id,created,dest:data.dest,type:data.type,urgent:false,isNew:!!data.isNew,notice:null,items:data.items.map((i,n)=>({...i,id:data.id+'-'+n,qty:i.qty||1,ready:i.ready||0,picked:0,cancelled:0,phase:i.phase||'new',readyAt:i.ready?Date.now()-(i.readyAge||0)*60000:null,allergyAcknowledged:false,assistanceRequested:false,blocked:false,pendingCorrection:null,correction:null}))}}
+function init(){orders=sample().map(build);history=[];availability={};seq=50;online=true;mode='simple';view='queue';modal=null;filterReadyOrder=null;render({resetScroll:true})}
+const age=o=>Math.max(0,Math.floor((Date.now()-o.created)/60000));
+const remaining=i=>Math.max(0,i.qty-i.ready-i.cancelled);
+const passqty=i=>Math.max(0,i.ready-i.picked);
+const localItems=o=>o.items.filter(i=>i.station===station);
+const pending=o=>localItems(o).some(i=>remaining(i)>0);
+const fresh=()=>orders.filter(pending).sort((a,b)=>a.created-b.created);
+const readyOrders=()=>orders.filter(o=>localItems(o).some(i=>passqty(i)>0));
+const readyUnits=()=>orders.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(!isOld(i)?passqty(i):0),0),0);
+const unconfirmedUnits=()=>orders.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(isOld(i)?passqty(i):0),0),0);
+const unseen=()=>fresh().filter(o=>o.isNew||o.notice?.active);
+const localItemsBlocked=()=>orders.flatMap(o=>localItems(o).filter(i=>i.blocked));
+const activeCount=()=>orders.reduce((s,o)=>s+localItems(o).filter(i=>remaining(i)>0&&i.phase==='making').length,0);
+const breached=o=>age(o)>=threshold[station];
+const isOld=i=>!!i.readyAt&&(Date.now()-i.readyAt)>=9*60000;
+const getItem=id=>{for(const o of orders){let i=o.items.find(i=>i.id===id);if(i)return{o,i}}return null};
+function notify(msg){const e=document.getElementById('toast');clearTimeout(toastTimer);e.textContent=msg;e.hidden=false;toastTimer=setTimeout(()=>e.hidden=true,3600)}
+function soundPing(){if(!sound)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;let a=new C(),osc=a.createOscillator(),g=a.createGain();osc.frequency.value=780;g.gain.value=.06;osc.connect(g);g.connect(a.destination);osc.start();osc.stop(a.currentTime+.12);osc.onended=()=>a.close()}catch{}}
+const label=o=>o.type==='FICHA'?'Ficha · retirada no Bar':'Serviço na mesa';
+function disabled(){return online?'':' disabled aria-disabled="true"'}
+function ticket(o){
+ const its=localItems(o).filter(i=>remaining(i)>0);if(!its.length)return '';
+ const allergy=its.some(i=>!!i.allergy),late=breached(o),canBatch=its.length>1&&its.every(i=>!i.allergy);
+ const classes=['ticket',late?'overdue':'',o.urgent?'urgent':'',allergy?'allergen':'',o.isNew?'new':'',o.notice?.active?'changed':'',its.some(i=>i.blocked)?'blocked':''].join(' ');
+ const chips=(o.isNew?'<span class="chip new">NOVO · PRECISA DE ATENÇÃO</span>':'')+(late?'<span class="chip overdue-tag">ATRASADO</span>':'')+(o.urgent?'<span class="chip">⚡ PRIORIDADE</span>':'')+(o.notice?.active?'<span class="chip allergy">ALTERAÇÃO RECEBIDA</span>':'')+(allergy?'<span class="chip allergy">ALERGIA / RESTRIÇÃO CRÍTICA</span>':'');
+ return `<article class="${classes}" data-order="${esc(o.id)}" aria-label="Pedido ${esc(o.id)}">
+ <div class="thead"><div class="topline"><div><div class="dest">${esc(o.dest)}</div><div class="meta">${esc(label(o))} · #${esc(o.id)}</div></div><time class="time ${late?'late':''}" data-age-order="${esc(o.id)}" aria-label="Tempo do pedido">${age(o)} min</time></div>${chips}</div>
+ ${o.notice?.active?`<div class="line"><div class="note change" role="alert">⚠ ${esc(o.notice.message)}<br>Revise com o responsável antes de alterar ou descartar itens. Nenhum pedido foi modificado automaticamente.</div></div>`:''}
+ ${its.map(i=>`<div class="line" data-item="${esc(i.id)}"><div class="lineTitle">${remaining(i)}× ${esc(i.name)}</div>
+ ${i.allergy?`<div class="note allergy" role="note">⚠ ${esc(i.allergy)}${i.allergyAcknowledged?' · RESTRIÇÃO CONFERIDA':''}</div>`:''}
+ ${i.note?`<div class="note">⚑ ${esc(i.note)}</div>`:''}${i.correction?`<span class="chip remake">${esc(i.correction)}</span>`:''}
+ ${i.blocked?'<div class="note blocked" role="alert">⛔ PREPARO SUSPENSO · aguardando responsável. Não preparar ou entregar até reavaliar.</div>':''}
+ ${i.pendingCorrection?`<div class="note change">⌛ Correção de ${i.pendingCorrection.qty} unidade(s) solicitada · aguardando gerente</div>`:''}
+ <div class="phase ${i.ready?'good':''}">${i.ready?i.ready+' de '+(i.qty-i.cancelled)+' prontos · ':''}${i.phase==='making'?'Em preparo':'Aguardando'}</div>
+ <div class="actions"><button class="primary" data-act="${i.blocked||i.allergy&&!i.allergyAcknowledged?'ackallergy':'ready'}" data-id="${esc(i.id)}" ${disabled()}>${i.blocked?'⛔ Reavaliar com responsável':i.allergy&&!i.allergyAcknowledged?'⚠ Conferir alergia':remaining(i)>1?'✓ '+remaining(i)+' prontos':'✓ Marcar pronto'}</button>
+ ${remaining(i)>1&&!i.allergy?`<button class="secondary" data-act="one" data-id="${esc(i.id)}" ${disabled()}>✓ 1 pronto</button>`:''}</div></div>`).join('')}
+ <div class="ticketfoot">${o.notice?.active?`<button class="attention-button" data-act="reviewChange" data-order="${esc(o.id)}">⚠ Revisar alteração recebida</button>`:''}<details class="more"><summary aria-label="Mais ações do pedido ${esc(o.id)}"><span>Outras ações</span><span class="disclosure-caret" aria-hidden="true">⌄</span></summary><div class="more-content">
+ <button data-act="priority" data-order="${esc(o.id)}" ${disabled()}>${o.urgent?'Retirar destaque':'⚡ Destacar pedido'}</button>
+ <button data-act="print" data-order="${esc(o.id)}">Imprimir ticket</button><button data-act="correct" data-order="${esc(o.id)}">Corrigir / refazer</button>
+ ${its.some(i=>i.phase==='new')?`<button data-act="startall" data-order="${esc(o.id)}" ${disabled()}>Marcar em preparo</button>`:''}
+ ${canBatch?`<button class="all-button" data-act="all" data-order="${esc(o.id)}" ${disabled()}>✓ Concluir ${its.length} itens deste pedido</button>`:''}
+ </div></details></div></article>`;
+}
+function passCard(o,old){const its=localItems(o).filter(i=>passqty(i)>0&&isOld(i)===old);if(!its.length)return '';
+ return `<article class="passcard ${old?'old':''}" data-pass-order="${esc(o.id)}"><div class="green">${old?'⚠ AGUARDANDO HÁ MAIS TEMPO':'● PRONTO PARA SAÍDA'}</div><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div><p>${its.map(i=>`${passqty(i)}× ${esc(i.name)}${i.note?` · ${esc(i.note)}`:''}${i.allergy?' · ALERGIA':''}`).join('<br>')}</p>
+ <div class="actions">${its.map(i=>`<button class="secondary" data-act="pickup" data-id="${esc(i.id)}" ${disabled()}>Retirada · ${esc(i.name)}</button>`).join('')}<button class="quiet" data-act="correct" data-order="${esc(o.id)}">Exceção</button></div></article>`;
+}
+function nav(){let names=[['queue','▤ Pedidos'],['ready','✓ Passe'],['all','▦ Resumo por produto'],['settings','⚙ Ajustes']];if(station==='KITCHEN'&&mode==='expedite')names.splice(2,0,['expedite','↗ Expedição']);let h=names.map(([v,n])=>{const icon=n.split(' ')[0],plain=n.slice(icon.length+1),short=v==='all'?'Produtos':v==='settings'?'Ajustes':v==='expedite'?'Expedição':v==='queue'?'Pedidos':'Passe';const count=v==='ready'?readyUnits():v==='queue'?unseen().length:0;const suffix=count?' <span class="nav-count" aria-label="'+(v==='ready'?'unidades prontas':'avisos pendentes')+'">'+count+'</span>':'';return `<button data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''} aria-label="${esc(plain)}${count?' · '+count+' pendentes':''}"><span class="nav-glyph" aria-hidden="true">${icon}</span><span class="nav-full">${esc(plain)}</span><span class="nav-compact">${esc(short)}</span>${suffix}</button>`}).join('');document.getElementById('nav').innerHTML=h;document.getElementById('bottom').innerHTML=h}
+function content(){
+ if(view==='queue'){
+ const list=fresh();work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Pedidos para preparar</strong><small>${list.length} tickets · mais antigos primeiro</small></div>`+
+ (list.length?`<div class="ticketgrid">${list.map(ticket).join('')}</div>`:'<div class="empty">✓ Tudo em dia. Nenhum pedido aguardando preparo.</div>')+
+ `${station==='KITCHEN'?`<div class="tools"><button data-act="mode">${mode==='simple'?'Ativar expedição':'Desativar expedição'}</button></div>`:''}`;return;
+ }
+ if(view==='ready'){
+ const scoped=filterReadyOrder?orders.filter(o=>o.id===filterReadyOrder):orders;
+ const older=scoped.map(o=>passCard(o,true)).filter(Boolean),recent=scoped.map(o=>passCard(o,false)).filter(Boolean);
+ const oldTotal=scoped.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(isOld(i)?passqty(i):0),0),0);
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Passe · itens prontos agora</strong><small>${recent.reduce((s,c)=>s+1,0)} pedido(s) recentes · ${oldTotal} sem confirmação</small></div>`+
+ (filterReadyOrder?`<div class="passfilter">Exibindo apenas ${esc(scoped[0]?.dest||filterReadyOrder)} · pedido ${esc(filterReadyOrder)} <button data-act="clearPassFilter">Ver Passe geral</button></div>`:'')+
+ (recent.length?`<div class="passgrid">${recent.join('')}</div>`:'<div class="empty">Sem itens recentemente prontos nesta seleção.</div>')+
+ (older.length?`<details class="pass-archive" ${filterReadyOrder?'open':''}><summary>⚠ ${oldTotal} unidade(s) sem retirada registrada <span>Ver e conferir ▾</span></summary><p class="mutedHelp">Estas unidades saíram da fila recente por tempo, mas NÃO foram marcadas entregues ou retiradas. Confira o balcão se necessário; nenhuma confirmação individual é obrigatória.</p><div class="passgrid">${older.join('')}</div></details>`:'')+
+ '<p class="mutedHelp">Prontos recentes são a fila de ação. Registros antigos ficam acessíveis separadamente sem fingir entrega; confirmar retirada continua opcional.</p>';return;
+ }
+ if(view==='all'){
+ const m={};orders.forEach(o=>localItems(o).forEach(i=>{let q=remaining(i);if(q>0)m[i.name]=(m[i.name]||0)+q}));let names=Object.keys(m).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Resumo por produto · unidades pendentes</strong><small>Visão consultiva, sem mesclar modificadores</small></div>`+
+ (names.length?`<div class="allDayGrid">${names.map(n=>`<div class="allDayRow"><strong>${esc(n)}</strong><b>${m[n]}</b></div>`).join('')}</div>`:'<div class="empty">Nenhuma unidade pendente.</div>')+'<p class="mutedHelp">Configurações e alergias ficam nos tickets originais. Esta soma não autoriza preparo em lote de itens diferentes.</p>';return;
+ }
+ if(view==='settings'){
+ const names=[...new Set(orders.flatMap(o=>o.items.filter(i=>i.station===station).map(i=>i.name)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Ajustes da estação</strong><small>Somente simulação do protótipo</small></div><div class="settings">
+ <div class="setting"><div><b>Alerta de atraso · ${station==='BAR'?'Bar':'Cozinha'}</b><div class="meta">Limiar ilustrativo em minutos</div></div><label><input id="threshold" aria-label="Minutos até alerta" type="number" min="1" max="60" value="${threshold[station]}"> min</label></div>
+ <div class="setting"><div><b>Som de novo pedido</b><div class="meta">Só ativa após interação do operador</div></div><button data-act="sound">${sound?'Ativado':'Desativado'}</button></div>
+ ${station==='KITCHEN'?`<div class="setting"><div><b>Expedição opcional</b><div class="meta">Para estabelecimentos com passe separado</div></div><button data-act="mode">${mode==='expedite'?'Ativada':'Desativada'}</button></div>`:''}
+ <div class="setting"><div><b>Modo leitura à distância</b><div class="meta">Aumenta letras e espaços dos tickets</div></div><button data-act="largeText">${largeText?'Ativado':'Desativado'}</button></div><div class="setting"><div><b>Conectividade</b><div class="meta">Sem rede, ações não são confirmadas</div></div><button data-act="connection">${online?'Online':'Offline'}</button></div>
+ <h3 style="font-size:16px;margin-bottom:5px">Disponibilidade</h3><p class="mutedHelp">Uma alteração afeta somente novos pedidos nesta simulação; pedidos confirmados continuam na produção.</p>
+ ${names.map(n=>`<div class="setting"><div><b>${esc(n)}</b><div class="meta">${availability[n]===false?'Indisponível':'Disponível'}</div></div><button data-product="${esc(n)}" ${disabled()}>${availability[n]===false?'Reativar':'Indisponibilizar'}</button></div>`).join('')}
+ </div>`;return;
+ }
+ if(view==='expedite'){
+ const list=orders.filter(o=>o.items.some(i=>i.station==='KITCHEN')).sort((a,b)=>a.created-b.created);
+ const cards=list.map(o=>{
+  const rows=['KITCHEN','BAR'].map(st=>{const its=o.items.filter(i=>i.station===st);if(!its.length)return '';
+   const expected=its.reduce((s,i)=>s+i.qty-i.cancelled,0),ready=its.reduce((s,i)=>s+i.ready,0);
+   return `<div class="expRow"><span>${st==='BAR'?'Bar':'Cozinha'} · ${its.map(i=>esc(i.name)).join(', ')}</span><b class="${ready>=expected?'ready':'pending'}">${ready}/${expected}</b></div>`;}).join('');
+  const pendingItems=o.items.filter(i=>remaining(i)>0),available=o.items.some(i=>passqty(i)>0);
+  const next=pendingItems.length?'Aguardando '+[...new Set(pendingItems.map(i=>i.station==='BAR'?'Bar':'Cozinha'))].join(' e '):available?'Itens prontos para encaminhar':'Sem itens aguardando expedição';
+  const action=available?`<button class="secondary actionLink" data-act="openPass" data-order="${esc(o.id)}">Ver prontos desta mesa</button>`:'<div class="meta">Ainda não há itens prontos para consultar no Passe.</div>';
+  return `<article class="expCard ${pendingItems.length?'waiting':'completed'}"><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div>${rows}<div class="nextStep">${esc(next)}</div><div class="actions">${action}</div></article>`;
+ }).join('');
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Expedição · próximo passo</strong><small>Bar e Cozinha · consulte os prontos por mesa</small></div><div class="expGrid">${cards}</div>`;return;
+ }
+
+}
+function focusSelector(el){if(!el||!el.closest('#app'))return null;if(el.matches('[data-act]'))return `[data-act="${CSS.escape(el.dataset.act)}"]${el.dataset.id?`[data-id="${CSS.escape(el.dataset.id)}"]`:el.dataset.order?`[data-order="${CSS.escape(el.dataset.order)}"]`:''}`;if(el.matches('[data-view]'))return `[data-view="${CSS.escape(el.dataset.view)}"]`;if(el.matches('[data-product]'))return `[data-product="${CSS.escape(el.dataset.product)}"]`;return null}
+function render({resetScroll=false,focus=null}={}){
+ const oldFocus=focus||focusSelector(document.activeElement),oldScroll=work.scrollTop;
+ root.querySelectorAll('[data-device]').forEach(b=>{b.classList.toggle('active',b.dataset.device===device);b.setAttribute('aria-pressed',String(b.dataset.device===device))});
+ root.querySelectorAll('[data-station]').forEach(b=>{b.classList.toggle('active',b.dataset.station===station);b.setAttribute('aria-pressed',String(b.dataset.station===station))});
+ surface.className='surface '+device+(largeText?' large-text':'');document.getElementById('stationTitle').textContent=station==='BAR'?'Bar':'Cozinha';document.getElementById('connectionBtn').textContent=online?'● Online':'● Offline';document.getElementById('connectionBtn').classList.toggle('offline',!online);
+ document.getElementById('summary').innerHTML=[['Pedidos na fila',fresh().length],['Em preparo',activeCount()],['Prontos recentes',readyUnits()]].map(([label,n])=>`<div><strong>${n}</strong><span>${label}</span></div>`).join('');nav();
+ document.getElementById('alerts').innerHTML=
+ (unseen().length?`<div class="status notice-banner" role="status">● ${unseen().filter(o=>o.isNew).length} pedido(s) novo(s) · ${unseen().filter(o=>o.notice?.active).length} alteração(ões) pendente(s) na ${station==='BAR'?'área do Bar':'Cozinha'}. <button class="tinybutton" data-act="jumpNew">Ver pedidos →</button></div>`:'')+
+ (localItemsBlocked().length?`<div class="status danger" role="alert">⛔ ${localItemsBlocked().length} item(ns) com preparo suspenso por segurança. Acione o responsável antes de retomar.</div>`:'')+
+ (!online?'<div class="status danger" role="alert">Sem conexão. Últimos dados conhecidos; não concluir nem corrigir itens. Reconecte e consulte o estado atualizado.</div>':'')+
+ (fresh().some(o=>localItems(o).some(i=>i.allergy&&!i.allergyAcknowledged&&!i.blocked))?'<div class="status" role="status">⚠ Restrições alimentares a conferir antes de preparar e liberar.</div>':'');
+ content();drawModal();work.scrollTop=resetScroll?0:oldScroll;
+ if(oldFocus&&!modal){const target=root.querySelector(oldFocus);if(target&&target.offsetParent!==null)target.focus({preventScroll:true});else if(focus){work.querySelector('#work-title')?.focus({preventScroll:true})}}
+ requestAnimationFrame(layout);
+}
+function layout(){const controls=root.querySelector('.controls');root.style.setProperty('--controls-h',Math.ceil(controls.getBoundingClientRect().height)+'px');
+ const width=device==='mobile'?'min(390px,calc(100vw - 22px))':device==='tablet'?'min(850px,calc(100vw - 22px))':'min(1200px,calc(100vw - 22px))';surface.style.width=width;holder.style.width=device==='mobile'?'min(390px,calc(100vw - 22px))':width;
+ stage.style.overflowX='auto';surface.style.transform='none';holder.style.height='auto';
+}
+function log(kind,id){history.push({kind,id,time:Date.now()})}
+function see(o){o.isNew=false;if(o.notice)o.notice.active=false}
+function newOrder(){const id='N'+(++seq),opts=station==='BAR'?[['Chopp Pilsen',true],['Gin tônica',false],['Água com gás',true]]:[['Batata frita',false],['Pastel de queijo',false],['Burger da casa',false]];
+ let selected=opts.filter(x=>availability[x[0]]!==false);if(!selected.length){notify('Todos os produtos de exemplo estão indisponíveis.');return}
+ let item=selected[seq%selected.length];orders.push(build({id,dest:'MESA '+String(seq%20+1).padStart(2,'0'),type:'MESA',isNew:true,age:0,items:[{name:item[0],qty:seq%3===0?2:1,station,quick:item[1]}]}));log('new',id);soundPing();notify('Novo pedido '+id+' · sinalizado até ser reconhecido');render({resetScroll:false})}
+function simulateExternalChange(){const o=fresh().find(o=>localItems(o).some(i=>remaining(i)>0));if(!o){notify('Sem pedidos ativos nesta estação para simular alteração.');return}o.notice={active:true,message:'Cliente solicitou ALTERAÇÃO / CANCELAMENTO de um item deste pedido.'};log('external-change',o.id);soundPing();notify('Alteração recebida · '+o.dest+' — atenção antes de continuar');render()}
+function openModal(config,source){modal=config;returnFocus=source||document.activeElement;render();document.getElementById('modalHost').querySelector('input,select,button')?.focus({preventScroll:true})}
+function closeModal(){modal=null;const target=returnFocus;returnFocus=null;render();if(target?.isConnected&&target.offsetParent!==null)target.focus({preventScroll:true});else work.querySelector('#work-title')?.focus({preventScroll:true})}
+function drawModal(){const host=document.getElementById('modalHost');
+ ['.head','.summary','.mainnav','#alerts','.work','.bottombar'].forEach(sel=>{let e=surface.querySelector(sel);if(e)e.inert=!!modal});
+ if(!modal){host.innerHTML='';return}
+ const {kind,id}=modal;let body='';
+ if(kind==='allergy'){
+ const match=getItem(id);if(!match){closeModal();return}const {i}=match;
+ body=`<h3 id="modalTitle">⚠ Conferir alergia</h3><p><strong>${esc(i.name)}</strong></p><div class="note allergy" role="alert">${esc(i.allergy)}</div><p>${i.blocked?'Preparo suspenso: reavalie COM o responsável antes de retomar.':'Confira ingredientes, utensílios e contato cruzado. Se não for seguro, suspenda o preparo e avise o responsável.'}</p><label><input type="checkbox" id="allergyCheck"> ${i.blocked?'Confirmei com o responsável que as condições agora permitem o preparo seguro.':'Conferi ingredientes, utensílios e as condições do preparo.'}</label><div class="actions"><button class="secondary critical-action" data-act="requestHelp" data-id="${esc(id)}">⛔ Não consigo preparar com segurança</button><button class="secondary" data-act="close">Voltar</button><button class="primary" data-act="confirmAllergy" data-id="${esc(id)}" disabled>${i.blocked?'Registrar reavaliação (simulação)':'Registrar conferência'}</button></div><p class="mutedHelp">Na aplicação real, escalar e liberar o preparo exigem regras de autorização e registro auditável.</p>`;
+ } else if(kind==='change'){
+ const o=orders.find(x=>x.id===id);if(!o){closeModal();return}
+ body=`<h3 id="modalTitle">⚠ Pedido alterado · ${esc(o.dest)}</h3><div class="note change" role="alert">${esc(o.notice?.message||'Alteração recebida.')}</div><p>A mudança ainda não foi aplicada aos itens existentes. Confira a solicitação e o estado real do pedido antes de continuar o preparo.</p>${o.notice?.escalated?'<div class="request-state">⌛ Responsável acionado; não continue sem orientação.</div>':''}<div class="actions"><button class="secondary critical-action" data-act="escalateChange" data-order="${esc(o.id)}">Solicitar responsável</button><button class="secondary" data-act="close">Voltar ao pedido</button><button class="primary" data-act="ackChange" data-order="${esc(o.id)}" ${o.notice?.escalated?'disabled':''}>Revisei a solicitação · manter pedido atual</button></div><p class="mutedHelp">Demonstração: não há mudança real de itens nem autorização de gerente.</p>`;
+ } else if(kind==='correct'){
+ const o=orders.find(x=>x.id===id);if(!o){closeModal();return}
+ body=`<h3 id="modalTitle">Corrigir pedido ${esc(o.id)}</h3><p>Uma correção não apaga o histórico. Um item pronto não volta para preparo: uma refeitura cria uma nova linha vinculada.</p><label for="correctionReason">Motivo da correção</label><select id="correctionReason"><option value="">Selecionar motivo</option><option value="WRONG_ITEM">Item lançado errado</option><option value="CUSTOMER_CHANGED">Solicitação do cliente</option><option value="REMAKE">Problema no preparo / refeitura</option></select>
+ ${localItems(o).map(i=>`<div class="line"><strong>${esc(i.name)}</strong><div class="meta">Pendente ${remaining(i)} · Pronto ${i.ready} · Cancelado ${i.cancelled}</div>
+ ${i.pendingCorrection?`<div class="request-state" role="status">⌛ Solicitação de cancelar ${i.pendingCorrection.qty} unidade(s) aguardando aprovação do gerente (${esc(i.pendingCorrection.reason)}).<div class="actions"><button class="secondary" data-act="approveCorrection" data-id="${esc(i.id)}" ${disabled()}>Simular aprovação do gerente</button><button class="quiet" data-act="rejectCorrection" data-id="${esc(i.id)}" ${disabled()}>Simular recusa</button></div></div>`:''}
+ ${remaining(i)>0&&!i.pendingCorrection?`<label for="qty-${esc(i.id)}">Quantidade a cancelar (máx. ${remaining(i)})</label><input type="number" inputmode="numeric" min="1" max="${remaining(i)}" step="1" id="qty-${esc(i.id)}" value="1" aria-label="Quantidade a cancelar de ${esc(i.name)}">`:''}
+ <div class="actions">${remaining(i)>0&&!i.pendingCorrection?`<button class="secondary" data-act="cancel" data-id="${esc(i.id)}" ${disabled()}>${i.phase==='making'||i.ready>0?'Solicitar aprovação de cancelamento':'Cancelar quantidade selecionada'}</button>`:''}<button class="secondary" data-act="remake" data-id="${esc(i.id)}" ${disabled()}>Solicitar refeitura</button></div></div>`).join('')}
+ <p class="mutedHelp">Na implementação real, motivo, permissões, efeitos financeiros e idempotência dependem da API. Aqui são operações simuladas.</p><div class="actions"><button class="primary" data-act="close">Voltar à produção</button></div>`;
+ }
+ host.innerHTML=`<div class="popup"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">${body}</section></div>`;
+}
+function act(b){const kind=b.dataset.act,match=b.dataset.id?getItem(b.dataset.id):null,o=b.dataset.order?orders.find(o=>o.id===b.dataset.order):match?.o,i=match?.i;
+ if(!online&&['ready','one','startall','all','pickup','cancel','remake','priority','confirmAllergy','ackallergy','requestHelp','approveCorrection','rejectCorrection','ackChange','escalateChange'].includes(kind)){notify('Offline: ação não enviada; reconecte e confira o estado.');return}
+ if(kind==='new'||kind==='simulate'){newOrder();return}
+ if(kind==='simulateChange'){simulateExternalChange();return}
+ if(kind==='jumpNew'){view='queue';filterReadyOrder=null;render({resetScroll:true});const target=work.querySelector('.ticket.changed,.ticket.new');if(target){target.scrollIntoView({block:'start',behavior:'instant'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true})}return}
+ if(kind==='connection'){online=!online;notify(online?'Reconectado. Confira os estados atuais (simulação).':'Modo offline simulado: alterações pausadas.');render();return}
+ if(kind==='close'){closeModal();return}
+ if(kind==='openPass'&&o){filterReadyOrder=o.id;view='ready';render({resetScroll:true});work.querySelector('#work-title')?.focus({preventScroll:true});return}
+ if(kind==='clearPassFilter'){filterReadyOrder=null;render({resetScroll:true});return}
+ if(kind==='reviewChange'&&o){openModal({kind:'change',id:o.id},b);return}
+ if(o?.notice?.active&&['ready','one','all','startall'].includes(kind)){openModal({kind:'change',id:o.id},b);return}
+ if(kind==='ackChange'&&o){if(o.notice.escalated){notify('Aguardando responsável. Não é possível liberar por aqui.');return}o.notice.active=false;o.notice.reviewed=true;log('change-reviewed',o.id);closeModal();notify('Aviso lido. Continue somente conforme instrução do responsável e pedido confirmado.');return}
+ if(kind==='escalateChange'&&o){o.notice.escalated=true;log('change-escalated',o.id);closeModal();notify('Solicitação encaminhada ao responsável (simulação). Ticket aguarda resolução.');return}
+ if(kind==='ackallergy'&&i){openModal({kind:'allergy',id:i.id},b);return}
+ if(kind==='requestHelp'&&i){i.blocked=true;i.assistanceRequested=true;i.allergyAcknowledged=false;log('allergy-escalation',i.id);closeModal();notify('Preparo suspenso · aviso ao responsável simulado. Não preparar nem liberar.');return}
+ if(kind==='confirmAllergy'&&i){if(!document.getElementById('allergyCheck')?.checked)return;i.allergyAcknowledged=true;i.blocked=false;see(o);log('allergy-ack',i.id);closeModal();notify('Restrição conferida. Revise o item antes de marcar pronto.');return}
+ if(kind==='ready'&&i){if(i.blocked){notify('Preparo suspenso: reavalie com responsável antes de concluir.');return}if(i.allergy&&!i.allergyAcknowledged){openModal({kind:'allergy',id:i.id},b);return}i.ready+=remaining(i);i.phase='ready';i.readyAt=Date.now();see(o);log('ready',i.id);notify('Item pronto para saída.');render({focus:focusSelector(b)});return}
+ if(kind==='one'&&i&&remaining(i)>0&&!i.allergy){i.ready++;i.phase=remaining(i)>0?'making':'ready';i.readyAt=Date.now();see(o);log('partial',i.id);render({focus:focusSelector(b)});return}
+ if(kind==='all'&&o){const its=localItems(o).filter(i=>remaining(i)>0);if(its.length<2||its.some(i=>i.allergy)){notify('Conclua individualmente os itens com alergia.');return}its.forEach(i=>{i.ready+=remaining(i);i.readyAt=Date.now();i.phase='ready';log('ready-all',i.id)});see(o);notify('Itens deste pedido prontos (simulação).');render({focus:focusSelector(b)});return}
+ if(kind==='startall'&&o){localItems(o).filter(i=>remaining(i)>0&&i.phase==='new'&&!i.allergy).forEach(i=>{i.phase='making';log('start',i.id)});see(o);render({focus:focusSelector(b)});return}
+ if(kind==='priority'&&o){o.urgent=!o.urgent;see(o);log('priority',o.id);render({focus:focusSelector(b)});return}
+ if(kind==='print'){notify('Impressão simulada. Nenhum ticket foi enviado para impressora.');return}
+ if(kind==='correct'&&o){openModal({kind:'correct',id:o.id},b);return}
+ if(kind==='pickup'&&i){i.picked=i.ready;log('pickup',i.id);notify('Retirada registrada, sem afirmar entrega ao cliente.');render({focus:focusSelector(b)});return}
+ if((kind==='cancel'||kind==='remake')&&i&&o){const reason=document.getElementById('correctionReason')?.value;
+ if(!reason){notify('Selecione o motivo da correção.');document.getElementById('correctionReason')?.focus();return}
+ if(kind==='cancel'){
+  const field=document.getElementById('qty-'+i.id),qty=Number(field?.value);
+  if(!Number.isInteger(qty)||qty<1||qty>remaining(i)){notify('Informe uma quantidade inteira entre 1 e '+remaining(i)+'.');field?.focus();return}
+  if(i.pendingCorrection){notify('Existe uma solicitação aguardando decisão.');return}
+  if(i.phase==='making'||i.ready>0){i.pendingCorrection={qty,reason,status:'PENDING'};log('cancel-pending',i.id);o.notice={active:true,message:'Cancelamento de '+qty+' unidade(s) aguardando decisão do gerente. Não alterar o preparo até a resposta.'};notify('Solicitação criada, SEM cancelar unidades até aprovação (simulação).')}
+  else{i.cancelled+=qty;i.correction='CANCELAMENTO APLICADO · '+qty+' un.';log('cancel-applied',i.id);notify(qty+' unidade(s) cancelada(s) na simulação.');see(o)}
+ }else{
+  const clone={...i,id:'R'+(++seq),qty:1,ready:0,picked:0,cancelled:0,phase:'new',readyAt:null,allergyAcknowledged:false,blocked:false,assistanceRequested:false,pendingCorrection:null,correction:'REFAZER '+i.id};
+  o.items.push(clone);log('remake-request',i.id);notify('Nova linha de refeitura simulada. Original preservado; autorização real não foi concedida.');see(o);
+ }
+ closeModal();return;
+ }
+ if((kind==='approveCorrection'||kind==='rejectCorrection')&&i&&o&&i.pendingCorrection){const p=i.pendingCorrection;
+  if(kind==='approveCorrection'){if(p.qty>remaining(i)){notify('Quantidade mudou. Faça nova solicitação.');return}i.cancelled+=p.qty;i.correction='CANCELAMENTO APROVADO · '+p.qty+' un.';log('cancel-approved',i.id);notify('Gerente aprovou cancelamento de '+p.qty+' unidade(s) (SIMULAÇÃO).');}
+  else{log('cancel-rejected',i.id);notify('Cancelamento recusado (simulação); itens mantidos.')}
+  i.pendingCorrection=null;o.notice={active:true,message:kind==='approveCorrection'?'Gerente aprovou cancelamento parcial. Confira as quantidades.':'Gerente recusou cancelamento. Produção permanece conforme pedido.'};closeModal();return;
+ }
+ if(kind==='mode'){mode=mode==='simple'?'expedite':'simple';view=mode==='expedite'?'expedite':'queue';render({resetScroll:true});return}
+ if(kind==='sound'){sound=!sound;notify(sound?'Som ativado':'Som desativado');render();return}
+ if(kind==='largeText'){largeText=!largeText;render({focus:focusSelector(b)});return}
+}
+root.addEventListener('click',event=>{const b=event.target.closest('button');if(!b||!root.contains(b))return;
+ if(b.dataset.device){device=b.dataset.device;render({resetScroll:true});return}
+ if(b.dataset.station){station=b.dataset.station;view='queue';filterReadyOrder=null;render({resetScroll:true});return}
+ if(b.dataset.view){view=b.dataset.view;if(view!=='ready')filterReadyOrder=null;render({resetScroll:true,focus:focusSelector(b)});return}
+ if(b.dataset.product!==undefined){if(!online){notify('Offline: não é possível alterar disponibilidade.');return}availability[b.dataset.product]=!(availability[b.dataset.product]!==false);notify((availability[b.dataset.product]?'Reativado':'Indisponível')+' para novos pedidos (simulação)');render({focus:focusSelector(b)});return}
+ if(b.dataset.reset){init();return}
+ if(b.dataset.scenario){init();for(let k=0;k<25;k++){const id='P'+(500+k),st=k%2===0?'BAR':'KITCHEN',name=st==='BAR'?(k%3?'Chopp Pilsen':'Caipirinha'):(k%3?'Burger da casa':'Batata frita');orders.push(build({id,dest:'MESA '+String(k+10).padStart(2,'0'),type:'MESA',age:2+k%19,items:[{name,qty:1+k%3,station:st,quick:name==='Chopp Pilsen'}]}))}render({resetScroll:true});notify('Cenário de pico: 30 pedidos simulados');return}
+ if(b.dataset.act)act(b);
+});
+root.addEventListener('change',e=>{if(e.target.id==='threshold'){threshold[station]=Math.max(1,Math.min(60,Number(e.target.value)||5));render({focus:'#threshold'})}if(e.target.id==='allergyCheck'){const confirm=document.querySelector('[data-act="confirmAllergy"]');if(confirm)confirm.disabled=!e.target.checked}});
+root.addEventListener('keydown',e=>{if(!modal)return;if(e.key==='Escape'){e.preventDefault();closeModal();return}if(e.key==='Tab'){const els=[...root.querySelectorAll('#modalHost input:not(:disabled),#modalHost select:not(:disabled),#modalHost button:not(:disabled)')];if(!els.length)return;const first=els[0],last=els[els.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+function updateTimers(){document.querySelectorAll('[data-age-order]').forEach(time=>{const o=orders.find(o=>o.id===time.dataset.ageOrder);if(!o)return;const mins=age(o);time.textContent=mins+' min';time.classList.toggle('late',mins>=threshold[station]);const ticket=time.closest('.ticket');if(ticket){ticket.classList.toggle('overdue',mins>=threshold[station]);let badge=ticket.querySelector('.overdue-tag');if(badge)badge.hidden=!(mins>=threshold[station]);else if(mins>=threshold[station]){badge=document.createElement('span');badge.className='chip overdue-tag';badge.textContent='ATRASADO';ticket.querySelector('.thead').append(badge)}}})}
+if(window.ResizeObserver)new ResizeObserver(layout).observe(root.querySelector('.controls'));
+window.addEventListener('resize',layout);
+init();setInterval(updateTimers,15000);
+})();
+</script></body></html>

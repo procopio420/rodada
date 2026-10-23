@@ -17,7 +17,9 @@
     "test:visual:report": "playwright show-report",
     "test:table-service": "node --test tests/table-service-gateway.test.mjs tests/venue-host-guard.test.mjs",
     "test:identity": "node --experimental-strip-types --test tests/tab-identity.test.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:kds-parity:infra": "playwright test --config playwright.kds-parity.config.ts --project infra",
+    "test:kds-parity:app": "playwright test --config playwright.kds-parity.config.ts --project application"
   },
   "dependencies": {
     "next": "16.3.8",
