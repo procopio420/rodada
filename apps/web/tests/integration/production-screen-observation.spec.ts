@@ -39,7 +39,7 @@ for (const station of ["BAR", "KITCHEN"] as const) {
     await expect.poll(() => received.some(batch =>
       batch.station === station && batch.order_ids.includes(confirmed.id))).toBe(true);
 
-    const date = new Date().toISOString().slice(0, 10);
+    const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
     const report = async () => page.evaluate(async date => {
       const result = await fetch(`/api/pos/management/attendance-metrics/?start=${date}&end=${date}`);
       if (!result.ok) throw new Error(`report status ${result.status}`);
