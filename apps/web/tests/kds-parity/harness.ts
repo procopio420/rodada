@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFileSync, writeFile } from "node:fs";
+import { mkdir, readFileSync } from "node:fs";
 import { writeFile as writeAsync } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -99,9 +99,14 @@ function regions(scene: KdsScene): Region[] {
       list.push({ name: "alert", ref: "#alerts .status:first-child", app: '[data-testid="kds-alert"]:first-child', critical: true });
     }
   } else if (scene.view === "ready") {
-    list.push({ name: "pass", ref: ".passgrid", app: '[data-testid="kds-pass-grid"]' });
-    list.push({ name: "pass-card", ref: ".passcard:first-child", app: '[data-testid="kds-pass-card"]:first-child' });
-    list.push({ name: "pass-archive", ref: ".pass-archive", app: '[data-testid="kds-pass-archive"]' });
+    if (scene.station === "BAR") {
+      list.push({ name: "pass", ref: ".passgrid", app: '[data-testid="kds-pass-grid"]' });
+      list.push({ name: "pass-card", ref: ".passcard:first-child", app: '[data-testid="kds-pass-card"]:first-child' });
+    } else {
+      // Kitchen fixture intentionally has ONLY older READY units. The archive
+      // starts collapsed, so its inner pass cards must not be screenshotted.
+      list.push({ name: "pass-archive", ref: ".pass-archive", app: '[data-testid="kds-pass-archive"]' });
+    }
   } else if (scene.view === "all") {
     list.push({ name: "product-summary", ref: ".allDayGrid", app: '[data-testid="kds-all-day"]' });
   } else if (scene.view === "settings") {
