@@ -40,7 +40,7 @@ const fixed = new Date(manifest.fixture.local_time);
 const normalizer = [
   "html,body,#app,#stage,#holder{margin:0!important;padding:0!important;min-height:0!important;}",
   "html,body,#app,#stage,#holder{width:100%!important;height:100%!important;}",
-  ".controls,.footnote{display:none!important;}",
+  ".controls,.footnote,.toast{display:none!important;}",
   "#stage{overflow:hidden!important;}",
   "#surface{width:100vw!important;height:100dvh!important;max-width:none!important;",
   "border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important;transform:none!important;}"
