@@ -1,6 +1,6 @@
 """Aggregate canonical observations, never infer client intent or delivery."""
 from datetime import timedelta
-from django.db.models import Sum, Q
+from django.db.models import Case, CharField, Count, F, Sum, Value, When
 
 from modules.dispatch.models import DispatchTask, DispatchTaskType
 from modules.ordering.models import OrderItem, OrderStatus
@@ -81,29 +81,34 @@ def attendance_metrics(*, venue, start, end):
             essential_steps_observed=Sum("essential_steps_observed"),
         ).order_by("platform", "event")
     )
+    # One grouped database query computes per-station *distinct Orders*
+    # (not item counts), including the legacy empty routing snapshot fallback.
+    station_rows = OrderItem.objects.filter(
+        order__tab__venue=venue,
+        order__status=OrderStatus.CONFIRMED,
+        order__confirmed_at__gte=lower,
+        order__confirmed_at__lt=upper,
+    ).annotate(effective_station=Case(
+        When(fulfillment_station_snapshot__in=("BAR", "KITCHEN"),
+             then=F("fulfillment_station_snapshot")),
+        When(fulfillment_station_snapshot="",
+             product__fulfillment_station__in=("BAR", "KITCHEN"),
+             then=F("product__fulfillment_station")),
+        default=Value("UNKNOWN"), output_field=CharField(),
+    )).values("effective_station").annotate(orders=Count("order_id", distinct=True))
+    eligible_by_station = {
+        row["effective_station"]: row["orders"] for row in station_rows
+    }
+    screen_totals = {
+        metric["event"]: metric for metric in client_telemetry
+        if metric["platform"] == "WEB" and metric["event"] in ("screen_bar", "screen_kitchen")
+    }
     screen_results = {}
     for station in ("BAR", "KITCHEN"):
-        # The cohort is unique confirmed Orders routed to this station,
-        # not item counts and not staff activity.
-        eligible = OrderItem.objects.filter(
-            order__tab__venue=venue,
-            order__status=OrderStatus.CONFIRMED,
-            order__confirmed_at__gte=lower,
-            order__confirmed_at__lt=upper,
-        ).filter(
-            Q(fulfillment_station_snapshot=station) |
-            Q(fulfillment_station_snapshot="", product__fulfillment_station=station),
-        ).values("order_id").distinct().count()
-        aggregates = AttendanceTelemetryDaily.objects.filter(
-            venue=venue, business_date__gte=start, business_date__lte=end,
-            platform="WEB", event="screen_bar" if station == "BAR" else "screen_kitchen",
-        ).aggregate(
-            observed=Sum("count"),
-            latency_observed=Sum("duration_observed"),
-            latency_total_ms=Sum("duration_total_ms"),
-        )
-        observed = aggregates["observed"] or 0
-        linked = aggregates["latency_observed"] or 0
+        eligible = eligible_by_station.get(station, 0)
+        totals = screen_totals.get("screen_bar" if station == "BAR" else "screen_kitchen", {})
+        observed = totals.get("count_total", 0) or 0
+        linked = totals.get("duration_observed", 0) or 0
         screen_results[station] = {
             "source": "fresh station Order viewport observation → authenticated server receipt",
             "latency_source": "server intent_started receipt → station viewport receipt; proxy, not synchronized client clocks",
@@ -113,7 +118,7 @@ def attendance_metrics(*, venue, start, end):
             "latency_observed": linked,
             "latency_missing": max(0, observed - linked),
             "mean_intent_ingest_to_screen_seconds": (
-                round((aggregates["latency_total_ms"] or 0) / linked / 1000, 3)
+                round((totals.get("duration_total_ms", 0) or 0) / linked / 1000, 3)
                 if linked else None
             ),
         }
