@@ -133,7 +133,25 @@ class AttendanceTelemetryDaily(models.Model):
 class AttendanceTelemetryReceipt(models.Model):
     id = models.UUIDField(primary_key=True)
     fingerprint = models.CharField(max_length=64, default="")
+    event = models.CharField(max_length=24, default="")
     # SHA-256 of a randomly generated order idempotency key. Temporary, never exposed.
     intent_ref = models.CharField(max_length=64, default="", db_index=True)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     received_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+
+class ProductionScreenReceipt(models.Model):
+    """Ephemeral deduplication proof: an authenticated staff screen reported
+    a *fresh canonical* station order as viewport-visible. Not human attention.
+    Financial Order remains authoritative; this record is pruned after 7 days.
+    """
+    id = models.BigAutoField(primary_key=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    order = models.ForeignKey("ordering.Order", on_delete=models.CASCADE)
+    station = models.CharField(max_length=8, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
+    observed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["venue", "order", "station"], name="ux2_screen_first_order_station"
+        )]

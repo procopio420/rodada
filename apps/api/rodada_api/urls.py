@@ -1,4 +1,5 @@
 from modules.management.telemetry import AttendanceTelemetryIngestView
+from modules.management.production_screen import ProductionScreenObservationView
 from modules.guest_access.customer_views import (
     CustomerRegisterView, CustomerLoginView, CustomerContextView,
     CustomerClaimView, CustomerLogoutView, CustomerPasswordRotateView,
@@ -155,6 +156,7 @@ urlpatterns = [
     path("management/reports/", ReportView.as_view()),
     path("management/attendance-metrics/", AttendanceMetricsView.as_view()),
     path("attendance/telemetry/", AttendanceTelemetryIngestView.as_view()),
+    path("production/screen-observations/", ProductionScreenObservationView.as_view()),
     path("management/table-turnover/", TableTurnoverReportView.as_view(), name="table-turnover-report"),
     path("venue/context/", VenueHostContextView.as_view(), name="venue-host-context"),
     path("health/", health, name="health"),

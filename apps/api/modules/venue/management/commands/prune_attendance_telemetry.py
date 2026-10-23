@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from modules.venue.models import AttendanceTelemetryReceipt
+from modules.venue.models import AttendanceTelemetryReceipt, ProductionScreenReceipt
 
 
 class Command(BaseCommand):
@@ -29,4 +29,14 @@ class Command(BaseCommand):
                 break
             count, _ = AttendanceTelemetryReceipt.objects.filter(pk__in=stale).delete()
             deleted += count
-        self.stdout.write(f"Expired UX2 receipt IDs: {deleted}")
+        screen_deleted = 0
+        for _ in range(batches):
+            stale = list(
+                ProductionScreenReceipt.objects.filter(observed_at__lt=cutoff)
+                .order_by("observed_at").values_list("pk", flat=True)[:size]
+            )
+            if not stale:
+                break
+            count, _ = ProductionScreenReceipt.objects.filter(pk__in=stale).delete()
+            screen_deleted += count
+        self.stdout.write(f"Expired UX2 receipt IDs: {deleted}; station screen receipts: {screen_deleted}")
