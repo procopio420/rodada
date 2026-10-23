@@ -8,7 +8,7 @@ from modules.access.capabilities import Capability, has_capability
 from modules.access.models import StaffSession
 from modules.audit.services import record_audit_event
 from modules.ordering.models import OrderItem, ProductionBatch, Tab
-from modules.ordering.services import OrderingServiceError, transition_order_item
+from modules.ordering.services import OrderingServiceError, is_instant_pickup, transition_order_item
 
 
 def canonical(value):
@@ -77,7 +77,6 @@ def execute_production_batch(*, actor, idempotency_key, station, target_state, l
     list(Tab.objects.select_for_update().filter(pk__in=tab_ids).order_by("id"))
     items = {str(item.id): item for item in scoped.select_for_update(of=("self",))
              .select_related("order").prefetch_related("corrections").order_by("id")}
-    expected_origins = {"NEW", "ACCEPTED"} if target_state == "PREPARING" else {"PREPARING"}
     results = []
     signatures = set()
     for line in lines:
@@ -91,7 +90,13 @@ def execute_production_batch(*, actor, idempotency_key, station, target_state, l
                 reasons.append("CONFIGURATION_NOT_VERIFIABLE")
             else:
                 signatures.add(signature)
-            if item.order.status != "CONFIRMED" or item.state != line["expected_state"] or item.state not in expected_origins:
+            origin_allowed = (
+                (item.state in ("NEW", "ACCEPTED") and not is_instant_pickup(item))
+                if target_state == "PREPARING" else
+                (item.state == "PREPARING" or
+                 (item.state in ("NEW", "ACCEPTED") and is_instant_pickup(item)))
+            )
+            if item.order.status != "CONFIRMED" or item.state != line["expected_state"] or not origin_allowed:
                 reasons.append("STATE_CONFLICT")
             if item.remaining_quantity != line["quantity"]:
                 reasons.append("QUANTITY_CONFLICT")
