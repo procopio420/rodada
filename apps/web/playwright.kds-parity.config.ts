@@ -16,7 +16,6 @@ export default defineConfig({
     locale: "pt-BR",
     timezoneId: "America/Fortaleza",
     colorScheme: "dark",
-    reducedMotion: "reduce",
     trace: "retain-on-failure",
   },
   projects: [
