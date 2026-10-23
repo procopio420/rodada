@@ -1,6 +1,8 @@
 # Acceptance — Spec 033: Atendimento 2.0 integrado
 
-**Aceite global PENDING.** Inventário atual: [E06 por evidências](e06-current-evidence.md). Prototipagem HTML e as 27 verificações sintéticas da PR #212 não provam API/Android. Registrar para cada AC: PR, commit SHA, ambiente, comandos, screenshots/logs, reviewer e status PASS/FAIL/BLOCKED.
+**Aceite global PENDING.** A [auditoria por evidências #272](e06-audit-closeout-20261022.md) está concluída como inventário/reconciliação, **não como homologação da Spec 033**. Gates ainda ativos: [jornada integrada #315](https://github.com/procopio420/rodada/issues/315), [aparelho/TalkBack #316](https://github.com/procopio420/rodada/issues/316), [R3/rollback #317](https://github.com/procopio420/rodada/issues/317) e [piloto/GO #318](https://github.com/procopio420/rodada/issues/318). Nenhuma caixa abaixo deve ser marcada por transferência de issue.
+
+ Inventário atual: [E06 por evidências](e06-current-evidence.md). Prototipagem HTML e as 27 verificações sintéticas da PR #212 não provam API/Android. Registrar para cada AC: PR, commit SHA, ambiente, comandos, screenshots/logs, reviewer e status PASS/FAIL/BLOCKED.
 
 ## E01: identidade e contexto
 - [ ] AC-01 Staff toca chamada QR com Tab/Occupancy válida e chega à comanda exata na Web e no Android; outra comanda na mesma mesa nunca é escolhida por label.
