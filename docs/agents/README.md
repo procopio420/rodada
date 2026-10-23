@@ -56,3 +56,7 @@ Relatórios e checkpoints são **append-only de evidência**: conservar datas, I
 Leia a [auditoria de 13/10](KB-AUDIT-2026-10-13.md) e o [plano de melhoria](IMPROVEMENT-PLAN.md). A raiz canônica `rodada.bar` está registrada na [ADR 0018](../adr/0018-rodada-bar-canonical-domain.md); a arquitetura de roteamento continua sob Spec 025. **Atualização da decisão documental não comprova wildcard DNS/TLS, isolamento implantado ou homologação.**
 
 Quando não houver evidência suficiente, responda `PENDENTE DE VERIFICAÇÃO` em vez de inferir PASS.
+
+## KDS Bar e Cozinha UX 2.0 — Spec 035 (2026-10-22)
+
+Especificação de UX 2.0 com [contrato funcional](../../specs/035-bar-kitchen-ux2/spec.md), [paridade visual obrigatória](../../specs/035-bar-kitchen-ux2/visual-parity.md), [gaps de integração](../../specs/035-bar-kitchen-ux2/contract-matrix.md), [plano](../../specs/035-bar-kitchen-ux2/plan.md), [tarefas](../../specs/035-bar-kitchen-ux2/tasks.md) e [aceite](../../specs/035-bar-kitchen-ux2/acceptance.md). Referência: [protótipo congelado](../../prototype/ux2/kds-bar-cozinha.html) de 17/10. Esta spec substitui a proposta 031-kds-ux2 de uma branch experimental, **não** as outras Specs 031 presentes na main. Sem testes/comando real, não alegar paridade implementada, homologada ou deploy.

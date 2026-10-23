@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "reference": {
+    "path": "prototype/ux2/kds-bar-cozinha.html",
+    "source_commit": "8d12e988eaa3dcd316df6b9543697a5f1be4285f",
+    "source_blob_sha": "8b4a2a4a5f2e90496c4aa54156ad0428590dc6c5",
+    "selector": "#surface",
+    "demo_chrome_excluded": true
+  },
+  "fixture": {
+    "id": "night-kds-v1",
+    "local_time": "2026-10-22T22:57:00-03:00",
+    "timezone": "America/Fortaleza",
+    "locale": "pt-BR",
+    "dpr": 1,
+    "reduce_motion": true
+  },
+  "gates": {
+    "pixelmatch_threshold": 0.1,
+    "max_region_pixel_diff_fraction": 0.02,
+    "max_critical_pixel_diff_fraction": 0.01,
+    "max_bounding_box_edge_difference_px": 2,
+    "no_p0_overrides": true
+  },
+  "widths": [
+    360,
+    390,
+    430,
+    768,
+    850,
+    1024,
+    1200,
+    1440,
+    1920
+  ],
+  "scene_matrix": [
+    {
+      "id": "bar-queue-mobile",
+      "station": "BAR",
+      "view": "queue",
+      "width": 390,
+      "height": 844,
+      "required": true,
+      "notes": "FG84, Mesa 12, immediate drink and prepared drink"
+    },
+    {
+      "id": "bar-queue-tablet",
+      "station": "BAR",
+      "view": "queue",
+      "width": 850,
+      "height": 900,
+      "required": true,
+      "notes": "two-column tickets"
+    },
+    {
+      "id": "bar-queue-desktop",
+      "station": "BAR",
+      "view": "queue",
+      "width": 1200,
+      "height": 900,
+      "required": true,
+      "notes": "three-column tickets"
+    },
+    {
+      "id": "kitchen-queue-mobile",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 390,
+      "height": 844,
+      "required": true,
+      "notes": "burger customization and allergy"
+    },
+    {
+      "id": "kitchen-queue-tablet",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 850,
+      "height": 900,
+      "required": true,
+      "notes": "two-column prep"
+    },
+    {
+      "id": "kitchen-queue-desktop",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 1200,
+      "height": 900,
+      "required": true,
+      "notes": "three-column prep"
+    },
+    {
+      "id": "bar-pass-recent",
+      "station": "BAR",
+      "view": "ready",
+      "width": 390,
+      "height": 844,
+      "required": true
+    },
+    {
+      "id": "kitchen-pass-old",
+      "station": "KITCHEN",
+      "view": "ready",
+      "width": 1200,
+      "height": 900,
+      "required": true,
+      "notes": "collapsed old READY; not marked delivered"
+    },
+    {
+      "id": "bar-all-day",
+      "station": "BAR",
+      "view": "all",
+      "width": 850,
+      "height": 900,
+      "required": true
+    },
+    {
+      "id": "kitchen-all-day",
+      "station": "KITCHEN",
+      "view": "all",
+      "width": 1200,
+      "height": 900,
+      "required": true
+    },
+    {
+      "id": "kitchen-expedition",
+      "station": "KITCHEN",
+      "view": "expedite",
+      "width": 1200,
+      "height": 900,
+      "mode": "expedite",
+      "required": true
+    },
+    {
+      "id": "kitchen-expedition-mobile",
+      "station": "KITCHEN",
+      "view": "expedite",
+      "width": 390,
+      "height": 844,
+      "mode": "expedite",
+      "required": true
+    },
+    {
+      "id": "bar-settings",
+      "station": "BAR",
+      "view": "settings",
+      "width": 850,
+      "height": 900,
+      "required": true
+    },
+    {
+      "id": "kitchen-settings",
+      "station": "KITCHEN",
+      "view": "settings",
+      "width": 390,
+      "height": 844,
+      "required": true
+    },
+    {
+      "id": "kitchen-allergy-modal",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 390,
+      "height": 844,
+      "modal": "allergy",
+      "required": true
+    },
+    {
+      "id": "bar-change-banner",
+      "station": "BAR",
+      "view": "queue",
+      "width": 850,
+      "height": 900,
+      "scenario": "simulateChange",
+      "required": true
+    },
+    {
+      "id": "bar-offline",
+      "station": "BAR",
+      "view": "queue",
+      "width": 390,
+      "height": 844,
+      "scenario": "offline",
+      "required": true
+    },
+    {
+      "id": "bar-peak-30",
+      "station": "BAR",
+      "view": "queue",
+      "width": 1200,
+      "height": 900,
+      "scenario": "peak",
+      "required": true
+    },
+    {
+      "id": "kitchen-peak-30",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 850,
+      "height": 900,
+      "scenario": "peak",
+      "required": true
+    },
+    {
+      "id": "bar-large-text",
+      "station": "BAR",
+      "view": "queue",
+      "width": 390,
+      "height": 844,
+      "large_text": true,
+      "required": true
+    },
+    {
+      "id": "kitchen-large-text",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 850,
+      "height": 900,
+      "large_text": true,
+      "required": true
+    },
+    {
+      "id": "kitchen-queue-wide",
+      "station": "KITCHEN",
+      "view": "queue",
+      "width": 1440,
+      "height": 900,
+      "required": true
+    },
+    {
+      "id": "bar-queue-360",
+      "station": "BAR",
+      "view": "queue",
+      "width": 360,
+      "height": 800,
+      "required": true
+    },
+    {
+      "id": "bar-queue-430",
+      "station": "BAR",
+      "view": "queue",
+      "width": 430,
+      "height": 900,
+      "required": true
+    }
+  ]
+}
