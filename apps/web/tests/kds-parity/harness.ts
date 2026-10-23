@@ -65,7 +65,11 @@ export async function referencePage(browser: Browser, scene: KdsScene): Promise<
   if (scene.mode === "expedite") await page.locator('[data-act="mode"]').first().click();
   if (scene.scenario) await page.locator(".demoTools > summary").click();
   if (scene.scenario === "simulateChange") await page.locator('[data-act="simulateChange"]').click();
-  if (scene.scenario === "peak") await page.locator('[data-scenario="peak"]').click();
+  if (scene.scenario === "peak") {
+    await page.locator('[data-scenario="peak"]').click();
+    // The frozen demo peak scenario calls init(), which resets its station to BAR.
+    if (scene.station === "KITCHEN") await page.locator('[data-station="KITCHEN"]').click();
+  }
   if (scene.scenario === "offline") await page.locator('[data-act="connection"]').click();
   if (scene.large_text) {
     await page.locator('[data-view="settings"]:visible').first().click();
