@@ -1,6 +1,6 @@
 """Aggregate canonical observations, never infer client intent or delivery."""
 from datetime import timedelta
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 from modules.dispatch.models import DispatchTask, DispatchTaskType
 from modules.ordering.models import OrderItem, OrderStatus
@@ -81,6 +81,42 @@ def attendance_metrics(*, venue, start, end):
             essential_steps_observed=Sum("essential_steps_observed"),
         ).order_by("platform", "event")
     )
+    screen_results = {}
+    for station in ("BAR", "KITCHEN"):
+        # The cohort is unique confirmed Orders routed to this station,
+        # not item counts and not staff activity.
+        eligible = OrderItem.objects.filter(
+            order__tab__venue=venue,
+            order__status=OrderStatus.CONFIRMED,
+            order__confirmed_at__gte=lower,
+            order__confirmed_at__lt=upper,
+        ).filter(
+            Q(fulfillment_station_snapshot=station) |
+            Q(fulfillment_station_snapshot="", product__fulfillment_station=station),
+        ).values("order_id").distinct().count()
+        aggregates = AttendanceTelemetryDaily.objects.filter(
+            venue=venue, business_date__gte=start, business_date__lte=end,
+            platform="WEB", event="screen_bar" if station == "BAR" else "screen_kitchen",
+        ).aggregate(
+            observed=Sum("count"),
+            latency_observed=Sum("duration_observed"),
+            latency_total_ms=Sum("duration_total_ms"),
+        )
+        observed = aggregates["observed"] or 0
+        linked = aggregates["latency_observed"] or 0
+        screen_results[station] = {
+            "source": "fresh station Order viewport observation → authenticated server receipt",
+            "latency_source": "server intent_started receipt → station viewport receipt; proxy, not synchronized client clocks",
+            "eligible": eligible,
+            "observed": observed,
+            "missing": max(0, eligible - observed),
+            "latency_observed": linked,
+            "latency_missing": max(0, observed - linked),
+            "mean_intent_ingest_to_screen_seconds": (
+                round((aggregates["latency_total_ms"] or 0) / linked / 1000, 3)
+                if linked else None
+            ),
+        }
     for metric in client_telemetry:
         # Action coverage only applies to acknowledged orders; it is never inferred
         # from production readiness or from a previous browser/app process.
@@ -96,4 +132,8 @@ def attendance_metrics(*, venue, start, end):
         "cohort": "Order.confirmed_at / DispatchTask.created_at; final timestamps may follow period",
         "production": production, "calls": calls, "manual_delivery": delivery,
         "bill_to_tab_closed": bill_close,
-        "not_instrumented": ["client_steps", "full_navigation_step_path", "production_screen_received", "intent_to_production_screen_received"]}
+        "production_screen": screen_results,
+        "not_instrumented": [
+            "client_steps", "full_navigation_step_path",
+            "human_visual_attention", "true_client_clock_intent_to_screen",
+        ]}
