@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
 import { IconReference, IconStatus, ProductIcon } from "./product-icon";
 
-export type CatalogProduct = { id: string; name: string; category?: string; normalized_name: string; price_cents: number; active: boolean; fulfillment_station: "BAR" | "KITCHEN"; availability: string; icon: IconReference };
+export type CatalogProduct = { id: string; name: string; category?: string; normalized_name: string; price_cents: number; active: boolean; fulfillment_station: "BAR" | "KITCHEN"; fulfillment_mode: "PREPARE" | "PICKUP"; availability: string; icon: IconReference };
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 const normalize = (value: string) => value.normalize("NFKD").replace(/\p{M}/gu, "").toLocaleLowerCase().trim().replace(/\s+/g, " ");
 
@@ -13,6 +13,7 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   const id = useId();
   const [authorized, setAuthorized] = useState(false);
   const [creationStation, setCreationStation] = useState(station);
+  const [fulfillmentMode, setFulfillmentMode] = useState<"PREPARE" | "PICKUP">("PREPARE");
   const [allowedStations, setAllowedStations] = useState<("BAR" | "KITCHEN")[]>([]);
   const [open, setOpen] = useState(false), [name, setName] = useState(""), [price, setPrice] = useState("");
   const [results, setResults] = useState<CatalogProduct[]>([]), [searching, setSearching] = useState(false), [searchOk, setSearchOk] = useState(false);
@@ -53,14 +54,14 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   const options = results.length + (canCreate ? 1 : 0);
   const resolve = (product: CatalogProduct) => { setSelected(product); setCreating(false); setMessage("Item disponível no catálogo existente."); onResolved?.(product); void onChanged?.(); };
   const choose = (index: number) => { if (index < results.length) resolve(results[index]); else if (canCreate) { setCreating(true); setMessage(""); } };
-  const close = () => { setOpen(false); setSelected(null); setCreating(false); setName(""); setPrice(""); setMessage(""); trigger.current?.focus(); };
+  const close = () => { setOpen(false); setSelected(null); setCreating(false); setName(""); setPrice(""); setFulfillmentMode("PREPARE"); setMessage(""); trigger.current?.focus(); };
   const save = async () => {
     if (!/^\d{1,8}([,.]\d{1,2})?$/.test(price)) { setMessage("Informe um preço válido, por exemplo 12,50."); return; }
     const [whole, fraction = ""] = price.replace(",", ".").split(".");
     const cents = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
     setSaving(true); setMessage("");
     try {
-      const result = await apiCall<{ product: CatalogProduct; created: boolean }>("/api/pos/catalog/resolve-or-create/", { method: "POST", body: JSON.stringify({ name, price_cents: cents, fulfillment_station: creationStation }) });
+      const result = await apiCall<{ product: CatalogProduct; created: boolean }>("/api/pos/catalog/resolve-or-create/", { method: "POST", body: JSON.stringify({ name, price_cents: cents, fulfillment_station: creationStation, fulfillment_mode: creationStation === "BAR" ? fulfillmentMode : "PREPARE" }) });
       if (!result.response.ok) throw new Error(asApiError(result.body).message);
       const body = result.body as { product: CatalogProduct; created: boolean };
       resolve(body.product); setMessage(body.created ? "Item criado e disponível para vender." : "Produto existente reutilizado.");
@@ -71,17 +72,17 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   return <section className="quickCatalog" aria-label={chooseStation ? "Cadastro de produto" : `Catálogo rápido ${station === "BAR" ? "Bar" : "Cozinha"}`}>
     <button ref={trigger} className="buttonSecondary" onClick={() => { if (!open) { startSearch(); setOpen(true); } setTimeout(() => input.current?.focus(), 0); }}>{chooseStation ? "Adicionar produto" : "+ Item"}</button>
     {open && <div className="panel quickCatalogPanel"><div className="catalogHeading"><OperationalHeading as="h2" icon="cart">{creating ? `Criar “${name.trim()}”` : "Item do catálogo"}</OperationalHeading><button className="buttonQuiet" disabled={saving} onClick={close}>Fechar</button></div>
-      {chooseStation && !selected ? <div className="field"><label htmlFor={`${id}-station`}>Preparar em</label><select id={`${id}-station`} value={creationStation} disabled={saving} onChange={event => setCreationStation(event.target.value as "BAR" | "KITCHEN")}>{allowedStations.map(value => <option key={value} value={value}>{value === "BAR" ? "Bar" : "Cozinha"}</option>)}</select></div> : <p className="muted">Estação: {(selected?.fulfillment_station ?? creationStation) === "BAR" ? "Bar" : "Cozinha"}</p>}
+      {chooseStation && !selected ? <div className="field"><label htmlFor={`${id}-station`}>Preparar em</label><select id={`${id}-station`} value={creationStation} disabled={saving} onChange={event => { const value = event.target.value as "BAR" | "KITCHEN"; setCreationStation(value); if (value === "KITCHEN") setFulfillmentMode("PREPARE"); }}>{allowedStations.map(value => <option key={value} value={value}>{value === "BAR" ? "Bar" : "Cozinha"}</option>)}</select></div> : <p className="muted">Estação: {(selected?.fulfillment_station ?? creationStation) === "BAR" ? "Bar" : "Cozinha"}</p>}
       {!selected && !creating && <><div className="field fieldComfortable"><label htmlFor={id}>Nome do produto</label><input ref={input} id={id} maxLength={160} autoComplete="off" role="combobox" aria-expanded={searchOk} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined} value={name} onChange={e => { setName(e.target.value); startSearch(); }} onKeyDown={e => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); setActive(current => options ? (current + (e.key === "ArrowDown" ? 1 : options - 1) + options) % options : -1); }
         if (e.key === "Enter" && searchOk && !searching) { e.preventDefault(); if (active >= 0) choose(active); else if (exact) resolve(exact); }
         if (e.key === "Escape") close();
       }} /></div>
       {searching && <p role="status">Buscando catálogo…</p>}
-      <div id={`${id}-list`} role="listbox" aria-label="Produtos existentes" className="catalogOptions">{searchOk && !searching && results.map((product, index) => <button type="button" role="option" aria-selected={active === index} id={`${id}-option-${index}`} className="catalogOption" key={product.id} onClick={() => resolve(product)}><ProductIcon icon={product.icon} /><span><strong>{product.name}</strong><small>{money(product.price_cents)} · {product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}</small><span className="statusBadge" data-state={product.active && product.availability === "AVAILABLE" ? "success" : "danger"}>{!product.active ? "Não publicado" : product.availability === "AVAILABLE" ? "Disponível" : "Indisponível"}</span></span></button>)}
+      <div id={`${id}-list`} role="listbox" aria-label="Produtos existentes" className="catalogOptions">{searchOk && !searching && results.map((product, index) => <button type="button" role="option" aria-selected={active === index} id={`${id}-option-${index}`} className="catalogOption" key={product.id} onClick={() => resolve(product)}><ProductIcon icon={product.icon} /><span><strong>{product.name}</strong><small>{money(product.price_cents)} · {product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"} · {product.fulfillment_mode === "PICKUP" ? "Retirada imediata" : "Requer preparo"}</small><span className="statusBadge" data-state={product.active && product.availability === "AVAILABLE" ? "success" : "danger"}>{!product.active ? "Não publicado" : product.availability === "AVAILABLE" ? "Disponível" : "Indisponível"}</span></span></button>)}
       {canCreate && <button role="option" aria-selected={active === results.length} id={`${id}-option-${results.length}`} className="buttonSecondary" onClick={() => choose(results.length)}>Criar “{name.trim()}”</button>}</div>
       {searchOk && !searching && !results.length && <p className="muted">Nenhum produto encontrado.</p>}</>}
-      {creating && <form onSubmit={e => { e.preventDefault(); void save(); }}><div className="field fieldComfortable"><label htmlFor={`${id}-price`}>Preço (R$)</label><input id={`${id}-price`} autoFocus inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} disabled={saving} placeholder="12,50" /></div><div className="actions"><button type="button" className="buttonQuiet" disabled={saving} onClick={() => { startSearch(); setCreating(false); }}>Voltar</button><button className="buttonPrimary" disabled={saving}>{saving ? "Salvando…" : "Criar item"}</button></div></form>}
+      {creating && <form onSubmit={e => { e.preventDefault(); void save(); }}><div className="field fieldComfortable"><label htmlFor={`${id}-price`}>Preço (R$)</label><input id={`${id}-price`} autoFocus inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} disabled={saving} placeholder="12,50" /></div><div className="field"><label htmlFor={`${id}-fulfillment-mode`}>Fluxo de atendimento</label><select id={`${id}-fulfillment-mode`} disabled={saving || creationStation !== "BAR"} value={creationStation === "BAR" ? fulfillmentMode : "PREPARE"} onChange={event => setFulfillmentMode(event.target.value as "PREPARE" | "PICKUP")}><option value="PREPARE">Requer preparo</option>{creationStation === "BAR" && <option value="PICKUP">Retirada imediata (geladeira/prateleira)</option>}</select></div><div className="actions"><button type="button" className="buttonQuiet" disabled={saving} onClick={() => { startSearch(); setCreating(false); }}>Voltar</button><button className="buttonPrimary" disabled={saving}>{saving ? "Salvando…" : "Criar item"}</button></div></form>}
       {selected && <div className="catalogOption"><ProductIcon icon={selected.icon} /><span><strong>{selected.name}</strong><small>{money(selected.price_cents)}</small><IconStatus icon={selected.icon} /></span></div>}
       {message && <p className="notice" role="status">{message}</p>}
     </div>}

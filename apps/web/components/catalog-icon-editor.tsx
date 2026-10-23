@@ -80,13 +80,30 @@ export function CatalogIconEditor() {
       finally { setBusy(false); }
     }
   }
+  async function changeFulfillmentMode(mode: "PREPARE" | "PICKUP") {
+    if (!product || busy || product.fulfillment_station !== "BAR") return;
+    setBusy(true); setMessage("");
+    try {
+      const result = await apiCall(`/api/pos/catalog/products/${product.id}/`, {
+        method: "PATCH", body: JSON.stringify({ fulfillment_mode: mode }),
+      });
+      if (!result.response.ok) throw new Error(asApiError(result.body).message);
+      setMessage("Fluxo atualizado. Pedidos já confirmados mantêm o modo original.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Resultado não confirmado. Consulte o produto antes de tentar novamente.");
+    } finally {
+      try { if (!await load()) setMessage("Não foi possível confirmar a atualização. Atualize o cardápio."); }
+      catch { setMessage("Não foi possível confirmar a atualização. Atualize o cardápio."); }
+      finally { setBusy(false); }
+    }
+  }
   if (!allowed) return null;
   return <section className="panel managementCatalog"><OperationalHeading as="h2" icon="cart">Gerenciar cardápio</OperationalHeading>
     <div className={styles.entryActions}><QuickCatalog station="BAR" chooseStation onResolved={() => void load()} /><button className="buttonSecondary" aria-haspopup="dialog" onClick={() => { setSelected(""); setLastPicked(""); setCategory(null); setQuery(""); setMessage(""); setOpen(true); }}>Editar produto e ícone</button></div>
     {open && <ActionDialog title={product ? `Editar ${product.name}` : category === null ? "Escolha uma categoria" : category || "Todos"} dialogClassName={styles.dialog} locked={busy} onClose={closeLayer} dismissOnBackdrop>
       {loading && <p role="status">Carregando cardápio…</p>}
       {loadError && <div className="notice" role="alert">{loadError}<button className="buttonQuiet" disabled={busy} onClick={() => void load()}>Tentar novamente</button></div>}
-    {product && <><div className="field"><label htmlFor="product-edit-name">Nome do produto</label><input id="product-edit-name" autoFocus maxLength={160} value={editedName} disabled={busy} onChange={event => setEditedName(event.target.value)} /></div><button className="buttonSecondary" disabled={busy || !editedName.trim() || editedName.trim()===product.name} onClick={() => void rename()}>Salvar nome</button><div className="catalogOption"><ProductIcon icon={product.icon} /><strong>{product.name}</strong><IconStatus icon={product.icon} /></div><div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void mutate("regenerate", { idempotency_key: crypto.randomUUID() })}>Regenerar ícone</button><button className="buttonQuiet" disabled={busy} onClick={() => void mutate("remove")}>Voltar ao placeholder</button></div><div className="field"><label htmlFor="icon-upload">Substituir por imagem · quadrada, 128–2048 px, até 5 MB</label><input id="icon-upload" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} /></div></>}
+    {product && <><div className="field"><label htmlFor="product-edit-name">Nome do produto</label><input id="product-edit-name" autoFocus maxLength={160} value={editedName} disabled={busy} onChange={event => setEditedName(event.target.value)} /></div><button className="buttonSecondary" disabled={busy || !editedName.trim() || editedName.trim()===product.name} onClick={() => void rename()}>Salvar nome</button><div className="field"><label htmlFor="product-fulfillment-mode">Fluxo de atendimento</label><select id="product-fulfillment-mode" value={product.fulfillment_mode ?? "PREPARE"} disabled={busy || product.fulfillment_station !== "BAR"} onChange={event => void changeFulfillmentMode(event.target.value as "PREPARE" | "PICKUP")}><option value="PREPARE">Requer preparo</option>{product.fulfillment_station === "BAR" && <option value="PICKUP">Retirada imediata</option>}</select><small className="muted">Disponível por produto, apenas no Bar. Pedidos anteriores não são alterados.</small></div><div className="catalogOption"><ProductIcon icon={product.icon} /><strong>{product.name}</strong><IconStatus icon={product.icon} /></div><div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void mutate("regenerate", { idempotency_key: crypto.randomUUID() })}>Regenerar ícone</button><button className="buttonQuiet" disabled={busy} onClick={() => void mutate("remove")}>Voltar ao placeholder</button></div><div className="field"><label htmlFor="icon-upload">Substituir por imagem · quadrada, 128–2048 px, até 5 MB</label><input id="icon-upload" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} /></div></>}
 
     {!product && !loading && !loadError && <>
       <div className="field"><label htmlFor="catalog-edit-search">Buscar produto</label><input id="catalog-edit-search" autoFocus type="search" value={query} onChange={event => setQuery(event.target.value)} /></div>

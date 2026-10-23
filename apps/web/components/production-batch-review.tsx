@@ -9,26 +9,27 @@ export function ProductionBatchReview({ station, target, captured, current, unav
   unavailable: boolean; returnFocus: HTMLElement | null; onClose: () => void; onConfirm: (draft: BatchDraft) => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  const isPickup = station === "BAR" && target === "READY" && captured[0]?.customization_snapshot?.fulfillment_mode === "PICKUP";
   const rows = captured.filter(item => selected.includes(item.id));
   const stale = rows.some(item => {
     const latest = current.find(row => row.id === item.id);
     return !latest || latest.state !== item.state || latest.quantity !== item.quantity || latest.snapshot_fingerprint !== item.snapshot_fingerprint;
   });
   return <ActionDialog title="Revisar lote de produção" onClose={onClose} returnFocus={returnFocus}>
-    <p>{station === "KITCHEN" ? "Cozinha" : "Bar"} · {target === "PREPARING" ? "Iniciar preparo" : "Marcar como prontos"}</p>
+    <p>{station === "KITCHEN" ? "Cozinha" : "Bar"} · {target === "PREPARING" ? "Iniciar preparo" : isPickup ? "Confirmar separação" : "Marcar como prontos"}</p>
     <strong>{captured[0].product_name}</strong><CustomizationText snapshot={captured[0].customization_snapshot} />
     <p>Selecione as linhas inteiras. Até 50 linhas por lote.</p>
     {captured.map(item => <label key={item.id} className="customizationChoice">
       <input type="checkbox" checked={selected.includes(item.id)} disabled={!selected.includes(item.id) && selected.length >= 50}
         onChange={event => setSelected(previous => event.target.checked ? [...previous, item.id] : previous.filter(id => id !== item.id))} />
-      <span>{item.quantity} {item.product_name} · {item.tab_label || "Sem identificação"} · {item.id.slice(0, 8)}<br />{item.state === "PREPARING" ? "Em preparo" : "Aguardando preparo"}</span>
+      <span>{item.quantity} {item.product_name} · {item.tab_label || "Sem identificação"} · {item.id.slice(0, 8)}<br />{item.state === "PREPARING" ? "Em preparo" : isPickup ? "Aguardando retirada" : "Aguardando preparo"}</span>
     </label>)}
     <p role="status">{rows.length} linhas · {rows.reduce((sum, item) => sum + item.quantity, 0)} unidades selecionadas</p>
     {stale && <p role="alert">A fila mudou. Volte e selecione novamente.</p>}
     {unavailable && <p role="alert">Atualize a estação antes de confirmar.</p>}
     <button className="buttonPrimary" disabled={!rows.length || stale || unavailable} onClick={() => onConfirm({ station, target_state: target,
       lines: rows.map(item => ({ item_id: item.id, expected_state: item.state, quantity: item.quantity, snapshot_fingerprint: item.snapshot_fingerprint! })) })}>
-      {target === "PREPARING" ? "Iniciar preparo selecionado" : "Marcar selecionados como prontos"}
+      {target === "PREPARING" ? "Iniciar preparo selecionado" : isPickup ? "Confirmar itens separados" : "Marcar selecionados como prontos"}
     </button>
   </ActionDialog>;
 }

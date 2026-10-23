@@ -110,6 +110,29 @@ class QuickCatalogTests(TestCase):
         other = Venue.objects.create(name="Outro", slug="other")
         assert not suggestions(other.id, "Cerveja")
 
+    def test_instant_pickup_catalog_create_edit_and_station_validation(self):
+        data = {"name": "Water", "price_cents": 500, "fulfillment_station": "BAR",
+                "fulfillment_mode": "PICKUP"}
+        response = self.client.post("/catalog/resolve-or-create/", data, format="json")
+        self.assertEqual(response.status_code, 201, response.json())
+        product_id = response.json()["product"]["id"]
+        self.assertEqual(response.json()["product"]["fulfillment_mode"], "PICKUP")
+        self.assertEqual(self.client.get("/catalog/products/").json()["results"][0]["fulfillment_mode"], "PICKUP")
+        reused = self.client.post("/catalog/resolve-or-create/", {**data, "fulfillment_mode": "PREPARE"}, format="json")
+        self.assertEqual(reused.status_code, 200)
+        self.assertEqual(reused.json()["product"]["fulfillment_mode"], "PICKUP")
+        invalid = self.client.patch(f"/catalog/products/{product_id}/",
+                                    {"fulfillment_station": "KITCHEN"}, format="json")
+        self.assertEqual(invalid.status_code, 400)
+        invalid = self.client.post("/catalog/resolve-or-create/",
+                                   {**data, "name": "Kitchen water", "fulfillment_station": "KITCHEN"},
+                                   format="json")
+        self.assertEqual(invalid.status_code, 400)
+        updated = self.client.patch(f"/catalog/products/{product_id}/",
+                                    {"fulfillment_mode": "PREPARE"}, format="json")
+        self.assertEqual(updated.status_code, 200, updated.json())
+        self.assertEqual(updated.json()["fulfillment_mode"], "PREPARE")
+
     def test_station_creation_and_icon_management_permissions(self):
         self.membership.role = StaffRole.STAFF
         self.membership.capability_overrides = {"allow": [Capability.CATALOG_CREATE_BAR]}

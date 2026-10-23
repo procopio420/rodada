@@ -25,12 +25,20 @@ type Item = { snapshot_fingerprint?: string; customization_snapshot?: Snapshot; 
 const itemPrimary = (item: Item) => tabPrimaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
 const itemSecondary = (item: Item) => item.tab_id ? tabSecondaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label }) : "";
 type Product = OrderingProduct & { id: string; name: string; active?: boolean; category?: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; availability_version?: number; icon?: IconData };
-const next: Record<string, { state: string; label: string }> = {
+const instantPickup = (item: Item, station: "BAR" | "KITCHEN") => station === "BAR" &&
+  item.customization_snapshot?.fulfillment_mode === "PICKUP" &&
+  item.customization_snapshot?.fulfillment_station === "BAR";
+const next: Record<string, { state: "PREPARING" | "READY"; label: string }> = {
   NEW: { state: "PREPARING", label: "Iniciar preparo" },
   ACCEPTED: { state: "PREPARING", label: "Iniciar preparo" },
   PREPARING: { state: "READY", label: "Pronto" },
 };
 const labels: Record<string, string> = { NEW: "Aguardando preparo", ACCEPTED: "Aguardando preparo", PREPARING: "Em preparo", READY: "Pronto" };
+const nextAction = (item: Item, station: "BAR" | "KITCHEN") =>
+  instantPickup(item, station) && ["NEW", "ACCEPTED"].includes(item.state)
+    ? { state: "READY" as const, label: "Separado" } : next[item.state];
+const statusLabel = (item: Item, station: "BAR" | "KITCHEN") =>
+  instantPickup(item, station) && ["NEW", "ACCEPTED"].includes(item.state) ? "Retirada rápida" : labels[item.state] ?? item.state;
 const apiMessage = (body: unknown) => { const error = asApiError(body); return `${error.code} · ${error.message}`; };
 
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {
@@ -213,8 +221,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
 
   const transitionItem = useCallback((item: Item) => {
     if (mutating.current || !availabilityIntents.valid() || availabilityIntents.message || reviewRef.current || batchIntent.locksItem(item.id) || message) return;
-    if (verifiedItem(item, station)) void itemIntents.submit(item.id, { station, target_state: next[item.state].state as "PREPARING" | "READY", lines: [{ item_id: item.id, expected_state: item.state, quantity: item.quantity, snapshot_fingerprint: item.snapshot_fingerprint! }] });
-    else void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id);
+    if (verifiedItem(item, station)) void itemIntents.submit(item.id, { station, target_state: nextAction(item, station).state, lines: [{ item_id: item.id, expected_state: item.state, quantity: item.quantity, snapshot_fingerprint: item.snapshot_fingerprint! }] });
+    else void change(`/api/pos/order-items/${item.id}/transition/`, nextAction(item, station).state, "item", item.id);
   }, [availabilityIntents, batchIntent, itemIntents, message, station, change]);
 
   const waiting = items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
@@ -247,7 +255,10 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   }
 
   const verified = (item: Item) => verifiedItem(item, station);
-  const batches = groupProductionItems(waiting, station).map(group => ({ ...group, product: products.find(product => product.id === group.items[0].product_id) }));
+  const batches = groupProductionItems(waiting, station).map(group => ({
+    ...group, product: products.find(product => product.id === group.items[0].product_id),
+    isPickup: instantPickup(group.items[0], station),
+  }));
   const age = (timestamp?: string | null) => {
     if (!timestamp || !Number.isFinite(Date.parse(timestamp))) return "Tempo não informado";
     const seconds = Math.max(0, Math.floor((now - Date.parse(timestamp)) / 1000));
@@ -296,31 +307,31 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         <div className="stationLabel"><h2 id="batch-title"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg><span>Fila da estação · por {station === "KITCHEN" ? "prato" : "produto"}</span></h2><span>{station === "KITCHEN" ? "porções" : "lote"}</span></div>
         {loading ? <div className="loadingState" role="status">Carregando produção…</div> : batches.map(batch => <article className="stationDish" key={batch.key}>
           <div className="stationDishHeading"><div><ProductIcon name={batch.name} icon={batch.product?.icon} /><strong>{batch.name}</strong></div><span className="stationQuantity">{batch.quantity}</span></div>
-          <span className="stationDishContext">{batch.items.filter(item => item.state !== "PREPARING").length} aguardando · {batch.items.filter(item => item.state === "PREPARING").length} em preparo</span>
+          <span className="stationDishContext">{batch.isPickup ? `${batch.items.length} aguardando retirada` : `${batch.items.filter(item => item.state !== "PREPARING").length} aguardando · ${batch.items.filter(item => item.state === "PREPARING").length} em preparo`}</span>
           {!!(batch.items[0].customization_snapshot?.variant || batch.items[0].customization_snapshot?.modifiers?.length || batch.items[0].customization_snapshot?.special_instructions) && <CustomizationText snapshot={batch.items[0].customization_snapshot} />}
           {!batch.knownConfiguration && <span className="muted">Configuração não registrada</span>}
           {batch.knownConfiguration && ["PREPARING", "READY"].map(target => {
-            const candidates = batch.items.filter(item => /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && (target === "PREPARING" ? ["NEW", "ACCEPTED"].includes(item.state) : item.state === "PREPARING"));
-            return candidates.length > 1 && <BatchSelectionButton key={target} name={batch.name} target={target as "PREPARING" | "READY"}
+            const candidates = batch.items.filter(item => /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && (target === "PREPARING" ? !instantPickup(item, station) && ["NEW", "ACCEPTED"].includes(item.state) : item.state === "PREPARING" || (instantPickup(item, station) && ["NEW", "ACCEPTED"].includes(item.state))));
+            return candidates.length > 1 && <BatchSelectionButton key={target} name={batch.name} pickup={batch.isPickup} target={target as "PREPARING" | "READY"}
               disabled={disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0} candidates={candidates} onSelect={openReview} />;
           })}
           <div className="stationChips">{batch.items.map(item => <span key={item.id}>{itemPrimary(item)}{itemSecondary(item) ? ` · ${itemSecondary(item)}` : ""}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
         </article>)}
-        {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum prato aguardando preparo.</div>}
+        {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum item pendente.</div>}
       </section>
       <section className="stationTickets stationRegion" ref={queueRegion} tabIndex={-1} aria-labelledby="queue-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Fila de pedidos</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
-        <p className="stationCaption">O preparo só começa ao tocar em Iniciar preparo · mais antigo primeiro</p>
+        <p className="stationCaption">{station === "BAR" ? "Retirada imediata: separe e confirme · drinks: iniciar preparo · mais antigo primeiro" : "O preparo só começa ao tocar em Iniciar preparo · mais antigo primeiro"}</p>
         {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} data-production-order-id={group[0].order_id} role="group" aria-label={`Pedido: ${itemPrimary(group[0])}`}>
           <strong className="stationTab">{itemPrimary(group[0])}</strong><small className="muted">{itemSecondary(group[0])}</small>
           <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
-          <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
-          {next[item.state] && <ItemTransitionButton item={item} label={next[item.state].label}
+          <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{statusLabel(item, station)}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
+          {nextAction(item, station) && <ItemTransitionButton item={item} label={nextAction(item, station).label}
             disabled={verified(item) ? individualDisabled || batchIntent.locksItem(item.id) || itemIntents.locked(item.id) : disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0}
             saving={changingItemId === item.id || itemIntents.busy.includes(item.id)} onTransition={transitionItem} />}
           </article>)}</div>
         </div>)}
-        {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
+        {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando atendimento.</div>}
       </section>
       <section className="stationPass stationRegion" ref={passRegion} tabIndex={-1} aria-labelledby="ready-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="check" id="ready-title">Pronto para retirada</OperationalHeading>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
@@ -385,12 +396,13 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
 function verifiedItem(item: Item, station: "BAR" | "KITCHEN") {
   return /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && productionConfiguration(item, station) !== null;
 }
-function BatchSelectionButton({ name, target, disabled, candidates, onSelect }: {
-  name: string; target: "PREPARING" | "READY"; disabled: boolean; candidates: Item[];
+function BatchSelectionButton({ name, pickup, target, disabled, candidates, onSelect }: {
+  name: string; pickup: boolean; target: "PREPARING" | "READY"; disabled: boolean; candidates: Item[];
   onSelect: (origin: HTMLElement, target: "PREPARING" | "READY", candidates: Item[]) => void;
 }) {
-  return <button className="buttonSecondary" disabled={disabled} aria-label={`${target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}: ${name}`}
-    onClick={event => onSelect(event.currentTarget, target, candidates)}>{target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}</button>;
+  const label = target === "PREPARING" ? "Selecionar preparo" : pickup ? "Selecionar retiradas" : "Selecionar prontos";
+  return <button className="buttonSecondary" disabled={disabled} aria-label={`${label}: ${name}`}
+    onClick={event => onSelect(event.currentTarget, target, candidates)}>{label}</button>;
 }
 function ItemTransitionButton({ item, label, disabled, saving, onTransition }: {
   item: Item; label: string; disabled: boolean; saving: boolean; onTransition: (item: Item) => void;

@@ -329,3 +329,78 @@ class ProductionBatchConcurrencyTests(BatchFixture, TransactionTestCase):
             self.assertEqual(partial_item.remaining_quantity, partial_item.quantity - 1)
             self.assertEqual(totals(self.tab)["exposure_cents"], 200)
         self.assertFalse(Payment.objects.exists())
+
+
+class InstantBarPickupTests(BatchFixture, TestCase):
+    def setUp(self):
+        super().setUp()
+        # This suite validates fulfillment, not the separate spending-limit gate.
+        # The fixture already consumes 300 cents before the mixed Bar order.
+        self.tab.operating_limit_cents = 10000
+        self.tab.save(update_fields=["operating_limit_cents"])
+        self.water = Product.objects.create(venue=self.venue, name="Water bottle", price_cents=500,
+                                            fulfillment_station="BAR", fulfillment_mode="PICKUP")
+        self.cocktail = Product.objects.create(venue=self.venue, name="Cocktail", price_cents=1500,
+                                               fulfillment_station="BAR")
+        order = confirm_order(tab_id=self.tab.pk, source="STAFF", actor=self.actor,
+                              idempotency_key="mixed-bar", lines=[
+                                  {"product_id": self.water.pk, "quantity": 2},
+                                  {"product_id": self.cocktail.pk, "quantity": 1}])
+        self.water_item = order.items.get(product=self.water)
+        self.cocktail_item = order.items.get(product=self.cocktail)
+
+    def bar_line(self, item):
+        item.refresh_from_db()
+        return {"item_id": str(item.pk), "expected_state": item.state,
+                "quantity": item.remaining_quantity,
+                "snapshot_fingerprint": snapshot_fingerprint(item.customization_snapshot)}
+
+    def bar_command(self, item, key, target="READY"):
+        return execute_production_batch(
+            actor=self.actor, idempotency_key=key, station="BAR", target_state=target,
+            lines=[self.bar_line(item)])
+
+    def test_instant_pickup_direct_ready_replay_and_mixed_order(self):
+        self.assertEqual(self.water_item.customization_snapshot["fulfillment_mode"], "PICKUP")
+        self.assertEqual(self.cocktail_item.customization_snapshot["fulfillment_mode"], "PREPARE")
+        receipt = self.bar_command(self.water_item, "pickup-water")
+        self.assertEqual(receipt["status"], "APPLIED")
+        replay = execute_production_batch(
+            actor=self.actor, idempotency_key="pickup-water", station="BAR", target_state="READY",
+            lines=[{"item_id": str(self.water_item.pk), "expected_state": "NEW", "quantity": 2,
+                    "snapshot_fingerprint": snapshot_fingerprint(self.water_item.customization_snapshot)}])
+        self.assertEqual(replay, receipt)
+        self.water_item.refresh_from_db()
+        self.cocktail_item.refresh_from_db()
+        self.assertEqual(self.water_item.state, "READY")
+        self.assertIsNone(self.water_item.preparing_at)
+        self.assertIsNotNone(self.water_item.ready_at)
+        self.assertEqual(self.cocktail_item.state, "NEW")
+        self.assertEqual(DispatchTask.objects.filter(order_item=self.water_item).count(), 1)
+        self.assertEqual(self.bar_command(self.cocktail_item, "skip-cocktail")["status"], "REJECTED")
+        self.assertEqual(self.bar_command(self.cocktail_item, "prep-cocktail", "PREPARING")["status"], "APPLIED")
+        self.assertEqual(self.bar_command(self.cocktail_item, "ready-cocktail")["status"], "APPLIED")
+
+    def test_pickup_cannot_start_preparing_and_batch_rejects_mixed_invalid_transitions(self):
+        self.assertEqual(self.bar_command(self.water_item, "prep-water", "PREPARING")["status"], "REJECTED")
+        payload = {"station": "BAR", "target_state": "READY", "idempotency_key": "mixed-invalid",
+                   "lines": [self.bar_line(self.water_item), self.bar_line(self.cocktail_item)]}
+        receipt = execute_production_batch(actor=self.actor, **payload)
+        self.assertEqual(receipt["status"], "REJECTED")
+        self.assertEqual(execute_production_batch(actor=self.actor, **payload), receipt)
+        self.water_item.refresh_from_db()
+        self.assertEqual(self.water_item.state, "NEW")
+        with self.assertRaises(OrderingServiceError):
+            transition_order_item(item_id=self.cocktail_item.pk, target_state="READY", actor=self.actor)
+
+    def test_confirmed_snapshot_survives_catalog_mode_change(self):
+        self.water.fulfillment_mode = "PREPARE"
+        self.water.save(update_fields=["fulfillment_mode"])
+        self.assertEqual(self.bar_command(self.water_item, "old-pickup")["status"], "APPLIED")
+        self.water_item.refresh_from_db()
+        self.assertEqual(self.water_item.state, "READY")
+        newer = confirm_order(tab_id=self.tab.pk, source="STAFF", actor=self.actor,
+                              idempotency_key="after-mode-change",
+                              lines=[{"product_id": self.water.pk, "quantity": 1}]).items.get()
+        self.assertEqual(newer.customization_snapshot["fulfillment_mode"], "PREPARE")
+        self.assertEqual(self.bar_command(newer, "new-must-prep")["status"], "REJECTED")
