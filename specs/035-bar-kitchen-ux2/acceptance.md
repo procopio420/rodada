@@ -6,7 +6,7 @@
 ## Happy paths e limites por dispositivo
 
 - [ ] **AC-01** Dado um pedido confirmado com 2 linhas Bar e 1 Cozinha, quando projetado, então cada estação vê apenas seus itens e cada linha mantém o mesmo `OrderItem.id`/estado sem misturar Tab.
-- [ ] **AC-02** Dada ficha FG84, quando entrar pedido Bar, então FG84 é legível em Fila/Passe sem scan nem etapa obrigatória; item Cozinha não pode ser incluído na ficha.
+- [ ] **AC-02** Dada ficha FG84, quando entrar pedido Bar, então FG84 é legível em Fila/Passe sem scan nem etapa obrigatória; a fila Bar nunca recebe item da Cozinha; se o pedido PICKUP também tiver Cozinha, ele aparece exclusivamente na estação KITCHEN conforme Spec 032.
 - [ ] **AC-03** Dada Mesa 12 com duas Tabs, quando expedição/filtragem abrir a comanda A, então nenhuma linha da B entra na seleção.
 - [ ] **AC-04** Dado burger normal + burger sem cebola, quando renderizados, então ambos têm linhas/customizações inequívocas e continuam independentes para status e lote.
 - [ ] **AC-05** Dado item simples válido e etapa aceita pela API, quando operador tocar `Pronto`, então exatamente uma intenção canônica é aplicada; UI não forja READY ao receber erro/conflito.
