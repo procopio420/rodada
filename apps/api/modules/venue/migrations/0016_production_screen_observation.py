@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
     dependencies: ClassVar = [
         ("venue", "0015_attendance_telemetry_steps"),
-        ("ordering", "0006_orderitem_customization_snapshot_and_more"),
+        ("ordering", "0008_productionbatch"),
     ]
     operations: ClassVar = [
         migrations.AddField(
