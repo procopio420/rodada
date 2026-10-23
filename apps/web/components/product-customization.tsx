@@ -8,7 +8,7 @@ export type Option = { id: string; name: string; price_delta_cents: number; acti
 export type Group = { id: string; name: string; active: boolean; selection_mode: string; min_selections: number; max_selections: number; options: Option[]; version: number; sort_order: number };
 export type OrderingProduct = { id: string; name: string; price_cents: number; variants?: Variant[]; modifier_groups?: Group[] };
 export type Selection = { variant_id: string | null; modifier_option_ids: string[]; special_instructions: string };
-export type Snapshot = { variant?: { id?: string; name: string } | null; modifiers?: { option_id?: string; name: string; group_name: string; semantic_kind: string }[]; special_instructions?: string };
+export type Snapshot = { fulfillment_mode?: "PREPARE" | "PICKUP"; fulfillment_station?: "BAR" | "KITCHEN"; variant?: { id?: string; name: string } | null; modifiers?: { option_id?: string; name: string; group_name: string; semantic_kind: string }[]; special_instructions?: string };
 export const money = (cents: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 export const defaults = (product: OrderingProduct): Selection => ({ variant_id: product.variants?.find(v => v.is_default && v.active && v.availability === "AVAILABLE")?.id ?? null, modifier_option_ids: (product.modifier_groups ?? []).flatMap(g => g.options.filter(o => o.default_selected && o.active && o.availability === "AVAILABLE").slice(0, g.max_selections).map(o => o.id)), special_instructions: "" });
 export function selectionError(product: OrderingProduct, selection: Selection): string {

@@ -20,7 +20,7 @@ export function parseProductionIntent(raw: string): Intent {
       !Array.isArray(i.payload.lines) || !i.payload.lines.length || i.payload.lines.length > 50 ||
       new Set(i.payload.lines.map(line => line?.item_id)).size !== i.payload.lines.length ||
       !i.payload.lines.every(line => line && fields(line, "expected_state,item_id,quantity,snapshot_fingerprint") &&
-        identified(line.item_id) && (i.payload.target_state === "READY" ? line.expected_state === "PREPARING" : ["NEW", "ACCEPTED"].includes(line.expected_state)) &&
+        identified(line.item_id) && (i.payload.target_state === "READY" ? ["NEW", "ACCEPTED", "PREPARING"].includes(line.expected_state) : ["NEW", "ACCEPTED"].includes(line.expected_state)) &&
         Number.isSafeInteger(line.quantity) && line.quantity > 0 && line.quantity <= 999 &&
         typeof line.snapshot_fingerprint === "string" && /^[a-f0-9]{64}$/.test(line.snapshot_fingerprint))) throw new Error("Invalid batch envelope");
   return i;

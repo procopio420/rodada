@@ -35,3 +35,12 @@ test("Product identity and confirmed names cannot merge on display name alone", 
   const a = item("a"), b = { ...item("b", { product_id: "other" }), product_id: "other" }, c = { ...item("c"), product_name: "Nome posterior" };
   assert.equal(groupProductionItems([a, b, c], "KITCHEN").length, 3);
 });
+
+
+test("Pickup and prepared Bar products have distinct confirmed configuration", () => {
+  const base = { ...snapshot(), fulfillment_station: "BAR" };
+  const pickup = { ...item("pickup"), customization_snapshot: { ...base, fulfillment_mode: "PICKUP" } };
+  const prepared = { ...item("prepared"), customization_snapshot: { ...base, fulfillment_mode: "PREPARE" } };
+  assert.equal(groupProductionItems([pickup, prepared], "BAR").length, 2);
+  assert.ok(productionConfiguration(pickup, "BAR"));
+});
