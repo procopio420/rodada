@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { writeFile as writeAsync } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -173,7 +173,7 @@ export type ParityReport = {
 
 export async function compareScenes(reference: Page, actual: Page, scene: KdsScene, info: TestInfo, selfReference = false): Promise<ParityReport> {
   const out = info.outputPath("kds", scene.id);
-  mkdir(out, { recursive: true });
+  mkdirSync(out, { recursive: true });
   const result: ParityReport = {
     scene: scene.id, fixture: manifest.fixture.id, reference_blob: sha, verdict: "PASS", regions: [],
   };
