@@ -13,9 +13,9 @@ for(const width of [360,390,430,1280])test(`closed financial Tab retains real RE
  let posts=0;await page.route(new RegExp(`/api/attendance/dispatch/delivery/${ready.id}/complete/?$`),async route=>{posts++;const response=await route.fetch({url:route.request().url().replace(/\/$/,'')});expect(response.status()).toBe(200);await route.abort();});
  await page.reload();await page.getByRole('button',{name:/^Entregas /}).click();await page.locator('.ux2QueueItem').filter({hasText:`Delivery closed ${width}`}).getByRole('button',{name:'Ver entrega ›',exact:true}).click();
  const region=page.getByRole('region',{name:'Levar pedido.',exact:true});await expect(region.getByText('2× Bar E2E item',{exact:true})).toBeVisible();expect((await api(page,`dispatch/tasks/${ready.id}/`)).state).toBe('OPEN');expect(posts).toBe(0);
- await region.getByRole('button',{name:'Voltar sem concluir',exact:true}).click();expect((await api(page,`dispatch/tasks/${ready.id}/`)).state).toBe('OPEN');
+ await region.getByRole('button',{name:'Voltar sem entregar',exact:true}).click();expect((await api(page,`dispatch/tasks/${ready.id}/`)).state).toBe('OPEN');
  await page.locator('.ux2QueueItem').filter({hasText:`Delivery closed ${width}`}).getByRole('button',{name:'Ver entrega ›',exact:true}).click();
- await region.getByRole('button',{name:'Registrar entrega por exceção',exact:true}).click();await expect(region.getByText('Entrega concluída',{exact:true})).toBeVisible();
+ await region.getByRole('button',{name:'Confirmar entrega',exact:true}).click();await expect(region.getByText('Entrega concluída',{exact:true})).toBeVisible();
  const completed=await api(page,`dispatch/tasks/${ready.id}/`);expect(completed).toMatchObject({id:ready.id,order_item_id:item.id,state:'DONE',item_state:'DELIVERED',completion_source:'MANUAL'});expect(posts).toBe(1);
  const after=await api(page,`tabs/${tab.id}/`);expect(after.payments).toEqual(closed.payments);expect(after.exposure_cents).toBe(0);expect(after.state).toBe('CLOSED');
  await fs.mkdir('visual-artifacts/033/delivery',{recursive:true});await page.screenshot({path:`visual-artifacts/033/delivery/real-closed-delivered-${width}.png`,fullPage:true});

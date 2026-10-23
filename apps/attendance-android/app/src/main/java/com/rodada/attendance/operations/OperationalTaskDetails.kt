@@ -69,7 +69,7 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
                     style = com.rodada.attendance.ui.AttendanceUx2.text(14), color = RodadaVisual.Muted)
                 Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)).drawBehind { drawLine(RodadaVisual.Amber, Offset(1.5.dp.toPx(), 0f), Offset(1.5.dp.toPx(), size.height), 3.dp.toPx()) }.padding(horizontal = 15.dp, vertical = 13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(when (task.itemState) { "READY" -> "Pronto para entrega"; "PICKED_UP" -> "Em entrega"; else -> "Confira o estado da entrega" }, style = com.rodada.attendance.ui.AttendanceUx2.text(14, 800), color = RodadaVisual.Paper)
-                    Text(if (task.itemState in setOf("READY", "PICKED_UP")) if (task.itemState == "READY") "Os itens abaixo estão marcados como prontos na produção. Abrir a tarefa não conclui a entrega." else "Os itens abaixo estão em entrega. Abrir a tarefa não conclui a entrega." else "O estado de produção mudou ou não foi informado. Atualize antes de agir; abrir não conclui a entrega.", style = com.rodada.attendance.ui.AttendanceUx2.text(13), color = RodadaVisual.Muted)
+                    Text(if (task.itemState in setOf("READY", "PICKED_UP")) "Depois de entregar ao cliente, confirme a entrega abaixo." else "O status mudou. Confira a fila antes de continuar.", style = com.rodada.attendance.ui.AttendanceUx2.text(13), color = RodadaVisual.Muted)
                 }
                 Text("O que levar", style = com.rodada.attendance.ui.AttendanceUx2.text(18, 800))
                 Row(Modifier.fillMaxWidth().padding(vertical = 18.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -82,10 +82,8 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
                         style = com.rodada.attendance.ui.AttendanceUx2.text(11, 800))
                 }
                 HorizontalDivider(color = RodadaVisual.StrongBorder)
-                Text("Confirme a entrega somente depois de entregar. A ação exige atualização canônica da tarefa e do item correto, com proteção contra repetição.",
-                    modifier = Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(9.dp)).border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(9.dp)).padding(13.dp), style = com.rodada.attendance.ui.AttendanceUx2.text(12), color = RodadaVisual.Muted)
                 if (task.claimedById != null && task.claimedById != staffId) Text("Outro operador está responsável. Atualize ou peça revisão.", color = RodadaVisual.Amber)
-                Ux2Action("Voltar sem concluir", true, onDismiss)
+                Ux2Action(if (task.itemState == "DELIVERED") "Voltar à fila" else "Voltar sem entregar", true, onDismiss)
                 (task.target as? StaffTaskTarget.Tab)?.let { target ->
                     TextButton(onClick = { onOpenTab(target.tabId) }, enabled = !busy) { Text("Abrir comanda") }
                 }
@@ -93,7 +91,7 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
             Spacer(Modifier.height(20.dp))
         }
         if (task != null) Column(Modifier.fillMaxWidth().padding(horizontal = horizontalInset, vertical = 12.dp)) {
-            Ux2Action("Registrar entrega por exceção", !busy && task.itemState in setOf("READY", "PICKED_UP") && task.state in setOf("OPEN", "CLAIMED") && (task.claimedById == null || task.claimedById == staffId), onComplete, true)
+            Ux2Action("Confirmar entrega", !busy && task.itemState in setOf("READY", "PICKED_UP") && task.state in setOf("OPEN", "CLAIMED") && (task.claimedById == null || task.claimedById == staffId), onComplete, true)
         }
     }
 }

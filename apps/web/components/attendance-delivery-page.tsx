@@ -67,7 +67,7 @@ export function AttendanceDeliveryPage({ initialTask, staffId, request, onBack, 
       if (!alive.current) return;
       setTask(current); setFresh(true); validated = true;
       if (isDone(current)) { onConfirmed(); return; }
-      if (destination(current) !== destination(task)) throw new Error("O destino mudou. Confira o destino atualizado antes de registrar.");
+      if (destination(current) !== destination(task)) throw new Error("O destino mudou. Confira o destino atualizado antes de confirmar.");
       if (!["OPEN", "CLAIMED"].includes(current.state) || !["READY", "PICKED_UP"].includes(current.item_state || "")) throw new Error("A entrega mudou. Confira o estado atualizado.");
       if (current.claimed_by_id && current.claimed_by_id !== staffId) throw new Error("Outra pessoa está responsável por esta entrega.");
       sent = true;
@@ -88,7 +88,7 @@ export function AttendanceDeliveryPage({ initialTask, staffId, request, onBack, 
           setUnknown(false);
         } catch { setUnknown(true); setFresh(false); }
       }
-      setError(failure instanceof Error ? failure.message : "Não foi possível registrar a entrega.");
+      setError(failure instanceof Error ? failure.message : "Não foi possível confirmar a entrega.");
     } finally { lock.current = false; if (alive.current) { setBusy(false); onLockChange(false); } }
   }
   const rival = !!task.claimed_by_id && task.claimed_by_id !== staffId;
@@ -100,16 +100,15 @@ export function AttendanceDeliveryPage({ initialTask, staffId, request, onBack, 
     <div className="ux2Eyebrow">Produção · pedido pronto</div>
     <h1 id="delivery-title" ref={heading} tabIndex={-1}>Levar pedido.</h1>
     <p className="ux2Lede">{task.destination_label || "Sem mesa"}{task.tab_display_label ? ` · ${task.tab_display_label}` : ""}{task.tab_display_reference ? ` · ${task.tab_display_reference}` : ""}</p>
-    <div className="ux2DeliveryContext"><strong>{done ? "Entrega concluída" : ready ? "Pronto para entrega" : "Entrega atualizada"}</strong><p>{done ? "A tarefa e o item estão confirmados como entregues no servidor." : "Os itens abaixo têm estado confirmado pela produção. Abrir a tarefa não conclui a entrega."}</p></div>
+    <div className="ux2DeliveryContext"><strong>{done ? "Entrega concluída" : ready ? "Pronto para entrega" : "Entrega atualizada"}</strong><p>{done ? "A tarefa e o item estão confirmados como entregues no servidor." : ready ? "Depois de entregar ao cliente, confirme a entrega abaixo." : "O status mudou. Confira a fila antes de continuar."}</p></div>
     <div className="ux2SectionHead"><h2>O que levar</h2></div>
     <div className="ux2ReviewRow"><div><strong>{task.quantity}× {task.product_name}</strong><small>Origem · {station}</small></div><span className="ux2Tag">{done ? "Entregue" : task.item_state === "READY" ? "Pronto" : task.item_state === "PICKED_UP" ? "Retirado" : "Atualizado"}</span></div>
-    <div className="ux2Notice">Registre a entrega <strong>somente depois de entregar</strong>. O registro manual é uma exceção; abrir esta página não assume nem conclui a tarefa.</div>
     {rival && <p className="ux2Notice" role="status">Outra pessoa está responsável por esta entrega.</p>}
     {!fresh && <p className="ux2Notice" role="status">Estado desatualizado. Verifique a entrega antes de continuar.</p>}
     {error && <p className="ux2Notice" role="alert">{error}</p>}
     {unknown && <p className="ux2Notice" role="status">Resultado desconhecido. Confira a mesma tarefa antes de repetir.</p>}
-    <button className="ux2Button ghost block" disabled={busy} onClick={onBack}>{done ? "Voltar à fila" : "Voltar sem concluir"}</button>
+    <button className="ux2Button ghost block" disabled={busy} onClick={onBack}>{done ? "Voltar à fila" : "Voltar sem entregar"}</button>
     </div>
-    {!done && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={busy || (!unknown && fresh && (!ready || rival))} onClick={() => void (unknown || !fresh ? verify() : complete())}>{busy ? "Verificando entrega…" : unknown || !fresh ? "Verificar entrega" : "Registrar entrega por exceção"}</button></div>}
+    {!done && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={busy || (!unknown && fresh && (!ready || rival))} onClick={() => void (unknown || !fresh ? verify() : complete())}>{busy ? "Aguarde…" : unknown || !fresh ? "Verificar entrega" : "Confirmar entrega"}</button></div>}
   </section>;
 }
