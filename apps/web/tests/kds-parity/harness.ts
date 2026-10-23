@@ -99,7 +99,7 @@ function regions(scene: KdsScene): Region[] {
     list.push({ name: "tickets", ref: ".ticketgrid", app: '[data-testid="kds-ticket-grid"]' });
     list.push({ name: "ticket-1", ref: ".ticket:first-child", app: '[data-testid="kds-ticket"]:first-child' });
     list.push({ name: "ticket-1-destination", ref: ".ticket:first-child .dest", app: '[data-testid="kds-ticket"]:first-child [data-testid="kds-destination"]', critical: true });
-    list.push({ name: "ticket-1-cta", ref: ".ticket:first-child .actions .primary", app: '[data-testid="kds-ticket"]:first-child [data-testid="kds-primary-action"]', critical: true });
+    list.push({ name: "ticket-1-cta", ref: ':nth-match(.ticket:first-child .line[data-item] .actions .primary, 1)', app: ':nth-match([data-testid="kds-ticket"]:first-child [data-testid="kds-primary-action"], 1)', critical: true });
     if (scene.scenario === "simulateChange" || scene.scenario === "offline") {
       list.push({ name: "alert", ref: "#alerts .status:first-child", app: '[data-testid="kds-alert"]:first-child', critical: true });
     }
