@@ -13,7 +13,7 @@ from modules.catalog.models import Product
 from modules.ordering.models import Order, OrderItem, OrderSource, Tab
 from modules.venue.calendar import business_date
 from modules.venue.models import (
-    AttendanceTelemetryDaily, AttendanceTelemetryReceipt, ProductionScreenReceipt, Venue,
+    AttendanceTelemetryDaily, ProductionScreenReceipt, Venue,
 )
 
 
