@@ -44,6 +44,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const deferredRead = useRef(false);
   const readbackTail = useRef<Promise<void>>(Promise.resolve());
   const [items, setItems] = useState<Item[]>([]);
+  const [freshOrderIds, setFreshOrderIds] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [now, setNow] = useState(0);
   const [message, setMessage] = useState("");
@@ -55,6 +56,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const [cachedAt, setCachedAt] = useState<number>();
   const reading = useRef(false);
   const snapshotVersion = useRef(0);
+  // Never count cached snapshots or repeated refreshes as first-screen receipt.
+  const reportedScreenOrders = useRef<Set<string>>(new Set());
   const mutating = useRef(false);
   const queueRegion = useRef<HTMLElement>(null);
   const passRegion = useRef<HTMLElement>(null);
@@ -80,6 +83,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         throw new Error("Station snapshot unavailable");
       }
       const nextItems = (queue.body as { results: Item[] }).results;
+      setFreshOrderIds([...new Set(nextItems.map(item => item.order_id).filter((id): id is string => !!id))]);
       const nextProducts = (catalog.body as { results: Product[] }).results.filter(product => product.fulfillment_station === station);
       setItems(previous => JSON.stringify(previous) === JSON.stringify(nextItems) ? previous : nextItems);
       setProducts(previous => JSON.stringify(previous) === JSON.stringify(nextProducts) ? previous : nextProducts);
@@ -88,7 +92,10 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       setNow(Date.now());
       setMessage("");
     } catch (error) {
-      if (version === snapshotVersion.current) setMessage("Não foi possível atualizar a estação. Confira a conexão e tente novamente.");
+      if (version === snapshotVersion.current) {
+        setFreshOrderIds([]);
+        setMessage("Não foi possível atualizar a estação. Confira a conexão e tente novamente.");
+      }
       throw error;
     } finally {
       if (version === snapshotVersion.current) { reading.current = false; setLoading(false); }
@@ -124,8 +131,56 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   }, [cache]);
   const connectivity = useRealtime(() => load(true), {
     relevant: event => ["order", "orderitem", "order_item", "product", "producticon"].includes(event.aggregate_type.toLowerCase()),
-    onRevoked: (error) => { cache.clear(); setItems([]); setProducts([]); setHasSnapshot(false); setLoading(false); setMessage(apiMessage(error ?? { code: "AUTH_REVOKED", message: "Sessão encerrada." })); },
+    onRevoked: (error) => { cache.clear(); setItems([]); setFreshOrderIds([]); setProducts([]); setHasSnapshot(false); setLoading(false); setMessage(apiMessage(error ?? { code: "AUTH_REVOKED", message: "Sessão encerrada." })); },
   });
+  useEffect(() => {
+    // An Order counts only after a *fresh API read* and IntersectionObserver
+    // confirms a rendered ticket in the foreground viewport. No manual tap.
+    if (!freshOrderIds.length || !hasSnapshot || loading || message || connectivity.state === "OFFLINE") return;
+    if (typeof IntersectionObserver === "undefined") return;
+    const allowed = new Set(freshOrderIds);
+    let stopped = false;
+    const nodes = () => [
+      ...Array.from(queueRegion.current?.querySelectorAll<HTMLElement>("[data-production-order-id]") ?? []),
+      ...Array.from(passRegion.current?.querySelectorAll<HTMLElement>("[data-production-order-id]") ?? []),
+    ];
+    const observer = new IntersectionObserver(entries => {
+      if (stopped || document.visibilityState !== "visible") return;
+      const ids = [...new Set(entries.filter(entry => entry.isIntersecting && entry.intersectionRatio > 0)
+        .map(entry => (entry.target as HTMLElement).dataset.productionOrderId)
+        .filter((id): id is string => !!id && allowed.has(id) && !reportedScreenOrders.current.has(id)))];
+      for (let offset = 0; offset < ids.length; offset += 20) {
+        const batch = ids.slice(offset, offset + 20);
+        batch.forEach(id => reportedScreenOrders.current.add(id));
+        // Best-effort telemetry never blocks rendering, ordering or station
+        // readback. A failed observation stays missing, never fabricated.
+        void fetch("/api/production-screen-observation", {
+          method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ station, order_ids: batch }),
+          signal: AbortSignal.timeout(1500),
+        }).catch(() => {});
+      }
+    }, { threshold: 0.01 });
+    const reobserve = () => {
+      if (stopped || document.visibilityState !== "visible") return;
+      observer.disconnect();
+      nodes().forEach(node => observer.observe(node));
+    };
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(reobserve);
+    });
+    document.addEventListener("visibilitychange", reobserve);
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      document.removeEventListener("visibilitychange", reobserve);
+      observer.disconnect();
+    };
+  }, [items, freshOrderIds, hasSnapshot, loading, message, station, connectivity.state]);
+
   useEffect(() => {
     // Local age display only; canonical reads are driven by realtime/fallback.
     const timer = window.setInterval(() => setNow(Date.now()), 15000);
@@ -256,7 +311,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationTickets stationRegion" ref={queueRegion} tabIndex={-1} aria-labelledby="queue-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Fila de pedidos</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">O preparo só começa ao tocar em Iniciar preparo · mais antigo primeiro</p>
-        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${itemPrimary(group[0])}`}>
+        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} data-production-order-id={group[0].order_id} role="group" aria-label={`Pedido: ${itemPrimary(group[0])}`}>
           <strong className="stationTab">{itemPrimary(group[0])}</strong><small className="muted">{itemSecondary(group[0])}</small>
           <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
           <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
@@ -270,7 +325,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationPass stationRegion" ref={passRegion} tabIndex={-1} aria-labelledby="ready-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="check" id="ready-title">Pronto para retirada</OperationalHeading>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">No passe · esperando retirada</p>
-        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{itemPrimary(item)}</strong><small className="muted">{itemSecondary(item)}</small><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
+        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id} data-production-order-id={item.order_id}><strong className="stationTab">{itemPrimary(item)}</strong><small className="muted">{itemSecondary(item)}</small><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
         {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{itemPrimary(item)}</strong><small className="muted">{itemSecondary(item)}</small><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
         <p className="stationFootnote">Estado confirmado pela operação. Atualizações ao vivo.</p>
