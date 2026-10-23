@@ -74,6 +74,13 @@ jobs:
         working-directory: apps/web
         run: npx playwright install --with-deps chromium
 
+      # Spec035 S0: only certifies the visual comparator against a frozen HTML
+      # reference and an intentionally injected regression. App parity is a
+      # separate, fail-closed suite until an isolated canonical fixture exists.
+      - name: Spec 035 KDS visual comparator integrity
+        working-directory: apps/web
+        run: npm run test:kds-parity:infra
+
       - name: Typecheck
         working-directory: apps/web
         run: npm run typecheck

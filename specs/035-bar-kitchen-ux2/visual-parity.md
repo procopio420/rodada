@@ -65,3 +65,18 @@ Pedidos BAR e KITCHEN; Passe normal e antigo; Resumo por produto; Expedição si
 ## 7. GO/NO-GO
 
 **Visual GO** somente com todas as cenas obrigatórias PASS, sem exceção visual sem aprovação, screenshot/traces no commit exato e validação humana independente de Bar e Cozinha. **Product GO** adicionalmente exige AC de domínio e autorização, testes físicos quando aplicável, sem confundir CI com homologação. Reportar sempre números medidos ou "não executado"; nenhuma garantia pode ser declarada antes da execução.
+
+## 8. Infraestrutura executável — S0 (branch feat/035-kds-visual-compare-infra)
+
+**Implementação de comparador, não paridade do produto:** `apps/web/tests/kds-parity/harness.ts`, `infrastructure.spec.ts`, `application.spec.ts` e `playwright.kds-parity.config.ts`. O comparador valida o blob SHA-1 de referência, controla relógio/locale/DPR/reduced-motion, remove somente a moldura externa do showcase e calcula diffs das regiões operacionais visíveis.
+
+Comandos (em `apps/web`, após `npm ci` e `npx playwright install chromium`):
+
+- `npm run test:kds-parity:infra`: positivo referência-versus-referência em 8 cenas (Bar/Cozinha, Passe recente/antigo, alergia, expedição, alterações e offline), negativo com desvio visual proposital e verificação do manifesto. **PASS nesse comando apenas certifica o mecanismo do comparador**.
+- `RODADA_KDS_APP_URL=http://127.0.0.1:3100 npm run test:kds-parity:app`: executa as 24 cenas contra a aplicação real com uma fixture isolada, exigindo a superfície Web e o readback canônico. **Falha se URL/fixture/adapter faltarem**; não substitui o app pelo protótipo. Não apontar a demo/produção.
+
+Contrato do adaptador Web de fixture, **a implementar**: rotas existentes `/bar` e `/kitchen` devem aceitar a seleção `?kds_visual_scene=<id>` somente num ambiente de testes isolado e autenticado, com Venue e dados descartáveis. O parâmetro nunca autoriza login, seed ou mutação. Após a leitura canônica, renderizar `[data-testid=kds-root][data-kds-fixture=night-kds-v1][data-kds-scene=<id>][data-kds-ready=canonical]` com seletores de regiões: `kds-header`, `kds-summary`, `kds-nav`, `kds-work`, `kds-ticket-grid`, `kds-ticket`, `kds-destination`, `kds-primary-action`, `kds-pass-grid`, `kds-pass-card`, `kds-pass-archive`, `kds-all-day`, `kds-expedition-grid`, `kds-settings`, `kds-modal` e `kds-alert` quando pertinentes. Marcador da fixture não é prova isolada de PostgreSQL; testes integrados continuam obrigatórios.
+
+Relatórios em `apps/web/test-results/kds-parity/kds/<scene>/`: `report.json`, screenshots `.reference.png`/`.actual.png` e `.diff.png` por região. O CI Web roda somente a infraestrutura, arquivando outputs/traces, e **não** declara a paridade do app aprovada. Quando o adapter canônico estiver pronto, ativar o gate de app no CI obrigatório com DB descartável, auth e idempotência. Não permitir skip silencioso, máscaras operacionais ou atualizar baseline para passar.
+
+O gate inicial compara shell, header, resumo, navegação, workspace e os elementos dominantes de cada cena (primeiro ticket/destino/CTA, Passe, produtos, expedição, ajustes, modal e alertas). Ampliação para todos os tickets/CTAs, acessibilidade/axe e fixtures de API integradas permanece em escopo de implementação futuro. **Nenhum AC-35..46 está marcado PASS por esta entrega.**
