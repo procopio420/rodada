@@ -9,11 +9,19 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun sendAttendanceTelemetry(accessToken: String, event: String, durationMs: Long? = null) {
-        val body = JSONObject().put("version", 1)
+    fun sendAttendanceTelemetry(
+        accessToken: String, event: String, originSession: String, intentKey: String,
+        durationMs: Long? = null, essentialSteps: Int? = null,
+    ) {
+        val hash = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(intentKey.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it.toInt() and 255) }
+        val body = JSONObject().put("version", 2)
             .put("event_id", java.util.UUID.randomUUID().toString())
             .put("platform", "ANDROID").put("event", event)
+            .put("origin_session", originSession).put("intent_ref", hash)
         if (durationMs != null) body.put("duration_ms", durationMs.coerceIn(0, 3600000))
+        if (essentialSteps != null) body.put("essential_steps", essentialSteps.coerceIn(1, 200))
         request("POST", "/attendance/telemetry/", body, accessToken, followRedirects = false, timeoutMs = 750)
     }
 

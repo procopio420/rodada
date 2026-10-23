@@ -69,11 +69,17 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
   const repeatConsumed = useRef(false);
   const [repeatReview, setRepeatReview] = useState<{ tabId: string; orderId: string; review: ReturnType<typeof reviewRepeatedOrder<Product>> } | null>(null);
   const [drafts, setDrafts] = useState<Record<string, DraftLine[]>>({});
+  // Actual cart edits, scoped to the current Tab; not synthetic screen visits.
+  const observedOrderActions = useRef<{ tabId: string | null; count: number }>({ tabId: null, count: 0 });
   const cart = useMemo(() => selected ? drafts[selected.id] ?? [] : [], [selected, drafts]);
   useEffect(() => { onContextChange?.(dialogOpen && selected ? { tabId: selected.id, surface: dialogView } : null); }, [dialogOpen, selected, dialogView, onContextChange]);
   function setCart(update: DraftLine[] | ((current: DraftLine[]) => DraftLine[])) {
     if (!selected) return;
     const tabId = selected.id;
+    if (presentation === "ux2") {
+      if (observedOrderActions.current.tabId !== tabId) observedOrderActions.current = { tabId, count: 0 };
+      observedOrderActions.current.count = Math.min(199, observedOrderActions.current.count + 1);
+    }
     setDrafts(current => ({ ...current, [tabId]: typeof update === "function" ? update(current[tabId] ?? []) : update }));
   }
   const switching = useRef(false);
@@ -148,10 +154,11 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
       selectedReadEpoch.current++;
       setSelected(detail.body as Tab); setOrderFresh(true); setTabCollapsed(false);
       if (origin === "draft") setDrafts(current => ({ ...current, [tabId]: [] }));
+      if (observedOrderActions.current.tabId === tabId) observedOrderActions.current = { tabId: null, count: 0 };
       setSuccess("Pedido confirmado."); setMessage(""); setDraftFeedback("");
       if (presentation === "ux2") setDialogView("tab");
     };
-  }, presentation === "ux2");
+  }, presentation === "ux2", observedOrderActions);
   useEffect(() => {
     if (presentation !== "ux2" || !orderIntent.pending || selected?.id === orderIntent.pending.tab) return;
     let active = true;

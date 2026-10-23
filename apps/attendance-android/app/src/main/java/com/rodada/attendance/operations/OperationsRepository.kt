@@ -124,13 +124,18 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     private val telemetrySlots = java.util.concurrent.Semaphore(8)
 
     /** Passive telemetry never refreshes auth, retries a sale or delays canonical readback. */
-    fun recordAttendanceTelemetry(session: StoredSession, event: String, durationMs: Long? = null) {
+    fun recordAttendanceTelemetry(
+        session: StoredSession, event: String, intentKey: String,
+        durationMs: Long? = null, essentialSteps: Int? = null,
+    ) {
         if (!telemetrySlots.tryAcquire()) return
         telemetryScope.launch {
             try {
                 runCatching {
                     val token = authRepository.observationAccessToken(session) ?: return@runCatching
-                    client.sendAttendanceTelemetry(token, event, durationMs)
+                    client.sendAttendanceTelemetry(
+                        token, event, session.sessionId, intentKey, durationMs, essentialSteps,
+                    )
                 }
             } finally {
                 telemetrySlots.release()

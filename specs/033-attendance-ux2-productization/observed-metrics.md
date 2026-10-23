@@ -40,3 +40,32 @@ snapshot, missing/invalid/provenance, leitura repetida sem mutation e SQL sem N+
 - Expor denominadores (eligible/observed/missing), tentativas, erros, recuperações e disponibilidade de mesas com definição verificável; separar observações canônicas das observações do cliente.
 - Testes obrigatórios: Web, Android, API, tenant isolation, duplicatas/retry, desconexão/restart, dados ausentes e balcão-only.
 - Não fechar AC-23 com este contrato: somente após implementação, testes e evidências no mesmo SHA.
+
+
+## AC-23 — telemetria v2 (contrato implementado em slice, validação pendente)
+
+A telemetria `POST /attendance/telemetry/` preserva clientes v1. Clientes v2 enviam
+`event_id`, `version=2`, plataforma, evento, `origin_session` da sessão atual
+e `intent_ref` SHA-256 da **chave aleatória de idempotência**. A API rejeita
+sessões divergentes, hash malformado, outros campos, valores fora do intervalo,
+duplicata conflitante e lotes acima de 8 KiB. O UUID de evento e hash opaco ficam
+só em receipts temporários, nunca no relatório; não há staff/Tab/Order/Payload,
+nem tracker individual. Receipts expirados são limpos por comando de retenção
+de sete dias (a execução agendada deve ser configurada no rollout, não foi
+declarada ativa). Um envio perdido pode deixar cobertura incompleta, mesmo
+com Order financeiro confirmado; telemetria é best-effort.
+
+`essential_steps` no `confirm_acknowledged` soma **ações efetivamente observadas**
+em uma Tab no processo corrente: edições do carrinho e ação de envio. Ações
+anteriores à recuperação/reinício e fluxo sem ação de carrinho observada não
+recebem contagem inventada. Relatório mostra
+`essential_steps_eligible/observed/missing`, total e média só das amostras
+observadas; não é número de passos de navegação inteira.
+
+`duration_ms` é relógio monotônico da tentativa de confirmação até readback
+canônico; não é duração de uma jornada que atravessa reinício nem comprovante
+de chegada à tela Bar/Cozinha. O agregado canônico separado mantém
+`Order.confirmed_at→OrderItem.accepted_at/ready_at` por estação, sem
+inferir recebimento visual. **A AC-23 integral não está fechada:** falta
+medição comprovada intenção→recebimento real em produção, caminho completo
+de passos e evidência em operação. Nenhuma comparação com UX antiga é exigida.

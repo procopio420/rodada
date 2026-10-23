@@ -77,11 +77,23 @@ def attendance_metrics(*, venue, start, end):
             count_total=Sum("count"),
             duration_total_ms=Sum("duration_total_ms"),
             duration_observed=Sum("duration_observed"),
+            essential_steps_total=Sum("essential_steps_total"),
+            essential_steps_observed=Sum("essential_steps_observed"),
         ).order_by("platform", "event")
     )
+    for metric in client_telemetry:
+        # Action coverage only applies to acknowledged orders; it is never inferred
+        # from production readiness or from a previous browser/app process.
+        eligible = metric["count_total"] if metric["event"] == "confirm_acknowledged" else 0
+        measured = metric["essential_steps_observed"]
+        metric["essential_steps_eligible"] = eligible
+        metric["essential_steps_missing"] = max(0, eligible - measured)
+        metric["mean_essential_steps"] = (
+            round(metric["essential_steps_total"] / measured, 3) if measured else None
+        )
     return {"client_telemetry": client_telemetry, "start": start, "end": end, "timezone": venue.timezone,
         "cutoff_hour": venue.business_day_cutoff_hour,
         "cohort": "Order.confirmed_at / DispatchTask.created_at; final timestamps may follow period",
         "production": production, "calls": calls, "manual_delivery": delivery,
         "bill_to_tab_closed": bill_close,
-        "not_instrumented": ["client_steps", "presentation_version", "production_screen_received"]}
+        "not_instrumented": ["client_steps", "full_navigation_step_path", "production_screen_received", "intent_to_production_screen_received"]}

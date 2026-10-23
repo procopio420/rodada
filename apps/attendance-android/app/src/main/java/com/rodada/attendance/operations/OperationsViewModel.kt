@@ -590,6 +590,7 @@ class OperationsViewModel(
             return
         }
         state = state.copy(cart = next, noticeMessage = null)
+        recordCartAction()
     }
 
     fun repeatOrder(session: StoredSession, tabId: String, review: RepeatOrderReview, quantities: Map<String, Int>) {
@@ -599,6 +600,7 @@ class OperationsViewModel(
             return
         }
         // A round is an independent Order; never borrow the manual cart.
+        recordCartAction(tabId)
         queueOrder(session, tabId, lines, clearCartOnConfirmation = false)
     }
 
@@ -608,7 +610,8 @@ class OperationsViewModel(
         val product = state.products.firstOrNull { it.id == line.product.id } ?: return
         if (product.customizationError(customization) != null) return
         val next = editDraftConfiguration(state.cart, lineId, product, customization)
-        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.") else state.copy(cart = next)
+        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.")
+            else { if (next != state.cart) recordCartAction(); state.copy(cart = next) }
     }
 
     fun changeCartQuantity(lineId: String, delta: Int) {
@@ -617,7 +620,8 @@ class OperationsViewModel(
         val product = state.products.firstOrNull { it.id == line.product.id }
         if (delta > 0 && (product == null || !product.active || product.availability != "AVAILABLE")) return
         val next = changeDraftQuantity(state.cart, lineId, delta)
-        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.") else state.copy(cart = next)
+        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.")
+            else { if (next != state.cart) recordCartAction(); state.copy(cart = next) }
     }
 
     /**
@@ -629,6 +633,22 @@ class OperationsViewModel(
         if (state.cart.isEmpty() || tab.state == "CLOSED" || state.submitting) return
         queueOrder(session, tab.id, state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
             clearCartOnConfirmation = true)
+    }
+
+    // Count real cart edits on the current Tab, not inferred gestures or activity.
+    // Recovery after process restart has missing action coverage, never a fake zero.
+    private var observedCartTabId: String? = null
+    private var observedCartActions = 0
+    private var observedIntentKey: String? = null
+    private var observedIntentSteps: Int? = null
+
+    private fun recordCartAction(tabId: String? = state.selectedTab?.summary?.id) {
+        if (tabId == null) return
+        if (observedCartTabId != tabId) {
+            observedCartTabId = tabId
+            observedCartActions = 0
+        }
+        observedCartActions = (observedCartActions + 1).coerceAtMost(199)
     }
 
     private var ux2OrderAttempts = 0L
@@ -660,7 +680,12 @@ class OperationsViewModel(
             tabId = tabId, lines = lines, clearCartOnConfirmation = clearCartOnConfirmation,
         )
         if (!preserveIntent(intent, session)) return
-        repository.recordAttendanceTelemetry(session, "intent_started")
+        observedIntentKey = key
+        observedIntentSteps = if (observedCartTabId == tabId && observedCartActions > 0)
+            (observedCartActions + 1).coerceAtMost(200) else null
+        observedCartTabId = null
+        observedCartActions = 0
+        repository.recordAttendanceTelemetry(session, "intent_started", key)
         loadOrderQueue(session)
         state = state.copy(orderIntentId = key, errorMessage = null,
             noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
@@ -712,7 +737,7 @@ class OperationsViewModel(
                 }
                 if (now.state != RecoveryState.PENDING) {
                     ux2OrderRecoveries++
-                    repository.recordAttendanceTelemetry(session, "confirm_recovered")
+                    repository.recordAttendanceTelemetry(session, "confirm_recovered", now.idempotencyKey)
                 }
                 state = state.copy(submitting = true,
                     noticeMessage = OrderSubmissionStatus.message(now.state))
@@ -722,7 +747,7 @@ class OperationsViewModel(
                     val products = repository.products(session)
                     pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
                     ux2OrderAttempts++
-                    repository.recordAttendanceTelemetry(session, "confirm_attempted")
+                    repository.recordAttendanceTelemetry(session, "confirm_attempted", now.idempotencyKey)
                     val ux2StartedAt = android.os.SystemClock.elapsedRealtime()
                     val receipt = repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
                     val canonical = repository.tabDetail(session, now.tabId)
@@ -730,7 +755,14 @@ class OperationsViewModel(
                     ux2OrderConfirmations++
                     val ux2Elapsed = android.os.SystemClock.elapsedRealtime() - ux2StartedAt
                     ux2OrderConfirmationDurationMs += ux2Elapsed
-                    repository.recordAttendanceTelemetry(session, "confirm_acknowledged", ux2Elapsed)
+                    repository.recordAttendanceTelemetry(
+                        session, "confirm_acknowledged", now.idempotencyKey, ux2Elapsed,
+                        if (observedIntentKey == now.idempotencyKey) observedIntentSteps else null,
+                    )
+                    if (observedIntentKey == now.idempotencyKey) {
+                        observedIntentKey = null
+                        observedIntentSteps = null
+                    }
                     pendingMutationIntentStore.remove(now.id)
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {
@@ -744,7 +776,7 @@ class OperationsViewModel(
                 } catch (error: Exception) {
                     if (error is kotlinx.coroutines.CancellationException) throw error
                     ux2OrderFailures++
-                    repository.recordAttendanceTelemetry(session, "confirm_failed")
+                    repository.recordAttendanceTelemetry(session, "confirm_failed", now.idempotencyKey)
                     if (error is OperationsApiException && error.status in 400..499) {
                         // A stale price, disabled product, closed Tab or lost authority is not
                         // silently retried on reconnect. Preserve evidence for reconciliation.

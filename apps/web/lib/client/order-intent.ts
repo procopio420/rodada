@@ -7,15 +7,32 @@ const storageKey = "rodada.intent.staff-order.v1";
 
 // Best-effort telemetry never owns an order or refreshes financial authentication.
 let telemetryInFlight = 0;
-function sendIntentMetric(event: "intent_started" | "confirm_attempted" | "confirm_failed" | "confirm_recovered" | "confirm_acknowledged", durationMs?: number) {
+type ObservedIntentOrigin = { key: string; session: string };
+function sendIntentMetric(
+  event: "intent_started" | "confirm_attempted" | "confirm_failed" | "confirm_recovered" | "confirm_acknowledged",
+  origin: ObservedIntentOrigin, durationMs?: number, essentialSteps?: number,
+): void {
+  // The raw financial idempotency key stays in the existing encrypted/session envelope.
+  // Only SHA-256 of that random key leaves the client; transport has no auth refresh.
   try {
-    if (telemetryInFlight >= 8) return;
-    const payload = { version: 1, event_id: crypto.randomUUID(), platform: "WEB", event,
-      ...(durationMs === undefined ? {} : { duration_ms: Math.max(0, Math.min(3600000, Math.round(durationMs))) }) };
+    if (telemetryInFlight >= 8 || !crypto.subtle) return;
     telemetryInFlight++;
-    void fetch("/api/attendance-telemetry", { method: "POST", credentials: "same-origin",
-      headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(1500) }).catch(() => {}).finally(() => { telemetryInFlight--; });
+    void (async () => {
+      try {
+        const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(origin.key));
+        const intent_ref = Array.from(new Uint8Array(hash), value => value.toString(16).padStart(2, "0")).join("");
+        const payload = {
+          version: 2, event_id: crypto.randomUUID(), platform: "WEB", event,
+          origin_session: origin.session, intent_ref,
+          ...(durationMs === undefined ? {} : { duration_ms: Math.max(0, Math.min(3600000, Math.round(durationMs))) }),
+          ...(essentialSteps === undefined ? {} : { essential_steps: Math.max(1, Math.min(200, Math.round(essentialSteps))) }),
+        };
+        await fetch("/api/attendance-telemetry", { method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(1500) });
+      } catch { /* A dropped metric cannot change the financial action. */ }
+      finally { telemetryInFlight--; }
+    })();
   } catch { /* Optional diagnostics cannot interrupt confirmation. */ }
 }
 
@@ -64,7 +81,7 @@ function assertSaved(i: Intent) {
   if (sessionStorage.getItem(storageKey) !== JSON.stringify(i)) throw new Error("Order envelope changed");
 }
 
-export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>, observeUx2 = false) {
+export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>, observeUx2 = false, observedOrderActions?: { current: { tabId: string | null; count: number } }) {
   const [ready, setReady] = useState(false), [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intentRef = useRef<Intent | null>(null), sending = useRef(false);
@@ -85,8 +102,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
   async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos", origin: "draft" | "repeat" = "draft") {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
-    const startedAt = performance.now();
-    if (observeUx2) recordIntentMetric("attempt");
+    let startedAt = 0;
     const recovering = !!intentRef.current;
     let attempted = false;
     try {
@@ -107,15 +123,22 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
         intentRef.current = i; setPending(i);
       }
       assertSaved(i);
+      const metricOrigin = { key: i.payload.idempotency_key, session: i.session };
+      const actionCount = !recovering && observedOrderActions?.current.tabId === i.tab
+        && observedOrderActions.current.count > 0
+        ? Math.min(200, observedOrderActions.current.count + 1)
+        : undefined;
       if (observeUx2) {
-        if (!recovering) sendIntentMetric("intent_started");
-        else { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered"); }
-        sendIntentMetric("confirm_attempted");
+        if (!recovering) sendIntentMetric("intent_started", metricOrigin);
+        else { recordIntentMetric("recovery"); sendIntentMetric("confirm_recovered", metricOrigin); }
+        sendIntentMetric("confirm_attempted", metricOrigin);
+        recordIntentMetric("attempt");
       }
       attempted = true;
+      startedAt = performance.now();
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
-        if (observeUx2) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed"); }
+        if (observeUx2) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed", metricOrigin); }
         const error = asApiError(result.body);
         if (!recovering && [400, 409].includes(result.response.status) && initialRejections.has(error.code)) {
           assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
@@ -127,10 +150,15 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
       assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
       applyConfirmed();
       if (observeUx2) { recordIntentMetric("confirmed", performance.now() - startedAt);
-        sendIntentMetric("confirm_acknowledged", performance.now() - startedAt); }
+        sendIntentMetric("confirm_acknowledged", metricOrigin, performance.now() - startedAt, actionCount); }
       setMessage("");
     } catch {
-      if (observeUx2 && attempted) { recordIntentMetric("failure"); sendIntentMetric("confirm_failed"); }
+      if (observeUx2 && attempted && intentRef.current) {
+        recordIntentMetric("failure");
+        sendIntentMetric("confirm_failed", {
+          key: intentRef.current.payload.idempotency_key, session: intentRef.current.session,
+        });
+      }
       setMessage(intentRef.current ? "Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro."
         : "Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.");
       if (!intentRef.current) setReady(false);
