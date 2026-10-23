@@ -1,5 +1,7 @@
 # E06 — Tarefas executáveis
 
+**Auditoria #272 encerrada somente como inventário técnico.** Recibo/matriz por AC e revisão própria em [e06-audit-closeout-20261022.md](../../e06-audit-closeout-20261022.md). Execução restante: [#315](https://github.com/procopio420/rodada/issues/315), [#316](https://github.com/procopio420/rodada/issues/316), [#317](https://github.com/procopio420/rodada/issues/317), [#318](https://github.com/procopio420/rodada/issues/318). Manter este checklist aberto para aceite global; não declarar AC-20..24 PASS.
+
 **Dono:** QA/integrador. Executar parte baseline imediatamente e matriz final após epics proprietárias.
 
 - [x] **E06-01 Baseline com SHA:** listar endpoints/código/suites já existentes e claims que podem ser testados agora; issue #106 e Spec 026/029; elaborar matriz de reuso/lacuna.
