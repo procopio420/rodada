@@ -69,3 +69,38 @@ de chegada à tela Bar/Cozinha. O agregado canônico separado mantém
 inferir recebimento visual. **A AC-23 integral não está fechada:** falta
 medição comprovada intenção→recebimento real em produção, caminho completo
 de passos e evidência em operação. Nenhuma comparação com UX antiga é exigida.
+
+
+## AC-23 — primeiro recebimento visível no Bar/Cozinha (slice implementado)
+
+Bar/Cozinha agora possui um observador passivo de `ProductionBoard`:
+- O pedido só é elegível para observação após leitura **fresca** e autenticada
+  de `GET /production/{BAR|KITCHEN}/`; restaurar cache offline não gera evento.
+- Uma carta/ticket de Order só é reportada após renderização e interseção
+  positiva com o viewport em aba visível. Sem clique extra do operador.
+- O proxy `POST /api/production-screen-observation` preserva a sessão staff
+  existente sem refresh/cookies. A API aceita somente um lote pequeno de
+  Orders canônicos do próprio Venue e da estação, sem mudar Order/Task/ledger.
+- O primeiro evento por `venue+order+station` recebe deduplicação durável;
+  refresh, abas simultâneas e retry não duplicam contagens. Receipts por Order
+  são temporários, limpos pelo mesmo comando de retenção de sete dias.
+  Ordens antigas fora dessa janela não voltam a ser contadas após limpeza.
+- O relatório `production_screen.BAR/KITCHEN` mostra **Orders elegíveis,
+  observados e ausentes** agrupados pela data de confirmação do Order.
+  `latency_observed/missing` e média são separados do total observado.
+
+**Proveniência do tempo:** o marco inicial é o `received_at` no servidor do
+evento autenticado `intent_started` (telemetria v2, vinculado por SHA-256 da
+chave aleatória de idempotência). O marco final é `observed_at` do servidor
+no primeiro relatório de ticket visível no viewport. Isso mede
+**ingresso da intenção → recibo de observação da tela** usando relógio do
+servidor, não clocks de dois dispositivos. Se o evento inicial chegou depois,
+faltou, foi descartado, veio de fluxo Guest/legado ou saiu da retenção, a
+duração é *missing*, nunca estimada.
+
+É evidência de que um **cliente autenticado informou renderização visível**,
+não prova de que o funcionário prestou atenção, de entrega de hardware ou de
+preparo iniciado. A latência contém rede/filas de observação e não representa
+o instante exato do toque no aparelho. A simulação e o teste real em
+Chromium/PostgreSQL validam a instrumentação; a homologação com pessoa e
+equipamento reais continua fora deste slice. Nenhuma flag de UX legada.
