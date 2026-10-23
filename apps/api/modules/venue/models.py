@@ -145,6 +145,7 @@ class ProductionScreenReceipt(models.Model):
     a *fresh canonical* station order as viewport-visible. Not human attention.
     Financial Order remains authoritative; this record is pruned after 7 days.
     """
+    id = models.BigAutoField(primary_key=True)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     order = models.ForeignKey("ordering.Order", on_delete=models.CASCADE)
     station = models.CharField(max_length=8, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
