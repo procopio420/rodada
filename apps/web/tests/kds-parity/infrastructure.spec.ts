@@ -8,7 +8,7 @@ function scene(id: string): KdsScene {
 }
 
 // S0 proves the *comparator* functions. It does NOT claim parity of the current Web app.
-for (const id of ["bar-queue-mobile", "kitchen-queue-desktop", "kitchen-allergy-modal", "kitchen-expedition"]) {
+for (const id of ["bar-queue-mobile", "kitchen-queue-desktop", "kitchen-allergy-modal", "kitchen-expedition", "bar-pass-recent", "kitchen-pass-old", "bar-change-banner", "bar-offline"]) {
   test("KDS infra matches identical frozen reference: " + id, async ({ browser }, testInfo) => {
     const current = scene(id);
     const left = await referencePage(browser, current);
@@ -36,6 +36,22 @@ test("KDS infra rejects deliberate visual regression without updating reference"
     expect(report.verdict).toBe("FAIL");
     expect(cta?.ok).toBe(false);
     expect(cta?.fraction ?? 0).toBeGreaterThan(manifest.gates.max_critical_pixel_diff_fraction);
+  } finally {
+    await Promise.all([left.close(), right.close()]);
+  }
+});
+
+test("KDS infra rejects displaced destination geometry", async ({ browser }, testInfo) => {
+  const current = scene("kitchen-queue-mobile");
+  const left = await referencePage(browser, current);
+  const right = await referencePage(browser, current);
+  try {
+    await right.addStyleTag({ content: "#surface .ticket:first-child .dest { margin-left:16px!important; }" });
+    const report = await compareScenes(left, right, current, testInfo, true);
+    const destination = report.regions.find(r => r.name === "ticket-1-destination");
+    expect(report.verdict).toBe("FAIL");
+    expect(destination?.ok).toBe(false);
+    expect(destination?.edgeDelta ?? 0).toBeGreaterThan(manifest.gates.max_bounding_box_edge_difference_px);
   } finally {
     await Promise.all([left.close(), right.close()]);
   }
