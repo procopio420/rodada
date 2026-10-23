@@ -334,6 +334,10 @@ class ProductionBatchConcurrencyTests(BatchFixture, TransactionTestCase):
 class InstantBarPickupTests(BatchFixture, TestCase):
     def setUp(self):
         super().setUp()
+        # This suite validates fulfillment, not the separate spending-limit gate.
+        # The fixture already consumes 300 cents before the mixed Bar order.
+        self.tab.operating_limit_cents = 10000
+        self.tab.save(update_fields=["operating_limit_cents"])
         self.water = Product.objects.create(venue=self.venue, name="Water bottle", price_cents=500,
                                             fulfillment_station="BAR", fulfillment_mode="PICKUP")
         self.cocktail = Product.objects.create(venue=self.venue, name="Cocktail", price_cents=1500,
