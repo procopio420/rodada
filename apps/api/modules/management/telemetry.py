@@ -71,7 +71,7 @@ class AttendanceTelemetryIngestView(APIView):
                 with transaction.atomic():
                     AttendanceTelemetryReceipt.objects.create(
                         id=data["event_id"], venue=venue, fingerprint=fingerprint,
-                        intent_ref=data.get("intent_ref", ""))
+                        intent_ref=data.get("intent_ref", ""), event=data["event"])
             except IntegrityError:
                 receipt = AttendanceTelemetryReceipt.objects.filter(pk=data["event_id"], venue=venue).first()
                 if receipt is not None and receipt.fingerprint == fingerprint:
