@@ -5,7 +5,7 @@
 ## Trilha A — Contract & baseline
 
 - [ ] **KDS-01** Inventariar `ProductionBoard`/CSS rotas Bar/Cozinha, `OrderItem`, Dispatch, Availability, Correction, eventos SSE e snapshots; adicionar mapa “já existe / gap / conflito / simulado”.
-- [ ] **KDS-02** Construir fixture isolada: FG84 (só Bar), duas comandas numa mesa, mistura Bar+Cozinha, 2 burgers com customizações distintas, alergia, 3 bebidas/cancelar 1, lote e 30 pedidos.
+- [ ] **KDS-02** Construir fixture isolada: FG84 (fixture do Bar, com eventual grupo PICKUP KITCHEN separado), duas comandas numa mesa, mistura Bar+Cozinha, 2 burgers com customizações distintas, alergia, 3 bebidas/cancelar 1, lote e 30 pedidos.
 - [ ] **KDS-03** Congelar evidência visual/teclado “antes” no mesmo SHA/viewport/test data; definir replay determinístico com relógio controlado.
 - [ ] **KDS-04** Resolver decisão de contrato de READY direto, partial ready, AllergyHold e expedition/filtro canônico com os owners da API antes de ativar ações.
 
@@ -23,7 +23,7 @@
 - [ ] **KDS-11** Passe pronto recente + antigo “sem retirada registrada”, sem inferir entrega; ação opcional de pickup e prova de estado canônico.
 - [ ] **KDS-12** Expedição opt-in mostra status cruzado Bar/Cozinha, próxima ação e abre Passe filtrado pelo ID do pedido; suporta prontos antigos e múltiplas Tabs.
 - [ ] **KDS-13** Resumo por produto apenas consultivo, sem fusão perigosa de variantes, estações, alergias ou statuses.
-- [ ] **KDS-14** Verificar que no modo ficha não entra comida e FG84 não dá acesso/autorização à Tab.
+- [ ] **KDS-14** Verificar que a fila Bar não incorpora item roteado a KITCHEN, mesmo que ambos tenham modalidade PICKUP/código visual; FG84 não dá acesso/autorização à Tab.
 
 ## Trilha D — Segurança, domínio e exceções
 
