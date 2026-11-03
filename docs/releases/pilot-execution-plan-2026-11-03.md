@@ -1,13 +1,16 @@
 # Rodada — plano executável por etapas até o piloto
 
-Data: 2026-11-03. Estado: **PROPOSTA PARA APROVAÇÃO**; nenhuma etapa executada
-por este plano. Base examinada: main@67972d09200d43357b5b88dc0f64218967e4c24b.
+Data: 2026-11-03. Estado vigente: **etapa 1 aprovada; etapa 2 ensaiada e entregue
+com impedimentos; etapas 3–6 planejadas**. Retomada em outro computador:
+[handoff do PR #324](pilot-handoff-2026-11-03.md). NO-GO produção.
+Base de produto examinada: main@67972d09200d43357b5b88dc0f64218967e4c24b.
 Objetivo: permitir que o responsável peça no chat “execute a etapa N do PR” e
 receba uma entrega verificável antes de decidir a continuação.
 
 Este documento organiza trabalho existente; não substitui specs, não muda
-contratos de produto nem declara o programa homologado. Risco deste PR: R1
-documental; cada execução futura terá sua própria classificação e evidência.
+contratos de produto nem declara o programa homologado. Proposta inicial R1
+documental; checkpoint ampliado R2 por testes de integração, sem alteração
+funcional. Revisão R3 do candidato de release continua gate próprio e pendente.
 
 ## Como executar a partir do chat
 
@@ -206,6 +209,93 @@ pedido humano que autorizou a execução; não copiar tokens/segredos/PII.
 | 6 — Publicação/piloto | PLANEJADA | Autorizações e GO pendentes | Usuário/release |
 
 ## Evidência desta preparação documental
+
+### Fechamento dos complementos — 03/11/2026, etapa 2
+
+Pedido humano “continue”. Corrida pela UI em duas sessões/operadores distintos:
+BAR e KITCHEN indisponibilizados após carrinho/envio, antes de confirmar no
+backend. Dois testes PASS (23,9 s): rejeição integral 409, sem nova cobrança ou
+produção parcial; duas linhas no draft e pedido anterior preservados.
+[Evidência e limites](pilot-stage-2-rehearsal-2026-11-03.md#fechamento-dos-complementos--terceira-lacuna-disponibilidade-no-carrinho).
+Estado vigente da etapa 2: **CONCLUIDA como ensaio e backlog**, após os três
+complementos. Cartão pela UI permanece BLOCKED para o escopo aprovado; NO-GO
+produção. Produto/HEAD/branch iguais aos registros abaixo; testes/evidências
+locais sem commit. Etapas 3–6 PLANEJADAS. Próximo responsável: usuário para
+priorizar correções; nenhuma implementação ou operação posterior iniciada.
+
+### Complementação de rede — 03/11/2026, etapa 2
+
+Pedido humano: “prox parte da etapa 2”. Dois cenários de 90 s sem rede no
+contexto Chromium após commit real de pedido/recebimento CASH: **PASS**, 3,3 min.
+Após reconectar/recarregar, replay do mesmo conteúdo retorna o mesmo ID;
+checkpoints de outro navegador conectado comprovam um efeito em PostgreSQL.
+[Relatório e limites](pilot-stage-2-rehearsal-2026-11-03.md#complemento--segunda-lacuna-interrupção-prolongada-de-rede).
+Estado vigente: etapa 2 **EM_EXECUCAO**, falta corrida de disponibilidade no
+carrinho entre operadores pela UI. Mesmos SHA/branch locais; novo teste e
+evidências sem commit. Rede física/hardware não homologados; NO-GO produção.
+
+### Complementação — 03/11/2026, etapa 2 em execução
+
+Usuário pediu completar as lacunas da etapa 2 e executar a primeira parte.
+Turno inteiro por UI com CASH: **PASS**, cadastro/caixa/mesa/duas Tabs/pedidos,
+produção, entrega, parcial/integral, saída/limpeza e fechamento. Caixa esperado
+e contado 12000 centavos, diferença zero. Teste, IDs e limites no
+[complemento do relatório](pilot-stage-2-rehearsal-2026-11-03.md#complemento--primeira-lacuna-turno-inteiro-pela-interface).
+Produto/HEAD/branch iguais à execução abaixo; novo teste/evidência sem commit.
+Estado vigente da etapa 2: **EM_EXECUCAO**. Restam interrupção prolongada de rede
+e corrida de disponibilidade pela UI. Cartão externo pela interface não
+homologado; opção desabilitada no recebimento do Atendimento observado.
+Etapas 3–6 não iniciadas; NO-GO produção. Registro anterior de conclusão
+refere-se ao levantamento inicial e permanece abaixo como histórico.
+
+### Execução — 03/11/2026, etapa 2
+
+Pedido humano: “pode fazer”, após concluir etapa 1 neste chat. Executado
+[ensaio Web integrado](pilot-stage-2-rehearsal-2026-11-03.md) no produto
+main `67972d09200d43357b5b88dc0f64218967e4c24b`, base documental local
+`1b6b20c74925f20d29e91f52dd9f96dc80669c89`, branch
+`codex/pilot-stage-1-scope`; novo teste e documentos locais sem commit.
+PostgreSQL 17.11 em loopback, Venue/contas sintéticos e Chromium.
+
+Estado vigente: etapa 1 **CONCLUIDA**, etapa 2 **CONCLUIDA** como ensaio e
+levantamento, com 40 testes Web existentes + novo turno único PASS, 38 testes
+API únicos PASS e limites explícitos no relatório. Fiscal, equipamentos,
+walkthrough humano, revisão R3 e operação permanecem pendentes; NO-GO produção.
+Etapas 3–6 PLANEJADAS, não executadas. Próximo responsável: usuário para
+priorização dos gaps; revisor/operação para os gates das etapas correspondentes.
+
+### Aprovação humana — 03/11/2026, etapa 1 concluída
+
+Após apresentação do relatório, usuário respondeu “aprovo pode fazer” neste
+chat. Escopo D1–D4 aprovado: Web com Atendimento, Bar, Cozinha, Gerência, Caixa
+e QR guest atual; dinheiro/cartão externo; fluxo atual de produção. Android
+nativo, impressora, PSP integrado, Pix manual, QR híbrido/FG84 e retirada rápida
+permanecem adiados. Fiscal, equipe e equipamentos seguem pendentes para operação real.
+
+Estado vigente da etapa 1: **CONCLUIDA**. Evidência:
+[registro das decisões](pilot-stage-1-scope-2026-11-03.md#decisões-de-escopo).
+Branch local `codex/pilot-stage-1-scope`, base HEAD
+`1b6b20c74925f20d29e91f52dd9f96dc80669c89`, alterações ainda sem commit.
+Etapas 2–6 permanecem PLANEJADAS. Próximo responsável: agente no ensaio da
+etapa 2, quando solicitado. NO-GO de produção mantido; sem merge/deploy.
+Os registros abaixo preservam a sequência histórica de preparação e aprovação.
+
+### Atualização de execução — 03/11/2026, etapa 1
+
+Pedido humano: “Execute a etapa 1 do PR #324”. Preparado o
+[escopo recomendado](pilot-stage-1-scope-2026-11-03.md), com matriz de módulos,
+equipamentos, recebimentos, contas/papéis, critérios e responsáveis propostos.
+Main reconsultada: `67972d09200d43357b5b88dc0f64218967e4c24b`;
+plano do PR: `1b6b20c74925f20d29e91f52dd9f96dc80669c89`.
+Ambiente: checkout local, sem execução de produto ou acesso operacional remoto.
+
+| Etapa | Estado após esta entrega | Evidência/decisão | Próximo responsável |
+| --- | --- | --- | --- |
+| 1 — Escopo | EM_APROVACAO | Relatório preparado; D1–D4 aguardam aprovação, fiscal/equipamentos/equipe nomeados como pendências | Usuário |
+| 2–6 | PLANEJADA | Não executadas; quadro inicial acima preservado como histórico | Conforme dependências do plano |
+
+Não há aprovação implícita do escopo nem GO de produção. Esta atualização
+complementa a fotografia inicial, sem apagar a evidência de preparação abaixo.
 
 Consultados main remota, PR aberto314 e issue319 de procopio420 em 2026-11-03;
 fontes do diagnóstico foram lidas no mesmo chat. Nenhum teste de produto,

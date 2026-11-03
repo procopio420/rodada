@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-03",
+  "product_sha": "67972d09200d43357b5b88dc0f64218967e4c24b",
+  "base_head": "1b6b20c74925f20d29e91f52dd9f96dc80669c89",
+  "branch": "codex/pilot-stage-1-scope",
+  "changes": "uncommitted test and evidence; no product changes",
+  "test": "pilot-shift-ui.spec.ts",
+  "result": "PASS",
+  "tests_passed": 1,
+  "duration_seconds_including_servers": 29.2,
+  "business_mutations": "UI only",
+  "assertion_transport": "GET readback only",
+  "environment": "Windows; PostgreSQL 17.11 loopback 55432; Next 16.3.8/Django 5.2.19; Chromium 390x844",
+  "methods_tested": [
+    "CASH"
+  ],
+  "not_tested": [
+    "CARD through UI",
+    "prolonged network outage",
+    "availability race through UI",
+    "physical hardware",
+    "human walkthrough"
+  ],
+  "sha256": {
+    "apps/web/tests/integration/pilot-shift-ui.spec.ts": "1cb9c86efaa20caebaa44079c833e8648d00a3e0ac905f3da3196c2b91f7fc63",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/shift-ui.json": "adeedfadb1cc0e508498b3f48add1faf7492e7eb84eba0d4b07d79f011edbe79",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/cash-closed-ui.png": "6ce822560597b5cf9a17545bafa354c444b22b7704d837615705276352e228aa"
+  }
+}

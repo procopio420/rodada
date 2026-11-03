@@ -1,5 +1,12 @@
 # Acceptance — Spec 014 — Realtime, Connectivity & Degraded Operation
 
+Evidência parcial de 03/11/2026: [ensaio de rede Web da etapa 2](../../docs/releases/pilot-stage-2-rehearsal-2026-11-03.md#complemento--segunda-lacuna-interrupção-prolongada-de-rede),
+produto `67972d09200d43357b5b88dc0f64218967e4c24b`, PostgreSQL local descartável.
+Dois testes PASS: 90 s de contexto Chromium offline após commit incerto de
+Order/CASH, preservação da intenção e reconciliação sem duplicação. Rede física,
+novo pedido já offline, Android, PSP e conflito/revogação durante esse intervalo
+não são comprovados por esses dois testes; contrato global permanece aberto.
+
 ## Frontend pending inventory — 2026-10-10
 - [ ] Native Agora identifies locally retained operation kind/capture time as pending evidence, never confirmed balance; blocked-origin records remain review-only without discard/adoption.
 
@@ -22,6 +29,14 @@
 **Then** one canonical Order is created using the original idempotency key and local status becomes CONFIRMED.
 
 ## Stale availability conflict
+
+Evidência adicional 03/11/2026: `pilot-availability-race.spec.ts`, 2 PASS,
+STAFF e MANAGER em contextos distintos; produto BAR/KITCHEN indisponibilizado
+pela UI antes de requisição de pedido misto chegar à API. Rejeição integral
+409/PRODUCTS_NOT_CONFIRMABLE, nenhuma cobrança nova/parcial, draft e Order
+anterior preservados. [Relatório](../../docs/releases/pilot-stage-2-rehearsal-2026-11-03.md#fechamento-dos-complementos--terceira-lacuna-disponibilidade-no-carrinho).
+Esse ensaio cobre disponibilidade obsoleta na submissão Web, não novo replay
+offline, guest ou Android; não amplia o aceite para esses canais.
 
 **Given** a pending intent contains an item cached AVAILABLE  
 **And** the Product became UNAVAILABLE centrally  

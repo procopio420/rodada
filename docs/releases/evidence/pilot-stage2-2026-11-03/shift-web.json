@@ -1,0 +1,35 @@
+{
+  "table_id": "1d69c775-c29c-437d-9e3f-cdb0432a05ee",
+  "occupancy_id": "032c6b6c-293b-457d-9e63-68f241b9ae69",
+  "tab_ids": [
+    "76e3507d-a48b-41f5-a141-78072759f54e",
+    "5657f356-d49d-402e-9900-4d8dc852449b"
+  ],
+  "order_ids": [
+    "ea73d534-d61c-4de4-a72b-ba33146b9d53",
+    "7a3fa242-b0e8-41a7-b4c2-e5281fb97d8c"
+  ],
+  "task_ids": [
+    "740db2ee-9173-44db-9e11-a0aeec68b405",
+    "7d6e1cd3-0c9b-4ee4-9b51-eda9ffd62442",
+    "ba78555d-2e40-4db9-bd86-a5fefd0be7e7"
+  ],
+  "payment_ids": [
+    "bd898505-b68d-4e78-9216-2bc644c140dc",
+    "a95bd56f-f8e4-4446-a716-b6f62f553cdb",
+    "0708bf4d-87be-449d-9f60-0b3c64b2e08f"
+  ],
+  "shift_id": "f292e757-31f7-4ca0-9571-6e69463d7dd1",
+  "consumption_cents": 2000,
+  "cash_cents": 1000,
+  "card_cents": 1000,
+  "opening_float_cents": 10000,
+  "expected_cents": 11000,
+  "counted_amount_cents": 11000,
+  "discrepancy_cents": 0,
+  "table_status": "AVAILABLE",
+  "guest_revoked": {
+    "status": 403,
+    "code": "GUEST_SESSION_REVOKED"
+  }
+}

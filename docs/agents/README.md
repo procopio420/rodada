@@ -1,5 +1,11 @@
 # Rodada — mapa da Knowledge Base para AI Agents
 
+Retomada em outro computador: [handoff do PR #324](../releases/pilot-handoff-2026-11-03.md), etapas 1–2 entregues, próxima etapa 3; cartão pela UI pendente, NO-GO produção.
+
+Etapa 1 do PR #324: [escopo aprovado do piloto Web](../releases/pilot-stage-1-scope-2026-11-03.md), aprovado pelo usuário em 03/11/2026; não comprova homologação ou GO de produção.
+
+Etapa 2: [ensaio integrado Web em PostgreSQL descartável](../releases/pilot-stage-2-rehearsal-2026-11-03.md), evidências locais e pendências; aceite global da Spec033 continua aberto.
+
 **Tipo:** índice operacional vivo; não é evidência de release. **Revisado:** 2026-10-13. **Base da revisão inicial:** `main@8afd1200c7fd3047e82939486e6b6afc84b14c7f`.
 
 A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e testes/evidências vinculados. **Não foi encontrada uma pasta de KB independente na raiz** nesta revisão; não confundir design KB, documentação e eventuais ferramentas externas.

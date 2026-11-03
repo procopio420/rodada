@@ -1,0 +1,31 @@
+{
+  "business_mutations": "UI only; readback helper GET only",
+  "table_id": "24e8dbae-2f1d-4a70-bd0e-1b08b742cfed",
+  "occupancy_id": "b869b917-2878-45b0-9d96-e2263091be74",
+  "tab_ids": [
+    "29e3ce0c-41ea-4365-b035-861df4ee9c88",
+    "b56050b1-9906-418d-9c8b-fbaeb188cd22"
+  ],
+  "order_ids": [
+    "33ade823-f1db-45da-8bc5-09067ef90c9f",
+    "61518fc3-a923-49c3-ac5f-0034e11a28f1"
+  ],
+  "payment_ids": [
+    "ddd1321e-7252-4de9-8d0e-2edfd2e20688",
+    "eb3cda9e-e918-4123-9f16-889d4d832718",
+    "f7591e5f-0cf0-4650-9cd5-a4399f40da6c"
+  ],
+  "task_ids": [
+    "06c07280-b6dc-4a76-8f67-84e4d0db3279",
+    "59a76428-3b6a-49ea-97a7-4182f71ce75c",
+    "8c9dd3c3-6f67-4934-9e0a-df4d404e69c3"
+  ],
+  "shift_id": "2d7d2fc6-10f2-48f5-a1a6-45e5686707e8",
+  "consumption_cents": 2000,
+  "cash_cents": 2000,
+  "opening_float_cents": 10000,
+  "expected_cents": 12000,
+  "counted_cents": 12000,
+  "discrepancy_cents": 0,
+  "table_status": "AVAILABLE"
+}

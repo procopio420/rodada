@@ -1,0 +1,31 @@
+{
+  "product_sha": "67972d09200d43357b5b88dc0f64218967e4c24b",
+  "base_head": "1b6b20c74925f20d29e91f52dd9f96dc80669c89",
+  "branch": "codex/pilot-stage-1-scope",
+  "changes": "uncommitted local test and documentation; product unchanged",
+  "environment": {
+    "postgres": "17.11",
+    "python": "3.12.14",
+    "node": "24.22.1",
+    "django": "5.2.19",
+    "next": "16.3.8",
+    "database": "disposable local PostgreSQL",
+    "web": "127.0.0.1:3110",
+    "api": "127.0.0.1:8100"
+  },
+  "results": {
+    "existing_web": 40,
+    "new_web_shift": 1,
+    "api_unique": 38,
+    "node_auth_tenant": 14,
+    "db_guard": 6,
+    "kb_unit": 5
+  },
+  "sha256": {
+    "apps/web/tests/integration/pilot-shift.spec.ts": "fe7097c62b999d85c976e51333533807b1bf98fd5184716168bd829f0fcde867",
+    "apps/web/package-lock.json": "bc04580b1ecb192cb4ff10a4620f4ae2599f12ba19dbd9dcddd100de2e7aaa7f",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/shift-web.json": "8d392b99d4ac07fd62e25071e94bf06929dc1cbe2d74f83cf07d5e2428f2ccda",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/shift-api.json": "ebcc701aa50ad3d85faa35613eb1de5551f11bc728245d463fa558d5e0f8dd0d",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/management-390.png": "d0d2665e340f6c661356bd12a7691d92c02aeb300f999c3c4f7ebd5cc5f831a5"
+  }
+}
