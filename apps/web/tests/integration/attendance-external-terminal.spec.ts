@@ -24,6 +24,9 @@ async function setup(page: Page, label: string) {
   await login(page);
   const product = (await api(page, "catalog/products/")).results.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: label });
+  const table = await api(page, "hospitality/tables/", { label: `Receipt ${label}`, guest_ordering_mode: "DISABLED" });
+  const occupancy = await api(page, `hospitality/tables/${table.id}/occupy/`, {});
+  await api(page, `hospitality/occupancies/${occupancy.id}/tabs/`, { tab_id: tab.id });
   await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: `${label}-order`, lines: [{ product_id: product.id, quantity: 2 }] });
   await page.goto("/attendance");
   await selectExistingAttendanceTab(page, label);
@@ -61,6 +64,9 @@ for (const width of [360, 390, 430]) test(`external terminal explicit approval, 
   expect(final.exposure_cents).toBe(0);
   expect(final.payments).toHaveLength(2);
   expect(final.payments.every((p: { method: string }) => p.method === "EXTERNAL_TERMINAL")).toBe(true);
+  const tables = (await api(page, "hospitality/tables/")).results;
+  const table = tables.find((t: { active_occupancy?: { tabs: { id: string }[] } }) => t.active_occupancy?.tabs.some(row => row.id === id));
+  expect(table.status).toBe("OCCUPIED");
   expect((await api(page, "cash/points/")).results).toEqual(pointsBefore);
 });
 
@@ -185,4 +191,37 @@ test("mixed cash and external terminal receipts affect the drawer only for cash"
   const receipts = drawer.movements.filter((m: { payment_id: string | null }) => m.payment_id);
   expect(receipts).toHaveLength(1);
   expect(final.payments.find((p: { id: string }) => p.id === receipts[0].payment_id).method).toBe("CASH");
+});
+
+test("revoked original session cannot replay an external receipt even with its old cookie", async ({ page, browser }) => {
+  const id = await setup(page, "External revoked session");
+  const pattern = new RegExp(`/api/attendance/tabs/${id}/payments/?$`);
+  await page.route(pattern, async route => {
+    const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
+    expect(response.status()).toBe(201);
+    await route.abort();
+  });
+  await external(page, "5,00");
+  await page.getByRole("button", { name: "Registrar recebimento", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Verificar mesmo recebimento", exact: true })).toBeEnabled();
+  const original = await page.evaluate(k => sessionStorage.getItem(k), key);
+  const payload = JSON.parse(original!).payload;
+  const cookies = await page.context().cookies();
+  await page.unroute(pattern);
+  expect(await page.evaluate(async () => (await fetch("/api/auth/logout", { method: "POST" })).status)).toBe(204);
+  await page.context().addCookies(cookies);
+  const denied = await page.evaluate(async ({ id, payload }) => (await fetch(`/api/attendance/tabs/${id}/payments/`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+  })).status, { id, payload });
+  expect(denied).toBe(401);
+  expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBe(original);
+  const context = await browser.newContext({ baseURL: page.url().split("/attendance")[0] });
+  try {
+    const observer = await context.newPage();
+    await login(observer);
+    const final = await api(observer, `tabs/${id}/`);
+    expect(final.payments).toHaveLength(1);
+    expect(final.payments[0]).toMatchObject({ method: "EXTERNAL_TERMINAL", amount_cents: 500 });
+    expect(final.exposure_cents).toBe(1500);
+  } finally { await context.close(); }
 });
