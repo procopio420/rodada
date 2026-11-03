@@ -44,6 +44,7 @@ async function external(page: Page, amount?: string) {
 for (const width of [360, 390, 430]) test(`external terminal explicit approval, partial and full without drawer ${width}`, async ({ page }, info) => {
   await page.setViewportSize({ width, height: 900 });
   const id = await setup(page, `External happy ${width}`);
+  const tableId = (await api(page, "hospitality/tables/")).results.find((t: { active_occupancy?: { tabs: { id: string }[] } }) => t.active_occupancy?.tabs.some(row => row.id === id)).id;
   const pointsBefore = (await api(page, "cash/points/")).results;
   expect(pointsBefore.every((p: { active_shift: unknown }) => !p.active_shift)).toBe(true);
   await external(page, "5,00");
@@ -65,7 +66,7 @@ for (const width of [360, 390, 430]) test(`external terminal explicit approval, 
   expect(final.payments).toHaveLength(2);
   expect(final.payments.every((p: { method: string }) => p.method === "EXTERNAL_TERMINAL")).toBe(true);
   const tables = (await api(page, "hospitality/tables/")).results;
-  const table = tables.find((t: { active_occupancy?: { tabs: { id: string }[] } }) => t.active_occupancy?.tabs.some(row => row.id === id));
+  const table = tables.find((t: { id: string }) => t.id === tableId);
   expect(table.status).toBe("OCCUPIED");
   expect((await api(page, "cash/points/")).results).toEqual(pointsBefore);
 });
