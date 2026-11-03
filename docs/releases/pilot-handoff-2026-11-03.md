@@ -1,5 +1,18 @@
 # Retomada do PR #324 em outro computador
 
+## Atualização local — etapa 3, cartão externo
+
+Depois deste checkpoint do PR324, o usuário decidiu continuar no mesmo
+computador e autorizou implementar cartão externo. Slice em branch local
+`codex/pilot-stage3-external-card`, código `afae48a1`, testes `58dda307`:
+[relatório da implementação](pilot-stage3-external-terminal-2026-11-03.md).
+Recebimento EXTERNAL_TERMINAL e CASH preservado, com dez testes novos reais
+PASS, quinze regressões CASH PASS e 39 testes API PASS. Gate visual amplo e
+aprovação R3 autenticada impedem recomendação de merge/release.
+Essa branch ainda não foi publicada neste registro; PR324 remoto continua
+checkpoint de etapas1–2. Conferir referências remotas antes de retomar em outro
+computador. As instruções abaixo preservam a fotografia publicada anterior.
+
 Atualizado em 03/11/2026. Repositório: `procopio420/rodada`.
 PR: https://github.com/procopio420/rodada/pull/324.
 Branch remota de continuação: **`codex/pilot-execution-plan`** (branch do PR).

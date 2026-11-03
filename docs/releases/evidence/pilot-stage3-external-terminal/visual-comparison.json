@@ -1,0 +1,1429 @@
+{
+  "candidate_code_sha": "afae48a1d5598ea20289dfb0b1b703ad9c9e1f6c",
+  "candidate_test_sha": "58dda307691bdff0addc49ac29a497c2a469fa64",
+  "baseline_sha": "7d4168376c386e07e7387de3d34de2fa4294bd77",
+  "environment": "same Windows/Chromium, lockfile and Node; candidate full run4 workers, baseline directed1/2/4 workers; no mocks or tolerances changed",
+  "gate": "FAIL / BLOCKED",
+  "summary": {
+    "candidate_tests": 940,
+    "candidate_passed": 785,
+    "candidate_failed": 155,
+    "failed_tests_also_failed_on_base": 152,
+    "baseline_pass_only": 3,
+    "baseline_not_checked": 0,
+    "candidate_failures_passed_on_recheck": 3
+  },
+  "cases": [
+    {
+      "file": "tests/visual/attendance-mobile-design.spec.ts",
+      "title": "uncertain order locks popup and reload retries the identical original intent",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 keyboard navigation and enlarged text remain usable at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 keyboard navigation and enlarged text remain usable at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 keyboard navigation and enlarged text remain usable at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 keyboard navigation and enlarged text remain usable at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 pages preserve destination and direct send 1280",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 pages preserve destination and direct send 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 pages preserve destination and direct send 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 pages preserve destination and direct send 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 repeat page edits selection and sends once 1280",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 repeat page edits selection and sends once 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 repeat page edits selection and sends once 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 repeat page edits selection and sends once 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance-ux2-workspace.spec.ts",
+      "title": "UX2 unknown order reload verifies the original payload without duplicate or false success",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "Atendimento browser operations without payments at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "Atendimento browser operations without payments at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "Atendimento browser operations without payments at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "Atendimento browser operations without payments at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "ambiguous order retry preserves payload after catalog changes",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "initial service queue failure never claims empty and unknown age is explicit",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/attendance.spec.ts",
+      "title": "service queue preserves ownership, conflicts and same-task lost-response retry",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/field-status-updated.spec.ts",
+      "title": "Field and StatusBadge: kitchen and adjacent bar at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/field-status-updated.spec.ts",
+      "title": "Field and StatusBadge: kitchen and adjacent bar at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/field-status-updated.spec.ts",
+      "title": "Field and StatusBadge: kitchen and adjacent bar at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL",
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "FAIL"
+      ]
+    },
+    {
+      "file": "tests/visual/field-status-updated.spec.ts",
+      "title": "updated Field placeholder: unchanged export CSS and real Quick Catalog control",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/field-status-updated.spec.ts",
+      "title": "updated reference inventory: labels and non-equivalent badges",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-best-sellers.spec.ts",
+      "title": "best sellers ranking 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "PASS"
+      ]
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Failed initial read never displays fabricated zero inventory",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Lost create response requires readback and explicit review",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Management table inventory at 1280",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Management table inventory at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Management table inventory at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/management-tables.spec.ts",
+      "title": "Management table inventory at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Attendance pending order recovers from POS through original gateway",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Initial known rejection allows review but recovered rejection preserves intent",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Order recovery blocks changed-envelope",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Order recovery blocks different-session",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Order recovery blocks revoked",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Order storage blocks write-failure before POST",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Pending order remains recoverable after closed tab reload attendance",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Staff order lost response reload immutable recovery attendance 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Staff order lost response reload immutable recovery attendance 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/order-intent.spec.ts",
+      "title": "Staff order lost response reload immutable recovery attendance 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 1440px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: production is first and expands at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/bar: saving and stale failure never invent success",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 1440px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: production is first and expands at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "/kitchen: saving and stale failure never invent success",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "Quick Catalog: creation form accessibility at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL",
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "FAIL"
+      ]
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "Quick Catalog: creation form accessibility at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "PASS"
+      ]
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "Quick Catalog: creation form accessibility at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "Quick Catalog: creation form accessibility at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL",
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "FAIL"
+      ]
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: BAR layout and individual actions at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: BAR layout and individual actions at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: BAR layout and individual actions at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: KITCHEN layout and individual actions at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: KITCHEN layout and individual actions at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 Order groups: KITCHEN layout and individual actions at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "V04 shared Order: marking one item ready never completes its sibling",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 1440px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: responsive layout and accessibility at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "bar: warnings operational state",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "documents the full kitchen comparison without equating different workflows",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen material geometry and Product identity aggregation",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 1280px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 1440px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: responsive layout and accessibility at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "kitchen: warnings operational state",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "management hash navigation selects each real section",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "management hierarchy and enlarged navigation at 768px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/parity.spec.ts",
+      "title": "primary control matches the supplied unchanged kitchen material",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/pilot-cohesion.spec.ts",
+      "title": "Ger\u00eancia reveals one section and returns through browser history at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/pilot-cohesion.spec.ts",
+      "title": "Ger\u00eancia reveals one section and returns through browser history at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/pilot-cohesion.spec.ts",
+      "title": "Ger\u00eancia reveals one section and returns through browser history at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-clock.spec.ts",
+      "title": "station clock starts with snapshot and ticks BAR",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-clock.spec.ts",
+      "title": "station clock starts with snapshot and ticks KITCHEN",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions-pending.spec.ts",
+      "title": "Production region navigation stays available during a pending mutation",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation BAR 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation BAR 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation BAR 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation KITCHEN 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation KITCHEN 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/production-regions.spec.ts",
+      "title": "Production peak region navigation KITCHEN 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks absent without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks inactive without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks legacy without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks quantity without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks removed without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat blocks unavailable without defaults or partial inclusion",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat explicit review preserves draft current price and original history at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat explicit review preserves draft current price and original history at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat explicit review preserves draft current price and original history at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat keeps historical variant modifier and note distinct from existing default draft",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/repeat-order.spec.ts",
+      "title": "Repeat rejects catalog change during review and read failure preserves existing draft",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "Ambiguous order cannot switch, collapse or discard its original draft",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "Distinct configurations retain quantities and confirm only the original destination at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "Distinct configurations retain quantities and confirm only the original destination at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "Distinct configurations retain quantities and confirm only the original destination at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "Failed tab read preserves A and selection in flight cannot mutate or switch",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "attendance drafts A B A new tab and deliberate discard at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "attendance drafts A B A new tab and deliberate discard at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-drafts.spec.ts",
+      "title": "attendance drafts A B A new tab and deliberate discard at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "ambiguous location move recovers after reload with exact payload at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "ambiguous location move recovers after reload with exact payload at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "ambiguous location move recovers after reload with exact payload at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "changed session does not adopt location intent",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "completed replay reports current unassigned location without recreating assignment",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "corrupt persisted movement prevents sending and operational navigation",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "definitive first rejection clears intent and requires a reviewed new choice",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "location move confirms explicit destination and preserves draft at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "location move confirms explicit destination and preserves draft at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "location move confirms explicit destination and preserves draft at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "rejected replay keeps original intent frozen",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "stale origin cannot reach confirmation",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-location-move.spec.ts",
+      "title": "storage failure prevents a location POST",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-pagination.spec.ts",
+      "title": "attendance paginates at the surface page size and retains draft at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-pagination.spec.ts",
+      "title": "attendance paginates at the surface page size and retains draft at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-pagination.spec.ts",
+      "title": "attendance paginates at the surface page size and retains draft at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-search.spec.ts",
+      "title": "attendance global label search preserves destination and draft at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-search.spec.ts",
+      "title": "attendance global label search preserves destination and draft at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/tab-search.spec.ts",
+      "title": "attendance global label search preserves destination and draft at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "ambiguous order blocks return to the originating table",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table conflict does not replace the existing destination at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table conflict does not replace the existing destination at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table conflict does not replace the existing destination at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table entry and return preserve isolated drafts and focus at 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table entry and return preserve isolated drafts and focus at 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table entry and return preserve isolated drafts and focus at 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-entry.spec.ts",
+      "title": "table entry is serialized and blocks navigation while reading",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-service.spec.ts",
+      "title": "attendance requires a tab name and selects an available table before opening",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-service.spec.ts",
+      "title": "draft and committed order with lost response retain original Tab and payload across reload",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-service.spec.ts",
+      "title": "table service start/open recovery and contextual selection at 360px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-service.spec.ts",
+      "title": "table service start/open recovery and contextual selection at 390px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/table-service.spec.ts",
+      "title": "table service start/open recovery and contextual selection at 430px",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/ux2-cash-point-context.spec.ts",
+      "title": "UX2 keeps cash context after point removal, lost ACK false",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "PASS"
+      ],
+      "candidate_recheck": [
+        "PASS"
+      ]
+    },
+    {
+      "file": "tests/visual/ux2-parity-capture.spec.ts",
+      "title": "UX2 comparison captures 1280",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/ux2-parity-capture.spec.ts",
+      "title": "UX2 comparison captures 360",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/ux2-parity-capture.spec.ts",
+      "title": "UX2 comparison captures 390",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    },
+    {
+      "file": "tests/visual/ux2-parity-capture.spec.ts",
+      "title": "UX2 comparison captures 430",
+      "candidate_run": "FAIL",
+      "baseline_observed": [
+        "FAIL"
+      ],
+      "candidate_recheck": []
+    }
+  ],
+  "limitation": "Directed baseline comparison, not complete baseline suite. A matching failed test does not prove identical root cause or absence of new bugs; isolated passes indicate instability, not a green full gate."
+}

@@ -1,5 +1,9 @@
 # Spec 006 — Payments + Tap on Phone
 
+03/11/2026: [slice Web de terminal externo manual na Spec033 E04](../033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/spec.md)
+implementa PAY-008 no Atendimento, com confirmação explícita e recovery próprio;
+não habilita PSP, não muda ledger e não representa aceite de produção.
+
 **Status:** Draft for implementation after Core POS financial foundation
 
 ## Objetivo

@@ -210,6 +210,18 @@ pedido humano que autorizou a execução; não copiar tokens/segredos/PII.
 
 ## Evidência desta preparação documental
 
+### Etapa 3 iniciada — 03/11/2026, slice cartão externo
+
+Usuário autorizou executar o próximo gap: cartão externo pela interface.
+[Contrato E04](../../specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/spec.md)
+preparado antes do código; [relatório da slice](pilot-stage3-external-terminal-2026-11-03.md).
+Branch local `codex/pilot-stage3-external-card`, base `7d416837`, código `afae48a1`,
+teste `58dda307`. EXTERNAL_TERMINAL manual, confirmação externa explícita,
+parcial/integral, replay/readback e CASH legado testados. Etapa3 **EM_EXECUCAO**:
+visual amplo FAIL (785 PASS/155 FAIL; 152 também na base e três instáveis) e
+aprovação R3 autenticada REVIEW_BLOCKED;
+NO-GO produção. Nenhum deploy/merge ou outra slice iniciado.
+
 ### Fechamento dos complementos — 03/11/2026, etapa 2
 
 Pedido humano “continue”. Corrida pela UI em duas sessões/operadores distintos:

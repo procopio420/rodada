@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-03",
+  "base": "7d4168376c386e07e7387de3d34de2fa4294bd77",
+  "functional_code_sha": "afae48a1d5598ea20289dfb0b1b703ad9c9e1f6c",
+  "final_test_sha": "58dda307691bdff0addc49ac29a497c2a469fa64",
+  "branch": "codex/pilot-stage3-external-card",
+  "scope": "EXTERNAL_TERMINAL manual in Attendance Web; no backend/ledger/grants/infra changes",
+  "results": {
+    "new_real_web_tests": {
+      "pass": 10
+    },
+    "legacy_cash_regressions": {
+      "pass": 15
+    },
+    "postgres_api_safety": {
+      "pass": 39
+    },
+    "node_auth_tenant": {
+      "pass": 14
+    },
+    "visual_full": {
+      "total": 940,
+      "pass": 785,
+      "fail": 155,
+      "workers": 4
+    },
+    "visual_failed_also_on_baseline": 152,
+    "remaining_visual_failures_passed_in_candidate_recheck": 3,
+    "types": "PASS",
+    "build": "PASS",
+    "eslint": "PASS",
+    "kb": "PASS",
+    "kb_unit": 5
+  },
+  "review": "independent agent context no reproducible findings through final test SHA; authenticated R3 REVIEW_BLOCKED",
+  "production": "NO-GO",
+  "hash_format": "SHA256, CRLF normalized to LF for text; binary exact; manifest excludes itself",
+  "sha256": {
+    "apps/web/app/api/attendance/[...path]/route.ts": "97d7898881b9eb9900906659ea7d102ec3274a2a4b9270bc83064be28feef034",
+    "apps/web/components/attendance-ux2-workspace.css": "0f8441834373e2b9baab1054b534e8226d5157530f9007bb3427bf16b0d704df",
+    "apps/web/components/pos-cash-receipt.tsx": "a54e59ce393e51fa4a322519aa23de53f86bf8293b145a2582c8ce0624fafb43",
+    "apps/web/tests/integration/attendance-external-terminal.spec.ts": "b9f9aad883a83d4f268cbb9cfc4c67d2674edce6f9ed5b3e36ede85ec8e8ccd2",
+    "apps/web/tests/visual/attendance-ux2-workspace.spec.ts": "9a87dd78c986500a02a8f880160c7bde54005927bc77dc2dc2ec642c25aba184",
+    "docs/agents/README.md": "3c950236a541c50cfb5ecbe889fe104f10fdae1a681a61f771cd93ac10da4814",
+    "docs/releases/evidence/pilot-stage3-external-terminal/canonical-local.json": "3276f25ce96fad7ca98861367ea96fed0ca47fbf8d90847168838bd57ab87b0c",
+    "docs/releases/evidence/pilot-stage3-external-terminal/external-360.png": "195bea65eccaa6f0e643cdc7b0db48e189cfbb88e18661f8a0cd66d39d424ae5",
+    "docs/releases/evidence/pilot-stage3-external-terminal/external-390.png": "5c49ddb189ce908ea28b7f2062bb016797bb24074cbadd63b5ffa1c4f935d34a",
+    "docs/releases/evidence/pilot-stage3-external-terminal/external-430.png": "fc72a3e3f1b01d07f426bc9fb32427b46cb4bed313ea1634d47ffbc1f72e13a5",
+    "docs/releases/evidence/pilot-stage3-external-terminal/review.md": "16caee4b3489321faa05c94330f161183cafe3cb323dc3a80a20ff75fa8c4ca2",
+    "docs/releases/evidence/pilot-stage3-external-terminal/visual-comparison.json": "b9d59e25fb1298141d30b90266dcebaebd81d852577ab58d0e99496c3c332453",
+    "docs/releases/pilot-execution-plan-2026-11-03.md": "f42a4697e32b682ba15728734ffc1e50aec8dec3594b206c1f3219341c8f759d",
+    "docs/releases/pilot-handoff-2026-11-03.md": "d52b1313a47754c9bbc72c343d0e26a1bf410283779987b1537ee72c75fc8f7f",
+    "docs/releases/pilot-stage-2-rehearsal-2026-11-03.md": "96f3f7de512e5e6a7fb797e21cb787ce8f5b62cd249b7b08a2867e5de58a848d",
+    "docs/releases/pilot-stage3-external-terminal-2026-11-03.md": "2f8947f009f95b75afdc57e5e36d7e048b767b08360d97dbd9699a7aba172621",
+    "specs/006-payments-tap-on-phone/spec.md": "b0aada8f10891f70afcafed96aa198db1bebea5481cbaa4020271c5b3781312a",
+    "specs/033-attendance-ux2-productization/acceptance.md": "4b6ab48e9eb7f0617c1a74542cebdfc81fbf4cbb62dda52309d49d2841c3820b",
+    "specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/acceptance.md": "919527217c3e1e304e63b3549d631397f271dd272346ddcdde95768bf3ed88e7",
+    "specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/plan.md": "c50417854be66a25a706327b8b087be9e5df492a5fb97356e43a92b89dc5a81d",
+    "specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/spec.md": "e57aa4362f08936b63bbd225d178d2f416c7ca37530f1716889167f4cb843ee1",
+    "specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/tasks.md": "3ad3b4245fe2590b1331e84674769069ce6e22a8ca3b8fb5202622d4b1e2a3d6",
+    "specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/spec.md": "e6bbe0be149898ee14f233189afd2620d077e18c2a13d81cb648ac72f995620e"
+  }
+}

@@ -2,6 +2,12 @@
 
 **Aceite global PENDING.** A [auditoria por evidências #272](e06-audit-closeout-20261022.md) está concluída como inventário/reconciliação, **não como homologação da Spec 033**. Gates ainda ativos: [jornada integrada #315](https://github.com/procopio420/rodada/issues/315), [aparelho/TalkBack #316](https://github.com/procopio420/rodada/issues/316), [R3/rollback #317](https://github.com/procopio420/rodada/issues/317) e [piloto/GO #318](https://github.com/procopio420/rodada/issues/318). Nenhuma caixa abaixo deve ser marcada por transferência de issue.
 
+Etapa3 local, 03/11/2026: [slice de terminal externo manual](epics/E04-settlement-and-table-turnover/external-terminal/spec.md),
+[evidências e gates](../../docs/releases/pilot-stage3-external-terminal-2026-11-03.md).
+Dez cenários novos PASS com PostgreSQL, parcial/integral EXTERNAL_TERMINAL,
+recovery e contexto original. Visual geral não aprovado e R3 autenticado
+REVIEW_BLOCKED; nenhuma caixa global AC-01..24 marcada por esse recorte.
+
 Evidência parcial adicional de 03/11/2026: [ensaio Web da etapa 2 do PR324](../../docs/releases/pilot-stage-2-rehearsal-2026-11-03.md),
 produto `67972d09200d43357b5b88dc0f64218967e4c24b`, PostgreSQL descartável;
 40 testes Web existentes e novo turno único passaram. Inclui duas Tabs na mesma
