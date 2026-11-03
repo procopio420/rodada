@@ -12,11 +12,16 @@ type LegacyIntent = {
   schema: 1; venue: string; staff: string; session: string; tab: string; captured_at: string;
   payload: { amount_cents: number; expected_version: number; method: "CASH"; cash_point_id: string; idempotency_key: string; originating_session_id: string };
 };
-type Intent = LegacyIntent | (Omit<LegacyIntent, "schema"> & {
+type CashIntent = Omit<LegacyIntent, "schema"> & {
   schema: 2; api_root: "/api/pos" | "/api/attendance";
   phase: "PAYMENT_PENDING" | "PAYMENT_CONFIRMED"; payment_id: string | null;
   close_requested: boolean;
-});
+};
+type ExternalIntent = Omit<CashIntent, "schema" | "payload"> & {
+  schema: 3;
+  payload: Omit<LegacyIntent["payload"], "method" | "cash_point_id"> & { method: "EXTERNAL_TERMINAL" };
+};
+type Intent = LegacyIntent | CashIntent | ExternalIntent;
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 const positiveInteger = (value: unknown) => Number.isSafeInteger(value) && Number(value) > 0 && Number(value) <= 2147483647;
 const safeInitialRejections = new Set([
@@ -30,17 +35,20 @@ function readIntent(): Intent | null {
   if (raw === null) return null;
   const intent = JSON.parse(raw) as Intent;
   const p = intent?.payload;
-  if (![1, 2].includes(intent?.schema) || !p || ![intent.venue, intent.staff, intent.session, intent.tab, intent.captured_at, p.cash_point_id, p.idempotency_key].every(v => typeof v === "string" && !!v)
+  if (![1, 2, 3].includes(intent?.schema) || !p || ![intent.venue, intent.staff, intent.session, intent.tab, intent.captured_at, p.idempotency_key].every(v => typeof v === "string" && !!v)
     || !Number.isFinite(Date.parse(intent.captured_at)) || !positiveInteger(p.amount_cents) || !positiveInteger(p.expected_version)
-    || p.method !== "CASH" || p.originating_session_id !== intent.session
+    || (intent.schema === 3 ? p.method !== "EXTERNAL_TERMINAL" : p.method !== "CASH" || !("cash_point_id" in p) || typeof p.cash_point_id !== "string" || !p.cash_point_id)
+    || p.originating_session_id !== intent.session
     || Object.keys(intent).sort().join() !== (intent.schema === 1
       ? "captured_at,payload,schema,session,staff,tab,venue"
       : "api_root,captured_at,close_requested,payload,payment_id,phase,schema,session,staff,tab,venue")
-    || (intent.schema === 2 && (!["/api/pos", "/api/attendance"].includes(intent.api_root)
+    || (intent.schema !== 1 && (!["/api/pos", "/api/attendance"].includes(intent.api_root)
       || typeof intent.close_requested !== "boolean"
       || !["PAYMENT_PENDING", "PAYMENT_CONFIRMED"].includes(intent.phase)
       || (intent.phase === "PAYMENT_PENDING" ? intent.payment_id !== null : typeof intent.payment_id !== "string" || !intent.payment_id)))
-    || Object.keys(p).sort().join() !== "amount_cents,cash_point_id,expected_version,idempotency_key,method,originating_session_id")
+    || Object.keys(p).sort().join() !== (intent.schema === 3
+      ? "amount_cents,expected_version,idempotency_key,method,originating_session_id"
+      : "amount_cents,cash_point_id,expected_version,idempotency_key,method,originating_session_id"))
     throw new Error("Invalid cash receipt envelope");
   return intent;
 }
@@ -61,6 +69,8 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
 }) {
   const [amount, setAmount] = useState("");
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [method, setMethod] = useState<"CASH" | "EXTERNAL_TERMINAL">("CASH");
+  const [externalChecked, setExternalChecked] = useState(false);
   const [pointId, setPointId] = useState("");
   const [ready, setReady] = useState(false);
   const [pending, setPending] = useState<Intent | null>(null);
@@ -77,7 +87,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       const probe = `${storageKey}.probe`;
       sessionStorage.setItem(probe, "1"); sessionStorage.removeItem(probe);
       intentRef.current = saved; setPending(saved); setReady(true);
-      if (saved) setMessage(saved.schema === 2 && saved.payment_id && saved.close_requested
+      if (saved) setMessage(saved.schema !== 1 && saved.payment_id && saved.close_requested
         ? "Há um recebimento registrado e encerramento pendente. Verifique a mesma operação sem receber novamente."
         : "Há um recebimento aguardando confirmação. Verifique a mesma operação antes de receber novamente.");
     } catch {
@@ -88,6 +98,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
   useEffect(() => { queueMicrotask(() => void initialize()); }, []);
   useEffect(() => { onPendingChange(!ready || !!pending || busy || paymentOpen); }, [ready, pending, busy, paymentOpen, onPendingChange]);
 
+  const external = pending ? pending.payload.method === "EXTERNAL_TERMINAL" : method === "EXTERNAL_TERMINAL";
   const activePoint = pointId ? (points.some(point => point.id === pointId) ? pointId : "") : points[0]?.id || "";
   async function collect(fullAndClose = false, keepOpen = false) {
     if (sending.current || !ready || (!intentRef.current && locked)) return;
@@ -108,7 +119,10 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
         const normalized = fullAndClose && tab && positiveInteger(tab.exposure_cents)
           ? (tab.exposure_cents! / 100).toFixed(2) : amount.trim().replace(",", ".");
         if (fullAndClose && (!allowCloseAfterReceipt || !positiveInteger(tab?.exposure_cents))) return;
-        if (!tab || ["CLOSED", "CANCELLED"].includes(tab.state) || !activePoint || !/^\d+(\.\d{1,2})?$/.test(normalized)) {
+        if (method === "EXTERNAL_TERMINAL" && (presentation !== "attendance" || !externalChecked)) {
+          setMessage("Confira a aprovação na maquininha externa antes de registrar."); return;
+        }
+        if (!tab || ["CLOSED", "CANCELLED"].includes(tab.state) || (method === "CASH" && !activePoint) || !/^\d+(\.\d{1,2})?$/.test(normalized)) {
           setMessage("Selecione uma comanda, um caixa aberto e um valor válido com até duas casas decimais."); return;
         }
         const [whole, fraction = ""] = normalized.split(".");
@@ -127,6 +141,12 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
             method: "CASH", cash_point_id: activePoint, idempotency_key: crypto.randomUUID(), originating_session_id: session.session.id } };
         if (presentation === "attendance") intent = { ...intent, schema: 2, api_root: apiRoot,
           phase: "PAYMENT_PENDING", payment_id: null, close_requested: fullAndClose };
+        if (method === "EXTERNAL_TERMINAL") intent = { schema: 3, venue: session.venue.id,
+          staff: session.staff.id, session: session.session.id, tab: tab.id,
+          captured_at: new Date().toISOString(), api_root: apiRoot,
+          phase: "PAYMENT_PENDING", payment_id: null, close_requested: fullAndClose,
+          payload: { amount_cents: cents, expected_version: tab.version, method: "EXTERNAL_TERMINAL",
+            idempotency_key: crypto.randomUUID(), originating_session_id: session.session.id } };
         // Persistence must succeed before any money-changing request.
         sessionStorage.setItem(storageKey, JSON.stringify(intent));
         intentRef.current = intent; setPending(intent);
@@ -141,7 +161,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       if (sessionStorage.getItem(storageKey) !== JSON.stringify(intent)) throw new Error("Receipt envelope changed");
       attempted = true;
       const settledStatuses = ["CONFIRMED", "PARTIALLY_REFUNDED", "REFUNDED"];
-      let paymentId = intent.schema === 2 ? intent.payment_id : null;
+      let paymentId = intent.schema !== 1 ? intent.payment_id : null;
       if (!paymentId) {
         const result = await apiCall<{ id: string; status: string }>(`${root}/tabs/${intent.tab}/payments/`, {
           method: "POST", body: JSON.stringify(intent.payload),
@@ -157,26 +177,27 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
           throw new Error("Missing canonical payment");
         paymentId = result.body.id;
         // Commit this phase before readback/close: a failed close never posts Payment again.
-        if (intent.schema === 2) saveProgress({ ...intent, phase: "PAYMENT_CONFIRMED", payment_id: paymentId });
+        if (intent.schema !== 1) saveProgress({ ...intent, phase: "PAYMENT_CONFIRMED", payment_id: paymentId });
       }
       type Bill = { id: string; state: string; version: number; exposure_cents: number;
         payments: { id: string; method: string; amount_cents: number; status: string }[] };
       const expectedAmount = intent.payload.amount_cents;
+      const expectedMethod = intent.payload.method;
       const detail = await apiCall<Bill>(`${root}/tabs/${intent.tab}/`);
       if (!detail.response.ok || !detail.body || !("payments" in detail.body)
         || detail.body.id !== intent.tab
-        || !detail.body.payments?.some(p => p.id === paymentId && p.method === "CASH" && p.amount_cents === expectedAmount && settledStatuses.includes(p.status)))
+        || !detail.body.payments?.some(p => p.id === paymentId && p.method === expectedMethod && p.amount_cents === expectedAmount && settledStatuses.includes(p.status)))
         throw new Error("Receipt readback unavailable");
       let confirmedClosed = detail.body.state === "CLOSED";
       if (confirmedClosed && detail.body.exposure_cents !== 0) throw new Error("Closed account balance mismatch");
       if (keepOpen && !confirmedClosed) {
-        if (intent.schema !== 2 || !intent.close_requested || !intent.payment_id || detail.body.state === "CLOSED")
+        if (intent.schema === 1 || !intent.close_requested || !intent.payment_id || detail.body.state === "CLOSED")
           throw new Error("Receipt cannot remain open");
         // An explicit operator decision can withdraw the unexecuted close;
         // preserve the confirmed Payment identity until canonical refresh finishes.
         saveProgress({ ...intent, close_requested: false });
       }
-      if (intent.schema === 2 && intent.close_requested) {
+      if (intent.schema !== 1 && intent.close_requested) {
         if (detail.body.state !== "CLOSED") {
           if (detail.body.exposure_cents !== 0) {
             setCanKeepOpen(true);
@@ -200,12 +221,13 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       if (confirmedClosed) await onClosed?.(intent.tab);
       clearIntent(intent); intentRef.current = null; setPending(null); setAmount("");
       setPaymentOpen(false); onPaymentSurfaceChange?.(false);
+      setExternalChecked(false); setMethod("CASH");
       setMessage(confirmedClosed ? "Recebimento e encerramento confirmados." : "Recebimento confirmado. Saldo atualizado.");
     } catch {
       if (!attempted && !intentRef.current) {
         setMessage("Não foi possível preparar o recebimento. Verifique a sessão e o armazenamento antes de tentar novamente.");
       } else {
-        setMessage(intentRef.current?.schema === 2 && intentRef.current.payment_id
+        setMessage(intentRef.current && intentRef.current.schema !== 1 && intentRef.current.payment_id
           ? "Recebimento registrado; verificação ou encerramento pendente. Retome a mesma operação sem receber novamente."
           : "Resultado ainda não confirmado. Não receba novamente; verifique este mesmo recebimento.");
       }
@@ -221,21 +243,22 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       {message && <p className="ux2Notice" role="status">{message}</p>}
       <button className="ux2Button primary block" disabled={locked || !positiveInteger(tab?.exposure_cents)} onClick={() => { setAmount(((tab?.exposure_cents??0)/100).toFixed(2).replace(".",",")); setPaymentOpen(true); onPaymentSurfaceChange?.(true); }}>Receber {money(tab?.exposure_cents??0)}</button>
     </section>;
-    return <section className="ux2Workspace ux2Payment" aria-label="Recebimento em dinheiro">
+    return <section className="ux2Workspace ux2Payment" aria-label={external ? "Recebimento em cartão externo" : "Recebimento em dinheiro"}>
       <button className="ux2Back" disabled={busy || !!pending || !ready} onClick={() => {setPaymentOpen(false);onPaymentSurfaceChange?.(false);}}><span aria-hidden="true">‹</span> Voltar</button>
       <div className="ux2Eyebrow">Recebimento manual</div><h1>Receber conta.</h1><p className="ux2Lede">{tab ? `${tab.display_label || "Comanda"} · ${tabReference(tab)} · ${tableLocationLabel(tab.table_label)}` : "Comanda original"}</p>
       {message && <p className="ux2Notice" role="status">{message}</p>}
       {terminal && !pending && <p className="ux2Notice" role="status">A comanda não está aberta para recebimento. Volte para conferir a conta atualizada.</p>}
-      {pending ? <><p className="ux2Notice">Recebimento de {money(pending.payload.amount_cents)} na comanda original.</p>{canKeepOpen && <button className="ux2Button ghost block" disabled={busy} onClick={()=>void collect(false,true)}>Manter comanda aberta</button>}<button className="ux2Button primary block" disabled={busy} onClick={()=>void collect()}>{busy?"Verificando…":"Verificar mesmo recebimento"}</button></> : ready && tab ? <>
+      {pending ? <><p className="ux2Notice">Recebimento de {money(pending.payload.amount_cents)}{pending.payload.method === "EXTERNAL_TERMINAL" ? " em cartão externo" : " em dinheiro"} na comanda original.</p>{canKeepOpen && <button className="ux2Button ghost block" disabled={busy} onClick={()=>void collect(false,true)}>Manter comanda aberta</button>}<button className="ux2Button primary block" disabled={busy} onClick={()=>void collect()}>{busy?"Verificando…":"Verificar mesmo recebimento"}</button></> : ready && tab ? <>
         <div className="ux2Settlement"><small>Valor ainda a receber</small><strong>{money(tab.exposure_cents??0)}</strong><small>Pode receber só uma parte</small></div>
         <div className="ux2SectionHead"><h2>Como foi recebido?</h2></div>
-        <div className="ux2PaymentMethods" role="group" aria-label="Meio de recebimento"><button type="button" aria-pressed="true">Dinheiro</button><button type="button" aria-label="Pix indisponível" disabled>Pix</button><button type="button" aria-label="Cartão indisponível" disabled>Cartão</button></div>
+        <div className="ux2PaymentMethods" role="group" aria-label="Meio de recebimento"><button type="button" aria-pressed={!external} onClick={() => { setMethod("CASH"); setExternalChecked(false); }}>Dinheiro</button><button type="button" aria-label="Pix indisponível" disabled>Pix</button><button type="button" aria-pressed={external} onClick={() => { setMethod("EXTERNAL_TERMINAL"); setExternalChecked(false); }}>Cartão externo</button></div>
         <form onSubmit={event=>{event.preventDefault();if(!terminal)void collect(full);}}>
-          {!(points.length === 1 && points[0].id === activePoint) && <div className="field"><label htmlFor="attendance-cash-point">Caixa aberto</label><select id="attendance-cash-point" value={activePoint} disabled={busy || locked} onChange={e=>setPointId(e.target.value)}><option value="">Selecionar caixa aberto</option>{points.map(point=><option key={point.id} value={point.id}>{point.label}</option>)}</select></div>}
+          {!external && !(points.length === 1 && points[0].id === activePoint) && <div className="field"><label htmlFor="attendance-cash-point">Caixa aberto</label><select id="attendance-cash-point" value={activePoint} disabled={busy || locked} onChange={e=>setPointId(e.target.value)}><option value="">Selecionar caixa aberto</option>{points.map(point=><option key={point.id} value={point.id}>{point.label}</option>)}</select></div>}
           <div className="field"><label htmlFor="attendance-cash-amount">Valor recebido (R$)</label><input id="attendance-cash-amount" inputMode="decimal" autoComplete="off" value={amount} disabled={busy || locked} onChange={e=>setAmount(e.target.value)} aria-describedby="attendance-cash-help" /></div>
-          <p id="attendance-cash-help" className="ux2PaymentHelp">Informe o valor recebido, sem incluir troco.</p>
-          <button type="submit" className="ux2Button primary block" disabled={busy || locked || terminal || !activePoint || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
-        </form>{points.length === 1 && points[0].id === activePoint && <p className="ux2PaymentHelp" aria-label="Caixa do recebimento">Caixa: {points[0].label}</p>}<p className="ux2Notice">Registre somente dinheiro efetivamente recebido. A quitação confirmada encerra a comanda; pagamentos parciais preservam o saldo aberto.</p>
+          <p id="attendance-cash-help" className="ux2PaymentHelp">{external ? "Informe somente o valor aprovado na maquininha externa. O Rodada registra o recebimento; não realiza a cobrança." : "Informe o valor recebido, sem incluir troco."}</p>
+          {external && <label className="ux2PaymentHelp ux2ExternalConfirmation"><input type="checkbox" checked={externalChecked} disabled={busy || locked} onChange={event => setExternalChecked(event.target.checked)} /> Conferi a aprovação na maquininha externa</label>}
+          <button type="submit" className="ux2Button primary block" disabled={busy || locked || terminal || (!external && !activePoint) || (external && !externalChecked) || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
+        </form>{!external && points.length === 1 && points[0].id === activePoint && <p className="ux2PaymentHelp" aria-label="Caixa do recebimento">Caixa: {points[0].label}</p>}<p className="ux2Notice">{external ? "Registre somente após conferir a aprovação externa. Não tente cobrar novamente ao verificar uma operação pendente." : "Registre somente dinheiro efetivamente recebido."} A quitação confirmada encerra a comanda; pagamentos parciais preservam o saldo aberto.</p>
       </> : <button className="ux2Button ghost block" onClick={()=>void initialize()}>Verificar armazenamento</button>}
     </section>;
   }
