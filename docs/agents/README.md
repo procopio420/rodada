@@ -6,6 +6,10 @@ A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e t
 
 ## Entrada rápida — abra apenas o necessário
 
+Execução por etapas até o piloto: [plano de 03/11/2026](../releases/pilot-execution-plan-2026-11-03.md).
+Proposta para aprovação; consultar para pedidos “execute a etapa N do PR”.
+Não é aceite de produção nem autorização de execução/deploy.
+
 Planejamento da evolução visual da Gerência: [Spec 034 — UX e padronização](../../specs/034-management-ux-standardization/spec.md).
 Proposta documental por etapas, complementar à Spec 007; não comprova implementação ou aceite.
 
