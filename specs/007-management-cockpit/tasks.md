@@ -1,5 +1,11 @@
 # Tasks — Spec 007 Management Cockpit + Analytics
 
+## Mais vendidos — 2026-10-23
+
+- [x] Registrar contrato antes do código em [best-sellers.md](best-sellers.md).
+- [x] Implementar seletor interno, ranking e atualização sem mutações.
+- [x] Concluir validação visual focalizada e registrar limites/evidências em best-sellers.md.
+
 ## Auditoria garçom → Gerência — 2026-10-18
 
 - [x] Verificar abertura, parcial, quitação, cancelamento e relatórios com sessões distintas em PostgreSQL descartável.

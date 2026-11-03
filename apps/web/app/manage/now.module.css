@@ -1,4 +1,28 @@
 .pulse { min-width: 0; }
+.switcher { display: flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); background: var(--color-bg); border-radius: var(--radius-lg); margin-bottom: var(--space-5); }
+.switcher button { flex: 1; min-height: var(--touch-min); white-space: normal; border: 0; background: transparent; color: var(--color-text-muted); box-shadow: none; border-radius: var(--radius-md); }
+.switcher button[aria-pressed="true"] { color: var(--color-accent); background: var(--color-surface-3); }
+.ranking { min-width: 0; }
+.rankingHeader { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); }
+.rankingHeader h3 { font-size: var(--text-md); margin: 0; }
+.rankingHeader p { font-size: var(--text-sm); color: var(--color-text-muted); margin: var(--space-1) 0 0; }
+.liveStatus { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--color-warning); padding-block: var(--space-1); }
+.liveStatus span { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-pill); background: currentColor; flex-shrink: 0; }
+.liveStatus[data-online="true"] { color: var(--color-success); }
+.rankingEmpty { display: grid; justify-items: center; text-align: center; padding: var(--space-6) var(--space-2); gap: var(--space-3); }
+.emptyIcon { display: grid; place-items: center; width: var(--touch-primary); height: var(--touch-primary); border-radius: var(--radius-lg); background: var(--color-surface-2); color: var(--color-accent); margin-bottom: var(--space-1); }
+.rankingEmpty p { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.6; }
+.rankingFooter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); border-top: 1px solid var(--color-border); padding-top: var(--space-2); color: var(--color-text-muted); font-size: var(--text-xs); }
+.rankingFooter button { display: inline-flex; width: auto; align-items: center; gap: var(--space-2); min-height: var(--touch-min); font-size: var(--text-sm); padding-inline: var(--space-2); }
+.rankingMethod { color: var(--color-text-muted); font-size: var(--text-xs); }
+.rankingMethod summary { display: flex; align-items: center; min-height: var(--touch-min); cursor: pointer; width: fit-content; }
+.rankingMethod p { line-height: 1.6; margin-top: 0; }
+.rankingList { list-style: none; padding: 0; margin: var(--space-4) 0; }
+.rankingList li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); padding-block: var(--space-4); border-bottom: 1px solid var(--color-border); }
+.rank { color: var(--color-accent); font-family: var(--font-mono); }
+.productName { overflow-wrap: anywhere; }
+.quantity { display: grid; text-align: right; font-family: var(--font-mono); }
+.quantity small { color: var(--color-text-muted); font-family: var(--font-body); }
 .pulse .metrics { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 .metrics > div { overflow-wrap: anywhere; }
 .metrics > :global(.financialMetric) { grid-column: auto; grid-row: auto; order: -1; }

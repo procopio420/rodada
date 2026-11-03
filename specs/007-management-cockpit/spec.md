@@ -213,6 +213,11 @@ Métricas possíveis:
 
 Correlação não deve ser apresentada como causalidade.
 
+## Agora — Mais vendidos
+
+O ranking interno da noite segue [contrato e aceite de Mais vendidos](best-sellers.md).
+É uma extensão de dados da Spec 007, fora do recorte apenas visual da Spec 034.
+
 ## MGM-007 — Cardápio e mix
 
 Gerência deve permitir análise de:

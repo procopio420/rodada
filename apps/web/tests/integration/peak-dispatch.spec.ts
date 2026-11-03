@@ -50,7 +50,7 @@ for (const width of [360, 390, 430, 1280]) test(`50 persisted READY and 50 calls
   const detail = page.getByRole("region", { name: "Levar pedido.", exact: true });
   await expect(detail.getByText(`${delivery.quantity}× ${delivery.product_name}`, { exact: true })).toBeVisible();
   await expect(detail).toContainText(delivery.tab_display_reference);
-  await detail.getByRole("button", { name: "Voltar sem concluir", exact: true }).click();
+  await detail.getByRole("button", { name: "Voltar sem entregar", exact: true }).click();
   failing = true;
   await expect(page.getByRole("button", { name: "Entregas —", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Atendimentos —", exact: true })).toBeVisible({ timeout: 20_000 });

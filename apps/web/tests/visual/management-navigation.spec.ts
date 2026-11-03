@@ -17,7 +17,8 @@ for (const width of [360, 390, 430, 1280]) test(`management settings descriptive
   await page.goto("/manage#gestao");
   const settings = page.locator("#gestao");
   const rows = settings.locator(".managementDestination");
-  await expect(rows).toHaveCount(5);
+  await expect(rows).toHaveCount(6);
+  await expect(settings.getByRole("link", { name: "Políticas de consumo", exact: true })).toHaveAttribute("href", "/manage/spending-policy");
   for (const row of await rows.all()) {
     await expect(row).toHaveAccessibleDescription(/\S+/);
     const box = await row.boundingBox();
