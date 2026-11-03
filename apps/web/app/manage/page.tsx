@@ -21,6 +21,7 @@ import { ManagementNav, managementSections, useManagementSection } from "@/compo
 import { ManagementSettings } from "@/components/management-settings";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { ManagementTabHistory } from "@/components/management-tab-history";
+import { ManagementBestSellers } from "@/components/management-best-sellers";
 
 
 
@@ -74,6 +75,7 @@ export default function ManagementPage() {
   const [loading, setLoading] = useState(true);
   const [hasSnapshot, setHasSnapshot] = useState(false);
   const [historyRevoked, setHistoryRevoked] = useState(false);
+  const [nowView, setNowView] = useState("summary");
 
   const cache = useMemo(() => projectionCache<{ tabs: Tab[]; products: Product[]; bar: QueueItem[]; kitchen: QueueItem[]; deliveries: Delivery[]; cash: CashPoint[]; tables: Table[] }>("management"), []);
   const [cachedAt, setCachedAt] = useState<number>();
@@ -158,11 +160,15 @@ export default function ManagementPage() {
       <Link className="backLink" href="/pos">Abrir comandas →</Link>
     </section>}
     <section className={`panel ${styles.pulse}`} aria-labelledby="now-summary-title"><ManagementSectionHeader icon="now" id="now-summary-title">Agora</ManagementSectionHeader>
-      <div className={`metricGrid ${styles.metrics}`}>
+      <div className={styles.switcher} role="group" aria-label="Visão de Agora">
+        <button className="buttonSecondary" aria-pressed={nowView === "summary"} onClick={() => setNowView("summary")}>Resumo</button>
+        <button className="buttonSecondary" aria-pressed={nowView === "sellers"} onClick={() => setNowView("sellers")}>Mais vendidos</button>
+      </div>
+      {nowView === "sellers" && !historyRevoked ? <ManagementBestSellers /> : <div className={`metricGrid ${styles.metrics}`}>
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
         <div className="operationalMetric financialMetric"><div className="metricLabel"><OperationalIcon name="wallet" size={20} /><span>Exposição em aberto</span></div><strong>{money(exposure)}</strong></div>
 
-      </div>
+      </div>}
     </section>
 
     <details className={`panel ${styles.details}`}><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><a className="backLink" href="/manage#operacao">Ver operação →</a></details>

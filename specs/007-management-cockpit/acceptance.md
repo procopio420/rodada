@@ -11,6 +11,11 @@ Uma ação de adicionar (sem duplicar Bar/Cozinha); escolha de estação autoriz
 - Retornos internos preservam a área; aliases vendas/mais e voltar/avançar do navegador selecionam a aba correta.
 - Validar navegação com fixtures equivalentes antes/depois, 360/390/430/1280px, fonte200%, teclado, alvos44px, axe, loading/vazio/erro e alertas financeiros preservados. Testes de UI não comprovam aceite de operador real.
 
+## Mais vendidos — 2026-10-23
+
+Aplicam-se os seis critérios de [best-sellers.md](best-sellers.md): ranking
+bruto da noite, ordenação/agregação, limites, atualização, estados e acessibilidade.
+
 ## A1 — Home mobile
 
 Dado um gerente autenticado em viewport de 360–430 px,

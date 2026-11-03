@@ -106,5 +106,16 @@ the Android app. API connectivity is required; no offline command queue exists.
 Keep the page open while verifying an ambiguous order: retries preserve its payload
 and idempotency key in memory. Reload recovery is outside this slice.
 
+## Mais vendidos da noite
+
+Em Gerência → Agora → Mais vendidos, o gerente consulta os dez produtos com
+maior quantidade bruta lançada no dia operacional atual. O calendário da API
+determina a noite; o ranking agrega snapshots por produto e atualiza por SSE
+e consulta de segurança a cada 15 segundos enquanto visível. Cancelamentos e
+ajustes não são deduzidos; a explicação está em “Como é calculado”. Não é um
+ranking de receita líquida ou recebimentos. Consultas exigem a permissão de
+relatórios existente, sem novas mutações ou permissões.
+Contrato e evidências: [Spec 007 — Mais vendidos](../../specs/007-management-cockpit/best-sellers.md).
+
 ## Gestão de mesas
 Em Gerência → Gestão → Mesas (/manage/tables), o gerente configura mesas para trabalhar, adiciona identificações e retira/reativa mesas disponíveis. Resumo e detalhes distinguem mesas ocupadas de comandas abertas na ocupação. Retirada preserva histórico e bloqueia mesas ocupadas/em limpeza. Contrato e limites: specs/004-table-guest-ordering/management-tables.md e management-tables-evidence.md.
