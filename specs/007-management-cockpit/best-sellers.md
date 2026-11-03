@@ -99,3 +99,23 @@ e não executa neste Windows, substituído localmente pelo lint dos arquivos
 afetados e mantido intacto na CI.
 Suíte visual completa, homologação de dispositivo/operador e release não são
 declarados. Rollback: reverter o commit do PR; não há dados/schema a reverter.
+
+### Handoff de implementação — 2026-11-03
+
+Implementação: 9eed8785ed0e636c13af50011d31230052f63493; branch
+codex/management-best-sellers; [PR #323](https://github.com/procopio420/rodada/pull/323).
+Após a correção do lint: typecheck/build PASS e reexecução focalizada 9/9 PASS
+(ranking, limite/desempate, resumo, quatro larguras, teclado, axe, zoom200%,
+virada do dia, erro/retry, ausência de mutações). ESLint dos arquivos alterados
+PASS; guard Web sobre o commit: 217 linhas adicionadas, zero achados (PYTHONUTF8=1).
+As 4 falhas adicionais de Gestão descritas acima permanecem conhecidas.
+
+Autorrevisão: nenhum P0/P1 identificado no diff; R2, sem aprovação independente
+declarada. Escopo de escrita: page/CSS de Agora, novo componente e teste,
+README Web e documentos da Spec007. Nenhuma ADR nova ou arquivo de API.
+Evidência visual local: visual-artifacts/best-sellers/{360,390,430,1280}.png e
+empty-refined-{360,390,430,1280}.png (fixtures sintéticas, não dados de bar).
+Critérios1–6 cobertos pela suite focalizada; limite/desempate agora testados.
+CI Web/Knowledge Base: pendente neste registro; resultado final no PR do SHA.
+GO técnico local para a slice, merge condicionado aos checks reais do PR.
+Próximo responsável: mantenedor/CI; não declarar release ou deploy deste registro.
