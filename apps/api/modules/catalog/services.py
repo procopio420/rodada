@@ -35,15 +35,17 @@ def authorize_station(session, station):
 
 
 @transaction.atomic
-def resolve_or_create_product(*, actor, name, price_cents, session=None, station=None, fulfillment_station=None, description="", category=""):
+def resolve_or_create_product(*, actor, name, price_cents, session=None, station=None, fulfillment_station=None, fulfillment_mode="PREPARE", description="", category=""):
     from modules.access.models import StaffSession
     session = session or StaffSession.objects.select_related("membership").get(pk=actor.session_id)
     station = station or fulfillment_station
     authorize_station(session, station)
+    if fulfillment_mode not in ("PREPARE", "PICKUP") or (fulfillment_mode == "PICKUP" and station != "BAR"):
+        raise ValidationError("Fluxo de atendimento inválido para esta estação.")
     Venue.objects.select_for_update().get(pk=actor.venue_id)
     product, created = Product.objects.get_or_create(venue_id=actor.venue_id,
         normalized_name=normalize_product_name(name), defaults=dict(name=name.strip(), price_cents=price_cents,
-        fulfillment_station=station, description=description, category=category))
+        fulfillment_station=station, fulfillment_mode=fulfillment_mode, description=description, category=category))
     product.refresh_from_db()
     if created:
         job = product.icon.generations.first()

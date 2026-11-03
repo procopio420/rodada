@@ -141,4 +141,5 @@ def price_customization(product, line):
         "quantity": line["quantity"],
         "line_total_cents": total * line["quantity"],
         "fulfillment_station": product.fulfillment_station,
+        "fulfillment_mode": product.fulfillment_mode,
     }

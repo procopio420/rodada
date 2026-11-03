@@ -254,8 +254,18 @@ def _order_fingerprint(*, source: str, lines: list[dict]) -> str:
                                     separators=(",", ":")).encode()).hexdigest()
 
 
+def is_instant_pickup(item) -> bool:
+    """Only immutable confirmed Bar snapshots may skip preparation."""
+    snapshot = item.customization_snapshot
+    return (item.fulfillment_station_snapshot == "BAR"
+            and isinstance(snapshot, dict)
+            and snapshot.get("fulfillment_station") == "BAR"
+            and snapshot.get("product_id") == str(item.product_id)
+            and snapshot.get("fulfillment_mode") == "PICKUP")
+
+
 _TRANSITIONS = {
-    "NEW": {"ACCEPTED", "PREPARING"},
+    "NEW": {"ACCEPTED", "PREPARING", "READY"},
     "ACCEPTED": {"PREPARING", "READY"},
     "PREPARING": {"READY"},
     "READY": {"PICKED_UP", "DELIVERED"},
@@ -277,7 +287,9 @@ def transition_order_item(*, item_id, target_state, actor, command_id=None):
         raise OrderingServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
     # Financial closure must not strand already-confirmed production. These
     # transitions never create consumption or change the closed Tab's ledger.
-    if target_state not in _TRANSITIONS.get(item.state, set()):
+    if (target_state not in _TRANSITIONS.get(item.state, set())
+            or (target_state == "READY" and item.state == "NEW" and not is_instant_pickup(item))
+            or (target_state == "PREPARING" and is_instant_pickup(item))):
         raise OrderingServiceError("INVALID_ITEM_TRANSITION", "Transição operacional inválida.", 409)
     item.state = target_state
     setattr(item, _TIMESTAMP_FIELDS[target_state], timezone.now())

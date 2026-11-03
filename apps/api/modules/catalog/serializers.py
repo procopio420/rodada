@@ -1,15 +1,23 @@
 from pathlib import PurePosixPath
 from rest_framework import serializers
-from modules.catalog.models import FulfillmentStation, normalize_product_name
+from modules.catalog.models import FulfillmentMode, FulfillmentStation, normalize_product_name
 
 
 class QuickProductInput(serializers.Serializer):
     name = serializers.CharField(max_length=160)
     price_cents = serializers.IntegerField(min_value=0, max_value=2147483647)
     fulfillment_station = serializers.ChoiceField(choices=FulfillmentStation.values)
+    fulfillment_mode = serializers.ChoiceField(choices=FulfillmentMode.values, required=False, default=FulfillmentMode.PREPARE)
     description = serializers.CharField(max_length=600, required=False, allow_blank=True, default="")
     category = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
 
+    def validate(self, attrs):
+        product = self.context.get("product")
+        station = attrs.get("fulfillment_station", getattr(product, "fulfillment_station", None))
+        mode = attrs.get("fulfillment_mode", getattr(product, "fulfillment_mode", FulfillmentMode.PREPARE))
+        if mode == FulfillmentMode.PICKUP and station != FulfillmentStation.BAR:
+            raise serializers.ValidationError({"fulfillment_mode": "Retirada imediata só está disponível no Bar."})
+        return attrs
 
     def validate_name(self, value):
         normalized = normalize_product_name(value)
@@ -30,5 +38,6 @@ def product_payload(product):
             "description": product.description, "category": product.category,
             "normalized_name": product.normalized_name, "active": product.active,
             "fulfillment_station": product.fulfillment_station,
+            "fulfillment_mode": product.fulfillment_mode,
             "availability": product.availability.state, "availability_version": product.availability.version, "icon": icon_payload(product),
             **ordering_schema(product)}

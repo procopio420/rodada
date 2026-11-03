@@ -81,7 +81,7 @@ class ProductResolveView(APIView):
         values = data.validated_data
         product, created = resolve_or_create_product(session=request.auth, actor=request.actor_context,
             name=values["name"], price_cents=values["price_cents"], station=values["fulfillment_station"],
-            description=values["description"], category=values["category"])
+            description=values["description"], category=values["category"], fulfillment_mode=values["fulfillment_mode"])
         return Response({"product": product_payload(product), "created": created}, status=201 if created else 200)
 
 
@@ -99,7 +99,7 @@ class ProductEditView(APIView):
             product = Product.objects.select_for_update().filter(pk=product_id, venue_id=request.auth.venue_id).first()
             if not product:
                 raise Http404
-            data = QuickProductInput(data=request.data, partial=True)
+            data = QuickProductInput(data=request.data, partial=True, context={"product": product})
             data.is_valid(raise_exception=True)
             before = product_payload(product)
             for key, value in data.validated_data.items():

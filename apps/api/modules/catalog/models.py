@@ -20,6 +20,11 @@ class FulfillmentStation(models.TextChoices):
     KITCHEN = "KITCHEN", "Kitchen"
 
 
+class FulfillmentMode(models.TextChoices):
+    PREPARE = "PREPARE", "Requires preparation"
+    PICKUP = "PICKUP", "Immediate pickup"
+
+
 class AvailabilityState(models.TextChoices):
     AVAILABLE = "AVAILABLE", "Available"
     UNAVAILABLE = "UNAVAILABLE", "Unavailable"
@@ -51,11 +56,16 @@ class Product(models.Model):
     price_cents = models.PositiveIntegerField()
     active = models.BooleanField(default=True)
     fulfillment_station = models.CharField(max_length=16, choices=FulfillmentStation.choices)
+    fulfillment_mode = models.CharField(max_length=16, choices=FulfillmentMode.choices, default=FulfillmentMode.PREPARE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                condition=models.Q(fulfillment_mode="PREPARE") | models.Q(fulfillment_station="BAR"),
+                name="catalog_pickup_only_bar",
+            ),
             models.UniqueConstraint(
                 fields=("venue", "normalized_name"),
                 name="catalog_unique_product_name_per_venue",
