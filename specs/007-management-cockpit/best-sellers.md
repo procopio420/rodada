@@ -119,3 +119,22 @@ Critérios1–6 cobertos pela suite focalizada; limite/desempate agora testados.
 CI Web/Knowledge Base: pendente neste registro; resultado final no PR do SHA.
 GO técnico local para a slice, merge condicionado aos checks reais do PR.
 Próximo responsável: mantenedor/CI; não declarar release ou deploy deste registro.
+
+### Correção de seletores legados para concluir os gates
+
+CI do HEAD da908f5: [Web run41686134683](https://github.com/procopio420/rodada/actions/runs/41686134683)
+falhou com 156 PASS, 9 FAIL, 3 SKIP na integração PostgreSQL; KB PASS.
+Falhas: attendance-delivery-freshness.spec.ts:15 e attendance.spec.ts:62 buscam
+“Registrar entrega por exceção”; peak-dispatch.spec.ts:53 busca “Voltar sem
+concluir”. O componente attendance-delivery-page.tsx já presente na base usa
+“Confirmar entrega” e “Voltar sem entregar”. Nenhum desses arquivos era alterado
+pela feature; não foi executado baseline separado.
+
+Para concluir o merge autorizado, alinhar apenas esses seletores aos nomes
+acessíveis atuais. Manter asserts canônicos de task/item DONE/DELIVERED,
+nenhum pagamento, valores e retorno à fila; não remover casos ou aumentar
+timeouts. Corrigir também expectativa5→6 em management-navigation, acrescentando
+assert explícito do link Políticas de consumo já existente. R2 de manutenção
+de testes, sem alteração de produto, endpoints, auth ou workflow.
+As falhas anteriores permanecem como evidência histórica; repetir gates e só
+considerar GO de merge após resultado verde no novo SHA.

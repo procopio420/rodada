@@ -59,7 +59,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   expect(readyBefore.state).toBe("OPEN");
   expect(readyBefore.item_state).toBe("READY");
   await expect(delivery.getByText("2× Kitchen E2E item")).toBeVisible();
-  await delivery.getByRole("button", { name: "Registrar entrega por exceção" }).click();
+  await delivery.getByRole("button", { name: "Confirmar entrega" }).click();
   await expect(delivery.getByText("Entrega concluída", {exact:true})).toBeVisible();
   const completed = await (await browserRequest.get(`/api/attendance/dispatch/tasks/${readyBefore.id}/`)).json();
   expect(completed.id).toBe(readyBefore.id); expect(completed.order_item_id).toBe(readyBefore.order_item_id);
