@@ -195,6 +195,14 @@ definidos e aceite humano explícito. Publicação não equivale a aceite operac
 
 ## Quadro de acompanhamento
 
+### Checkpoint de 04/11/2026
+
+- Etapas 1 e 2 concluídas no escopo aprovado e como ensaio integrado. [PR #324](https://github.com/procopio420/rodada/pull/324)
+- Etapa 3 em execução. Cartão externo implementado e validado localmente, com CI Web e Knowledge Base aprovadas no SHA publicado `783869db`. A revisão R3 autenticada segue pendente. [PR #325](https://github.com/procopio420/rodada/pull/325)
+- Etapa 4 em execução. Backup, restauração, troca de build Web e retenção passaram em ensaio local. A versão anterior preserva a intenção de cartão externo, cuja recuperação exige retorno a uma versão compatível. Faltam confirmar o ambiente, comprovar agenda e entrega de alerta e ensaiar a reversão no alvo aprovado. [Evidência e proposta operacional](pilot-stage4-local-rehearsal-2026-11-04.md)
+- Etapa 5 preparada, com execução física `NOT_RUN`. [Checklist Web](pilot-stage5-web-homologation-checklist-2026-11-04.md)
+- Etapa 6 planejada. Produção segue `NO-GO`.
+
 Atualizar somente com execução real. Usar PLANEJADA, EM_EXECUCAO, BLOQUEADA,
 EM_APROVACAO ou CONCLUIDA. Para retomada, anexar SHA, ambiente, evidência e
 pedido humano que autorizou a execução; não copiar tokens/segredos/PII.
