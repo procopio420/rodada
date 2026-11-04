@@ -1,0 +1,65 @@
+{
+  "kind": "cash",
+  "product_sha": "67972d09200d43357b5b88dc0f64218967e4c24b",
+  "fault": "Chromium BrowserContext offline after real backend commit; first response dropped",
+  "requested_outage_ms": 90000,
+  "measured_outage_ms": 90146,
+  "tab_id": "3c94f708-6487-4e19-9865-f3c9e4704294",
+  "canonical_id": "701fafa4-51d3-49e8-beff-675009bc218c",
+  "shift_id": "06dc7695-8d41-448b-8a3c-7a99536c8701",
+  "backend_mutation_attempts": 2,
+  "same_payload": true,
+  "payload_sha256": "7233af7025c958b5ecda2e2a5ab27b81abef4a3e1bed93684cc69e5383549357",
+  "checkpoints": [
+    {
+      "elapsed_ms": 370,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 15530,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 30692,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 45857,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 61115,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 76263,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 90146,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    },
+    {
+      "elapsed_ms": 91338,
+      "exposure_cents": 1000,
+      "orders": 1,
+      "payments": 1
+    }
+  ],
+  "result": "PASS",
+  "limitation": "browser-wide network emulation; not physical Wi-Fi, backend outage or offline first-time acceptance"
+}

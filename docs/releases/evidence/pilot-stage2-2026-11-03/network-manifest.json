@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-03",
+  "product_sha": "67972d09200d43357b5b88dc0f64218967e4c24b",
+  "base_head": "1b6b20c74925f20d29e91f52dd9f96dc80669c89",
+  "branch": "codex/pilot-stage-1-scope",
+  "changes": "uncommitted tests and evidence only; product unchanged",
+  "result": "PASS",
+  "tests": 2,
+  "runtime": "3.3 min",
+  "clock": "real elapsed time, not mocked",
+  "outage_ms": {
+    "order": 90106,
+    "cash": 90146
+  },
+  "checks": [
+    "TypeScript PASS",
+    "ESLint new test PASS",
+    "Next build PASS"
+  ],
+  "scope": "browser context disconnected after real backend commit; connected observer reads canonical state",
+  "not_proven": [
+    "physical Wi-Fi outage",
+    "backend/host outage",
+    "new acceptance while offline",
+    "guest/KDS prolonged outage",
+    "Android"
+  ],
+  "sha256": {
+    "apps/web/tests/integration/pilot-network-outage.spec.ts": "b4bc39e614bb3c65e3e9ee1a44feb3c5b483531ae20528b72397d13c89f7f1bc",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/order-outage.json": "5a1426eab13a7ff54db8556b57297ac792e3b3d14e1e34636ad99b2f8f4a7b86",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/cash-outage.json": "183c89badd86e3e17e44221a721ca3ead011d29927fd08eeeb91a7476e165cf9",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/order-offline.png": "336e46035f831714e9f967767a02eb76d6d8893b0a0c05e2ff0cdd6423387f3c",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/order-recovered.png": "15e8e32c8e4d5f3da5cfc8ad34d5367e364faa947b125f81834c7201e969354c",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/cash-offline.png": "91633b223882b327327d147846cfd90cccfeed3b3ed9fc96e932d50cc8b71a1d",
+    "docs/releases/evidence/pilot-stage2-2026-11-03/cash-recovered.png": "59531a9793f1455410a8a8d66a7700d6b49b2b0ee4080d685f5a296b5a7b2715"
+  }
+}

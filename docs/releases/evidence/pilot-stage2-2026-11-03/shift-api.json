@@ -1,0 +1,813 @@
+{
+  "product_sha": "67972d09200d43357b5b88dc0f64218967e4c24b",
+  "test_sha": "1b6b20c74925f20d29e91f52dd9f96dc80669c89",
+  "transport": "Django APIClient + disposable PostgreSQL 17.11; not a browser walkthrough",
+  "result": "PASS",
+  "exit_code": 0,
+  "sanitization": "Allowlisted IDs, states, codes and integer cents; auth and tokens omitted",
+  "events": [
+    {
+      "at_utc": "2026-11-03T21:17:08.791940+00:00",
+      "method": "POST",
+      "path": "/cash/points/create/",
+      "status": 201,
+      "canonical": {
+        "id": "555658a6-fff8-47a7-aff6-a78a997e18f8"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.805902+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/",
+      "status": 201,
+      "canonical": {
+        "id": "ff06e366-1659-4a1b-8980-9aac27320515",
+        "cash_point_id": "555658a6-fff8-47a7-aff6-a78a997e18f8",
+        "status": "OPEN",
+        "opening_float_cents": 10000,
+        "counted_amount_cents": null,
+        "discrepancy_cents": null,
+        "review_status": "NOT_REQUIRED",
+        "version": 1,
+        "expected_cents": 10000,
+        "expected_at_close_cents": null,
+        "post_close_correction_cents": 0,
+        "corrected_expected_cents": 10000
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.811646+00:00",
+      "method": "POST",
+      "path": "/hospitality/tables/",
+      "status": 201,
+      "canonical": {
+        "id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "status": "AVAILABLE"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.811646+00:00",
+      "method": "POST",
+      "path": "/hospitality/tables/8235f2fc-c867-4ef4-a51a-b39b00765997/occupy/",
+      "status": 201,
+      "canonical": {
+        "id": "94237a57-1c88-4802-9839-bf7e13fae319",
+        "table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "generation": 1,
+        "responsible_staff_id": null
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.867145+00:00",
+      "method": "POST",
+      "path": "/tabs/",
+      "status": 201,
+      "canonical": {
+        "id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+        "state": "OPEN",
+        "version": 1,
+        "original_subtotal_cents": 0,
+        "discounts_cents": 0,
+        "courtesy_cents": 0,
+        "corrections_cents": 0,
+        "wrong_entry_removals_cents": 0,
+        "net_consumption_cents": 0,
+        "service_charge_cents": 0,
+        "payable_cents": 0,
+        "transfers_cents": 0,
+        "charges_cents": 0,
+        "adjustments_cents": 0,
+        "payments_cents": 0,
+        "refunds_cents": 0,
+        "exposure_cents": 0,
+        "customer_id": null,
+        "operating_limit_cents": 20000,
+        "effective_limit_cents": 20000,
+        "remaining_capacity_cents": 20000
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.879295+00:00",
+      "method": "POST",
+      "path": "/hospitality/occupancies/94237a57-1c88-4802-9839-bf7e13fae319/tabs/",
+      "status": 201,
+      "canonical": {
+        "id": "237fc2ed-a837-482f-bd9b-4686f85aed14",
+        "tab_id": "20264791-b6bc-4b03-91b6-0dcf75271964"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.924330+00:00",
+      "method": "POST",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/orders/confirm/",
+      "status": 201,
+      "canonical": {
+        "id": "f8e559cf-6a31-4758-83ac-becfe0444b64",
+        "tab_id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+        "source": "STAFF",
+        "status": "CONFIRMED",
+        "items": [
+          {
+            "id": "258f05fb-23bb-45ae-9214-b6a7e8d94735",
+            "product_id": "78c1e96e-1141-48ba-905c-8204663bcfb5",
+            "unit_price_cents": 900,
+            "line_total_cents": 900,
+            "original_line_total_cents": 900,
+            "state": "NEW"
+          },
+          {
+            "id": "7f3d923f-4d48-489a-afde-ecf69b1cf0b4",
+            "product_id": "d5b721e2-fadc-4982-89b1-22f898f3bb26",
+            "unit_price_cents": 600,
+            "line_total_cents": 600,
+            "original_line_total_cents": 600,
+            "state": "NEW"
+          },
+          {
+            "id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+            "product_id": "18532fdb-98bf-4f7e-ae0e-a81a70f8408d",
+            "unit_price_cents": 1200,
+            "line_total_cents": 1200,
+            "original_line_total_cents": 1200,
+            "state": "NEW"
+          },
+          {
+            "id": "f2ec7074-2444-4082-a849-b61bbcefe6cd",
+            "product_id": "7208574b-ca48-42f4-957b-5d7b5da1d344",
+            "unit_price_cents": 2400,
+            "line_total_cents": 2400,
+            "original_line_total_cents": 2400,
+            "state": "NEW"
+          }
+        ]
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.940255+00:00",
+      "method": "POST",
+      "path": "/guest/qr/resolve/",
+      "status": 201,
+      "canonical": {}
+    },
+    {
+      "at_utc": "2026-11-03T21:17:08.974585+00:00",
+      "method": "POST",
+      "path": "/guest/tabs/",
+      "status": 201,
+      "canonical": {
+        "id": "829d3f71-3199-45f5-a05b-780702957424",
+        "state": "OPEN",
+        "version": 1,
+        "original_subtotal_cents": 0,
+        "discounts_cents": 0,
+        "courtesy_cents": 0,
+        "corrections_cents": 0,
+        "wrong_entry_removals_cents": 0,
+        "net_consumption_cents": 0,
+        "service_charge_cents": 0,
+        "payable_cents": 0,
+        "transfers_cents": 0,
+        "charges_cents": 0,
+        "adjustments_cents": 0,
+        "payments_cents": 0,
+        "refunds_cents": 0,
+        "exposure_cents": 0,
+        "customer_id": null,
+        "operating_limit_cents": 20000,
+        "effective_limit_cents": 20000,
+        "remaining_capacity_cents": 20000
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.012928+00:00",
+      "method": "POST",
+      "path": "/guest/orders/confirm/",
+      "status": 201,
+      "canonical": {
+        "id": "6c8d380f-4176-406d-93b5-978c6a7da44c",
+        "tab_id": "829d3f71-3199-45f5-a05b-780702957424",
+        "source": "GUEST",
+        "status": "CONFIRMED",
+        "items": [
+          {
+            "id": "e395ce0b-9860-49c8-91eb-6ff6f78f681f",
+            "product_id": "18532fdb-98bf-4f7e-ae0e-a81a70f8408d",
+            "unit_price_cents": 1200,
+            "line_total_cents": 1200,
+            "original_line_total_cents": 1200,
+            "state": "NEW"
+          }
+        ]
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.012928+00:00",
+      "method": "POST",
+      "path": "/order-items/e5c4e8b1-b5ed-49f1-8c73-1c3435be3455/transition/",
+      "status": 200,
+      "canonical": {
+        "id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+        "state": "ACCEPTED"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.045162+00:00",
+      "method": "POST",
+      "path": "/order-items/e5c4e8b1-b5ed-49f1-8c73-1c3435be3455/transition/",
+      "status": 200,
+      "canonical": {
+        "id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+        "state": "READY"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.063959+00:00",
+      "method": "GET",
+      "path": "/dispatch/delivery/",
+      "status": 200,
+      "canonical": {
+        "results": [
+          {
+            "id": "c933a8f3-7a06-4119-b326-0832fdc3b03d",
+            "state": "OPEN",
+            "claimed_by_id": null,
+            "destination_table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+            "order_item_id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+            "completed_by_id": null,
+            "zone_id": null,
+            "order_id": "f8e559cf-6a31-4758-83ac-becfe0444b64"
+          }
+        ]
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.075493+00:00",
+      "method": "POST",
+      "path": "/dispatch/delivery/c933a8f3-7a06-4119-b326-0832fdc3b03d/complete/",
+      "status": 200,
+      "canonical": {
+        "id": "c933a8f3-7a06-4119-b326-0832fdc3b03d",
+        "state": "DONE",
+        "claimed_by_id": null,
+        "destination_table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "order_item_id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+        "completed_by_id": "c6d4fa1b-5690-470b-8334-d12c703e3565",
+        "zone_id": null,
+        "order_id": "f8e559cf-6a31-4758-83ac-becfe0444b64"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.090763+00:00",
+      "method": "POST",
+      "path": "/order-items/258f05fb-23bb-45ae-9214-b6a7e8d94735/transition/",
+      "status": 200,
+      "canonical": {
+        "id": "258f05fb-23bb-45ae-9214-b6a7e8d94735",
+        "state": "ACCEPTED"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.098471+00:00",
+      "method": "POST",
+      "path": "/order-items/258f05fb-23bb-45ae-9214-b6a7e8d94735/transition/",
+      "status": 200,
+      "canonical": {
+        "id": "258f05fb-23bb-45ae-9214-b6a7e8d94735",
+        "state": "PREPARING"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.479139+00:00",
+      "method": "POST",
+      "path": "/order-items/258f05fb-23bb-45ae-9214-b6a7e8d94735/corrections/post-production/",
+      "status": 201,
+      "canonical": {
+        "id": "0faf785a-0d3c-487d-b6e5-e3fdd9ff832a",
+        "status": "APPLIED",
+        "financial_disposition": "REVERSE_OPEN_RESPONSIBILITY",
+        "financial_adjustment_id": "8f739210-e301-41a0-a17e-03685f6775d3",
+        "replacement_order_item_id": null,
+        "refund_required_cents": 0,
+        "order_item_id": "258f05fb-23bb-45ae-9214-b6a7e8d94735",
+        "original_line_total_cents": 900,
+        "replacement_line_total_cents": null,
+        "financial_delta_cents": -900,
+        "original_subtotal_cents": 5100,
+        "discounts_cents": 0,
+        "courtesy_cents": 0,
+        "corrections_cents": -900,
+        "wrong_entry_removals_cents": 0,
+        "net_consumption_cents": 4200,
+        "service_charge_cents": 0,
+        "payable_cents": 4200,
+        "transfers_cents": 0,
+        "charges_cents": 5100,
+        "adjustments_cents": -900,
+        "payments_cents": 0,
+        "refunds_cents": 0,
+        "exposure_cents": 4200
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.526677+00:00",
+      "method": "POST",
+      "path": "/order-items/e5c4e8b1-b5ed-49f1-8c73-1c3435be3455/corrections/post-production/",
+      "status": 201,
+      "canonical": {
+        "id": "6ab1fbd1-4ab2-4c27-ba58-59b338cd559d",
+        "status": "APPLIED",
+        "financial_disposition": "COURTESY_REPLACEMENT",
+        "financial_adjustment_id": "7d0683e7-eab6-468a-9311-76a010665166",
+        "replacement_order_item_id": "68a5fd3e-cb6e-460e-98c8-14e5b0540b59",
+        "refund_required_cents": 0,
+        "order_item_id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+        "original_line_total_cents": 1200,
+        "replacement_line_total_cents": 1200,
+        "financial_delta_cents": 0,
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -900,
+        "wrong_entry_removals_cents": 0,
+        "net_consumption_cents": 4200,
+        "service_charge_cents": 0,
+        "payable_cents": 4200,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2100,
+        "payments_cents": 0,
+        "refunds_cents": 0,
+        "exposure_cents": 4200
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.535670+00:00",
+      "method": "POST",
+      "path": "/catalog/products/7208574b-ca48-42f4-957b-5d7b5da1d344/availability/",
+      "status": 200,
+      "canonical": {
+        "product_id": "7208574b-ca48-42f4-957b-5d7b5da1d344",
+        "state": "UNAVAILABLE",
+        "version": 2
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.547667+00:00",
+      "method": "POST",
+      "path": "/guest/orders/confirm/",
+      "status": 409,
+      "canonical": {
+        "code": "PRODUCTS_NOT_CONFIRMABLE"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.596195+00:00",
+      "method": "POST",
+      "path": "/order-items/7f3d923f-4d48-489a-afde-ecf69b1cf0b4/corrections/cancel/",
+      "status": 201,
+      "canonical": {
+        "id": "3c97238d-35f2-4757-808d-01204ae70376",
+        "status": "APPLIED",
+        "financial_disposition": "REVERSE_OPEN_RESPONSIBILITY",
+        "financial_adjustment_id": "660258d2-4935-45ee-b731-592f9a5febc0",
+        "refund_required_cents": 0,
+        "order_item_id": "7f3d923f-4d48-489a-afde-ecf69b1cf0b4",
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -1500,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 3600,
+        "service_charge_cents": 0,
+        "payable_cents": 3600,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2700,
+        "payments_cents": 0,
+        "refunds_cents": 0,
+        "exposure_cents": 3600
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.681193+00:00",
+      "method": "POST",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/payments/",
+      "status": 201,
+      "canonical": {
+        "id": "9c272039-8c11-499b-b12a-df78ba4732cb",
+        "status": "CONFIRMED",
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -1500,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 3600,
+        "service_charge_cents": 0,
+        "payable_cents": 3600,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2700,
+        "payments_cents": 1200,
+        "refunds_cents": 0,
+        "exposure_cents": 2400
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.753748+00:00",
+      "method": "POST",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/payments/",
+      "status": 201,
+      "canonical": {
+        "id": "ae2d0ebe-34a5-4fb0-93be-b36f3192f588",
+        "status": "CONFIRMED",
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -1500,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 3600,
+        "service_charge_cents": 0,
+        "payable_cents": 3600,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2700,
+        "payments_cents": 3600,
+        "refunds_cents": 0,
+        "exposure_cents": 0
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:09.778628+00:00",
+      "method": "GET",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/",
+      "status": 200,
+      "canonical": {
+        "id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+        "state": "CLOSED",
+        "version": 10,
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -1500,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 3600,
+        "service_charge_cents": 0,
+        "payable_cents": 3600,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2700,
+        "payments_cents": 3600,
+        "refunds_cents": 0,
+        "exposure_cents": 0,
+        "customer_id": null,
+        "operating_limit_cents": 20000,
+        "effective_limit_cents": 20000,
+        "remaining_capacity_cents": 20000,
+        "orders": [
+          {
+            "id": "f8e559cf-6a31-4758-83ac-becfe0444b64",
+            "tab_id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+            "source": "STAFF",
+            "status": "CONFIRMED",
+            "items": [
+              {
+                "id": "258f05fb-23bb-45ae-9214-b6a7e8d94735",
+                "product_id": "78c1e96e-1141-48ba-905c-8204663bcfb5",
+                "unit_price_cents": 900,
+                "line_total_cents": 900,
+                "original_line_total_cents": 900,
+                "state": "CANCELLED"
+              },
+              {
+                "id": "7f3d923f-4d48-489a-afde-ecf69b1cf0b4",
+                "product_id": "d5b721e2-fadc-4982-89b1-22f898f3bb26",
+                "unit_price_cents": 600,
+                "line_total_cents": 600,
+                "original_line_total_cents": 600,
+                "state": "CANCELLED"
+              },
+              {
+                "id": "e5c4e8b1-b5ed-49f1-8c73-1c3435be3455",
+                "product_id": "18532fdb-98bf-4f7e-ae0e-a81a70f8408d",
+                "unit_price_cents": 1200,
+                "line_total_cents": 1200,
+                "original_line_total_cents": 1200,
+                "state": "DELIVERED"
+              },
+              {
+                "id": "f2ec7074-2444-4082-a849-b61bbcefe6cd",
+                "product_id": "7208574b-ca48-42f4-957b-5d7b5da1d344",
+                "unit_price_cents": 2400,
+                "line_total_cents": 2400,
+                "original_line_total_cents": 2400,
+                "state": "NEW"
+              }
+            ]
+          },
+          {
+            "id": "0bd7c7ce-452c-4d6d-9637-33dfb86126bb",
+            "tab_id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+            "source": "STAFF",
+            "status": "CONFIRMED",
+            "items": [
+              {
+                "id": "68a5fd3e-cb6e-460e-98c8-14e5b0540b59",
+                "product_id": "18532fdb-98bf-4f7e-ae0e-a81a70f8408d",
+                "unit_price_cents": 1200,
+                "line_total_cents": 1200,
+                "original_line_total_cents": 1200,
+                "state": "NEW"
+              }
+            ]
+          }
+        ],
+        "payments": [
+          {
+            "id": "9c272039-8c11-499b-b12a-df78ba4732cb",
+            "amount_cents": 1200,
+            "status": "CONFIRMED",
+            "refunded_cents": 0
+          },
+          {
+            "id": "ae2d0ebe-34a5-4fb0-93be-b36f3192f588",
+            "amount_cents": 2400,
+            "status": "CONFIRMED",
+            "refunded_cents": 0
+          }
+        ]
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.139345+00:00",
+      "method": "POST",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/operations/",
+      "status": 200,
+      "canonical": {
+        "operation_id": "bb827209-b635-45a9-96e1-1cd0c3e0ed8f",
+        "source": {
+          "id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+          "version": 11,
+          "state": "OPEN",
+          "occupancy_id": "94237a57-1c88-4802-9839-bf7e13fae319",
+          "service_point_id": null,
+          "merged_into_id": null,
+          "original_subtotal_cents": 6300,
+          "discounts_cents": 0,
+          "courtesy_cents": 1200,
+          "corrections_cents": -1500,
+          "wrong_entry_removals_cents": -600,
+          "net_consumption_cents": 3600,
+          "service_charge_cents": 0,
+          "payable_cents": 3600,
+          "transfers_cents": 0,
+          "charges_cents": 6300,
+          "adjustments_cents": -2700,
+          "payments_cents": 3600,
+          "refunds_cents": 0,
+          "exposure_cents": 0,
+          "customer_id": null,
+          "operating_limit_cents": 20000,
+          "effective_limit_cents": 20000,
+          "remaining_capacity_cents": 20000
+        }
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.175484+00:00",
+      "method": "POST",
+      "path": "/order-items/f2ec7074-2444-4082-a849-b61bbcefe6cd/corrections/cancel/",
+      "status": 202,
+      "canonical": {
+        "id": "b7d2ebea-efe5-4dd2-af16-422a55727152",
+        "status": "REQUESTED",
+        "financial_disposition": "REFUND_REQUIRED",
+        "financial_adjustment_id": null,
+        "refund_required_cents": 2400,
+        "order_item_id": "f2ec7074-2444-4082-a849-b61bbcefe6cd",
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -1500,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 3600,
+        "service_charge_cents": 0,
+        "payable_cents": 3600,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -2700,
+        "payments_cents": 3600,
+        "refunds_cents": 0,
+        "exposure_cents": 0
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.550344+00:00",
+      "method": "POST",
+      "path": "/corrections/b7d2ebea-efe5-4dd2-af16-422a55727152/settle-refund/",
+      "status": 201,
+      "canonical": {
+        "id": "b7d2ebea-efe5-4dd2-af16-422a55727152",
+        "status": "APPLIED",
+        "financial_disposition": "REFUND_REQUIRED",
+        "refund_id": "5b87bc58-458c-4033-9e20-6483a108f02e",
+        "financial_adjustment_id": "1ce0f1dc-c9ee-48e9-884a-1ebdd3fcfd03",
+        "original_subtotal_cents": 6300,
+        "discounts_cents": 0,
+        "courtesy_cents": 1200,
+        "corrections_cents": -3900,
+        "wrong_entry_removals_cents": -600,
+        "net_consumption_cents": 1200,
+        "service_charge_cents": 0,
+        "payable_cents": 1200,
+        "transfers_cents": 0,
+        "charges_cents": 6300,
+        "adjustments_cents": -5100,
+        "payments_cents": 3600,
+        "refunds_cents": 2400,
+        "exposure_cents": 0
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.573275+00:00",
+      "method": "POST",
+      "path": "/tabs/20264791-b6bc-4b03-91b6-0dcf75271964/close/",
+      "status": 200,
+      "canonical": {
+        "id": "20264791-b6bc-4b03-91b6-0dcf75271964",
+        "state": "CLOSED",
+        "version": 14
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.655328+00:00",
+      "method": "POST",
+      "path": "/tabs/829d3f71-3199-45f5-a05b-780702957424/payments/",
+      "status": 201,
+      "canonical": {
+        "id": "9e0fc4dd-44fe-4cb0-9103-550bbcafc515",
+        "status": "CONFIRMED",
+        "original_subtotal_cents": 1200,
+        "discounts_cents": 0,
+        "courtesy_cents": 0,
+        "corrections_cents": 0,
+        "wrong_entry_removals_cents": 0,
+        "net_consumption_cents": 1200,
+        "service_charge_cents": 0,
+        "payable_cents": 1200,
+        "transfers_cents": 0,
+        "charges_cents": 1200,
+        "adjustments_cents": 0,
+        "payments_cents": 1200,
+        "refunds_cents": 0,
+        "exposure_cents": 0
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.660318+00:00",
+      "method": "POST",
+      "path": "/tabs/829d3f71-3199-45f5-a05b-780702957424/close/",
+      "status": 200,
+      "canonical": {
+        "id": "829d3f71-3199-45f5-a05b-780702957424",
+        "state": "CLOSED",
+        "version": 4
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.671776+00:00",
+      "method": "POST",
+      "path": "/hospitality/tables/8235f2fc-c867-4ef4-a51a-b39b00765997/release/",
+      "status": 200,
+      "canonical": {
+        "id": "94237a57-1c88-4802-9839-bf7e13fae319",
+        "table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "generation": 1,
+        "responsible_staff_id": null
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.680787+00:00",
+      "method": "POST",
+      "path": "/hospitality/tables/8235f2fc-c867-4ef4-a51a-b39b00765997/cleaning/start/",
+      "status": 200,
+      "canonical": {
+        "id": "94237a57-1c88-4802-9839-bf7e13fae319",
+        "table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "generation": 1,
+        "responsible_staff_id": null
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.690786+00:00",
+      "method": "POST",
+      "path": "/hospitality/tables/8235f2fc-c867-4ef4-a51a-b39b00765997/cleaning/complete/",
+      "status": 200,
+      "canonical": {
+        "id": "94237a57-1c88-4802-9839-bf7e13fae319",
+        "table_id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+        "generation": 1,
+        "responsible_staff_id": null
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.697862+00:00",
+      "method": "GET",
+      "path": "/hospitality/tables/",
+      "status": 200,
+      "canonical": {
+        "results": [
+          {
+            "id": "8235f2fc-c867-4ef4-a51a-b39b00765997",
+            "status": "AVAILABLE"
+          }
+        ]
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.705863+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/ff06e366-1659-4a1b-8980-9aac27320515/supply/",
+      "status": 201,
+      "canonical": {
+        "id": "069a4633-0a36-4ce0-b588-341896722f6a",
+        "amount_cents": 500,
+        "payment_id": null,
+        "refund_id": null,
+        "actor_id": "c6d4fa1b-5690-470b-8334-d12c703e3565"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.713878+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/ff06e366-1659-4a1b-8980-9aac27320515/withdrawal/",
+      "status": 201,
+      "canonical": {
+        "id": "a96663da-869b-4cba-9ab9-664529e0a226",
+        "amount_cents": -200,
+        "payment_id": null,
+        "refund_id": null,
+        "actor_id": "c6d4fa1b-5690-470b-8334-d12c703e3565"
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.720869+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/ff06e366-1659-4a1b-8980-9aac27320515/count/start/",
+      "status": 200,
+      "canonical": {
+        "id": "ff06e366-1659-4a1b-8980-9aac27320515",
+        "cash_point_id": "555658a6-fff8-47a7-aff6-a78a997e18f8",
+        "status": "COUNTING",
+        "opening_float_cents": 10000,
+        "counted_amount_cents": null,
+        "discrepancy_cents": null,
+        "review_status": "NOT_REQUIRED",
+        "version": 6,
+        "expected_cents": 12700,
+        "expected_at_close_cents": null,
+        "post_close_correction_cents": 0,
+        "corrected_expected_cents": 12700
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:10.729964+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/ff06e366-1659-4a1b-8980-9aac27320515/close/",
+      "status": 200,
+      "canonical": {
+        "id": "ff06e366-1659-4a1b-8980-9aac27320515",
+        "cash_point_id": "555658a6-fff8-47a7-aff6-a78a997e18f8",
+        "status": "CLOSED",
+        "opening_float_cents": 10000,
+        "counted_amount_cents": 12600,
+        "discrepancy_cents": -100,
+        "review_status": "PENDING",
+        "version": 7,
+        "expected_cents": 12700,
+        "expected_at_close_cents": 12700,
+        "post_close_correction_cents": 0,
+        "corrected_expected_cents": 12700
+      }
+    },
+    {
+      "at_utc": "2026-11-03T21:17:11.068179+00:00",
+      "method": "POST",
+      "path": "/cash/shifts/ff06e366-1659-4a1b-8980-9aac27320515/review/",
+      "status": 200,
+      "canonical": {
+        "id": "ff06e366-1659-4a1b-8980-9aac27320515",
+        "cash_point_id": "555658a6-fff8-47a7-aff6-a78a997e18f8",
+        "status": "CLOSED",
+        "opening_float_cents": 10000,
+        "counted_amount_cents": 12600,
+        "discrepancy_cents": -100,
+        "review_status": "REVIEWED",
+        "version": 8,
+        "expected_cents": 12700,
+        "expected_at_close_cents": 12700,
+        "post_close_correction_cents": 0,
+        "corrected_expected_cents": 12700
+      }
+    }
+  ]
+}

@@ -2,6 +2,33 @@
 
 **Aceite global PENDING.** A [auditoria por evidências #272](e06-audit-closeout-20261022.md) está concluída como inventário/reconciliação, **não como homologação da Spec 033**. Gates ainda ativos: [jornada integrada #315](https://github.com/procopio420/rodada/issues/315), [aparelho/TalkBack #316](https://github.com/procopio420/rodada/issues/316), [R3/rollback #317](https://github.com/procopio420/rodada/issues/317) e [piloto/GO #318](https://github.com/procopio420/rodada/issues/318). Nenhuma caixa abaixo deve ser marcada por transferência de issue.
 
+Evidência parcial adicional de 03/11/2026: [ensaio Web da etapa 2 do PR324](../../docs/releases/pilot-stage-2-rehearsal-2026-11-03.md),
+produto `67972d09200d43357b5b88dc0f64218967e4c24b`, PostgreSQL descartável;
+40 testes Web existentes e novo turno único passaram. Inclui duas Tabs na mesma
+mesa, preparo, entrega, parcial/integral, caixa e revogação. Fluxo misto UI/BFF,
+sem Android/hardware/revisão R3 ou GO; nenhum AC global marcado por este recorte.
+
+Complemento do mesmo dia: `pilot-shift-ui.spec.ts` executou um turno com todas
+as mutações pela interface e readback somente GET, incluindo duas Tabs,
+parcial/integral CASH, mesa/limpeza e caixa sem divergência (12000 centavos).
+Um teste PASS; evidência/limites no relatório acima. Cartão pela UI, rede prolongada
+e corrida de indisponibilidade entre operadores pela UI não são cobertos por
+esse complemento; critérios globais continuam abertos.
+
+Complemento posterior do mesmo dia: `pilot-network-outage.spec.ts`, 2 PASS,
+contexto Chromium offline por 90 s após commit real de Order/CASH; intenção
+preservada, reload/replay do mesmo conteúdo e um efeito canônico, verificado
+por contexto conectado em PostgreSQL. Durações/IDs/limites no relatório acima.
+Não é rede física, backend parado ou nova aceitação offline; não fecha AC-21
+global nem o recorte pendente de indisponibilidade no carrinho entre operadores.
+
+Complemento de disponibilidade concluído depois desse registro:
+`pilot-availability-race.spec.ts`, 2 PASS, STAFF e MANAGER em sessões distintas,
+BAR/KITCHEN indisponíveis antes da confirmação de pedido misto. 409 real,
+nenhuma cobrança/produção parcial, draft preservado e pedido anterior íntegro.
+Recibos/capturas no relatório acima. Atualiza essa lacuna de evidência Web;
+não marca AC global, não valida Android/físico e não resolve cartão pela UI.
+
  Inventário atual: [E06 por evidências](e06-current-evidence.md). Prototipagem HTML e as 27 verificações sintéticas da PR #212 não provam API/Android. Registrar para cada AC: PR, commit SHA, ambiente, comandos, screenshots/logs, reviewer e status PASS/FAIL/BLOCKED.
 
 ## E01: identidade e contexto
