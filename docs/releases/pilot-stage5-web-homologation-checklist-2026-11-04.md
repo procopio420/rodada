@@ -20,3 +20,17 @@ Cobrir Web em 360, 390 e 430 px e desktop. Registrar se cada largura foi medida 
 | A preencher | | | | NOT_RUN | |
 
 O responsável pelo piloto registra o aceite Web e as exclusões. O fechamento da etapa 4 ainda depende de evidência da agenda, entrega do alerta e rollback no ambiente aplicável, além da revisão R3 autenticada. [Ensaios locais da etapa 4](pilot-stage4-local-rehearsal-2026-11-04.md)
+
+## Observação no iPhone na demo
+
+O operador relatou que conseguiu navegar por mesas e enviar itens. A captura
+da comanda sem mesa mostra confirmação do pedido e `Bar · Na fila` no
+Atendimento. Na mesma tela aparecem avisos de dados e estado desatualizados.
+Registrar como evidência parcial da demo, com SHA servido e versão do iOS
+desconhecidos. Na captura seguinte, o painel do Bar abriu com os contadores
+sem valores e exibiu `Reconectando` e `Não foi possível atualizar a estação`.
+A leitura da fila falhou nessa tentativa e a presença do pedido no Bar
+segue sem confirmação. O operador relatou que o botão `Tentar atualizar`
+não recuperou a fila. O estado do Atendimento após recarregar ainda
+precisa de evidência. O teste físico
+do candidato do PR #325 continua `NOT_RUN`.
