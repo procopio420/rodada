@@ -111,12 +111,12 @@ export async function stable(page: Page) {
 /** Measure extended hit targets in an exposed position, retaining obstruction evidence. */
 export async function touchTargetAudit(page: Page) {
   return page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => {
-    const measure = (el: Element) => {
+    const measure = (el: Element, labelTarget = false) => {
       const box = el.getBoundingClientRect(), target = getComputedStyle(el, "::after");
       const x = box.x + box.width / 2, y = box.y + box.height / 2;
       return {
         box: { x: box.x, y: box.y, width: box.width, height: box.height },
-        extended: target.content !== "none" && target.position === "absolute" && parseFloat(target.width) >= 44 && parseFloat(target.height) >= 44,
+        extended: labelTarget ? box.width >= 44 && box.height >= 44 : target.content !== "none" && target.position === "absolute" && parseFloat(target.width) >= 44 && parseFloat(target.height) >= 44,
         inView: x >= 22 && x <= innerWidth - 22 && y >= 22 && y <= innerHeight - 22,
         points: [[x-21.9,y],[x+21.9,y],[x,y-21.9],[x,y+21.9]].map(([px,py]) => {
           const hit = document.elementFromPoint(px,py);
@@ -132,17 +132,27 @@ export async function touchTargetAudit(page: Page) {
       if (top && !top.contains(el)) continue;
       const { width, height } = el.getBoundingClientRect();
       if (!(width > 0 && height > 0 && (width < 44 || height < 44))) continue;
-      const before = measure(el);
+      // A native checkbox/radio label activates its associated control across
+      // the row. Require real geometry and hit ownership; a nearby label or a
+      // label containing a different interactive control cannot count.
+      const label = el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type)
+        ? [...el.labels ?? []].find(candidate => {
+          const box = candidate.getBoundingClientRect();
+          return candidate.control === el && box.width >= 44 && box.height >= 44 &&
+            ![...candidate.querySelectorAll("a, button, input, select, textarea, [role=button]")].some(control => control !== el);
+        }) : undefined;
+      const target = label ?? el;
+      const before = measure(target, !!label);
       if (!before.extended) { violations.push({ control: el.outerHTML, reason: "target below 44px", before }); continue; }
       if (!before.inView || before.points.every(point => point.owned)) continue;
       // Fixed footers can temporarily cover a line in a scrolling catalog.
       // Recheck all four points after exposing it; persistent obstructions fail.
       const positions: { el: HTMLElement; top: number; left: number }[] = [];
-      for (let parent = el.parentElement; parent; parent = parent.parentElement)
+      for (let parent = target.parentElement; parent; parent = parent.parentElement)
         positions.push({ el: parent, top: parent.scrollTop, left: parent.scrollLeft });
       try {
-        el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
-        const after = measure(el);
+        target.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        const after = measure(target, !!label);
         if (!after.extended || !after.inView || after.points.some(point => !point.owned))
           violations.push({ control: el.outerHTML, reason: "44px target remains obstructed", before, after });
         else recoveredOcclusions.push({ control: el.outerHTML, before, after });

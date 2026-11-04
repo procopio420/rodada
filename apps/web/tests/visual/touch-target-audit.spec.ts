@@ -31,3 +31,16 @@ test("extended target with persistent obstruction remains a violation", async ({
   expect(audit.violations[0].reason).toBe("44px target remains obstructed");
   expect(audit.violations[0].after?.points.some(point => point.interceptor?.includes("#obstruction"))).toBe(true);
 });
+
+test("only a full associated checkbox label counts as a touch target", async ({ page }) => {
+  await page.setContent('<main><label style="display:flex;align-items:center;width:160px;min-height:44px"><input type="checkbox">Mesa 02</label></main>');
+  const checkbox = page.getByRole("checkbox", { name: "Mesa 02" });
+  const label = page.locator("label");
+  const box = (await label.boundingBox())!;
+  expect((await touchTargetAudit(page)).violations).toEqual([]);
+  // The point is well outside the painted checkbox, in the associated row.
+  await page.mouse.click(box.x + 100, box.y + 22);
+  await expect(checkbox).toBeChecked();
+  await label.evaluate(element => { element.style.minHeight = "20px"; });
+  expect((await touchTargetAudit(page)).violations).toEqual([expect.objectContaining({ reason: "target below 44px" })]);
+});
