@@ -1,5 +1,18 @@
 # Retomada do PR #324 em outro computador
 
+## Atualização publicada — etapa 3, cartão externo
+
+O [PR #325](https://github.com/procopio420/rodada/pull/325), branch
+`codex/pilot-stage3-external-card`, contém a slice cartão externo e a correção
+do gate visual; continua empilhado no PR #324. Código validado `82a9f8d2`:
+945 casos visuais e 26 testes Web/PostgreSQL aprovados. Ver
+[relatório](pilot-stage3-external-terminal-2026-11-03.md) e
+[manifesto](evidence/pilot-stage3-external-terminal/visual-repair-summary.json).
+Retomar pelo #325 para a etapa 3; o #324 preserva o checkpoint de etapas 1–2.
+A revisão R3 autenticada e a CI do candidato publicado ainda precisam ser
+confirmadas. Sem homologação física, merge ou deploy; NO-GO produção.
+As instruções abaixo preservam a fotografia anterior.
+
 Atualizado em 03/11/2026. Repositório: `procopio420/rodada`.
 PR: https://github.com/procopio420/rodada/pull/324.
 Branch remota de continuação: **`codex/pilot-execution-plan`** (branch do PR).

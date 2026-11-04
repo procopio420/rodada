@@ -1,0 +1,630 @@
+{
+  "source_sha": "0e589fa11e3b68463a4b870262c73692ea8c4880",
+  "environment": "Local Chromium, synthetic visual fixtures",
+  "cases": [
+    {
+      "test": "attendance requires a tab name and selects an available table before opening",
+      "status": "passed",
+      "occlusions": [
+        {
+          "control": "<button class=\"ux2ProductName\" aria-label=\"Personalizar Omelete\"><strong>Omelete</strong></button>",
+          "before": {
+            "box": {
+              "x": 21,
+              "y": 747.09375,
+              "width": 220,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 109.1,
+                "y": 758.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 152.9,
+                "y": 758.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 736.7875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 780.5875,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 21,
+              "y": 481.09375,
+              "width": 220,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 109.1,
+                "y": 492.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 152.9,
+                "y": 492.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 470.7875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 514.5875,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        },
+        {
+          "control": "<button aria-label=\"Adicionar Omelete\">+</button>",
+          "before": {
+            "box": {
+              "x": 330,
+              "y": 747.6875,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 327.6,
+                "y": 768.6875,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              },
+              {
+                "x": 371.4,
+                "y": 768.6875,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              },
+              {
+                "x": 349.5,
+                "y": 746.7875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 790.5875,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 330,
+              "y": 481.6875,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 327.6,
+                "y": 502.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 371.4,
+                "y": 502.6875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 480.7875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 524.5875,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "test": "table service start/open recovery and contextual selection at 360px",
+      "status": "passed",
+      "occlusions": [
+        {
+          "control": "<button class=\"ux2ProductName\" aria-label=\"Personalizar Fritas\"><strong>Fritas</strong></button>",
+          "before": {
+            "box": {
+              "x": 16,
+              "y": 733.015625,
+              "width": 200,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 94.1,
+                "y": 744.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 137.9,
+                "y": 744.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 116,
+                "y": 722.709375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 116,
+                "y": 766.509375,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 16,
+              "y": 410.015625,
+              "width": 200,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 94.1,
+                "y": 421.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 137.9,
+                "y": 421.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 116,
+                "y": 399.709375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 116,
+                "y": 443.509375,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        },
+        {
+          "control": "<button aria-label=\"Adicionar Fritas\">+</button>",
+          "before": {
+            "box": {
+              "x": 305,
+              "y": 733.609375,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 302.6,
+                "y": 754.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 346.4,
+                "y": 754.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 324.5,
+                "y": 732.709375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 324.5,
+                "y": 776.509375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 305,
+              "y": 402.609375,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 302.6,
+                "y": 423.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 346.4,
+                "y": 423.609375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 324.5,
+                "y": 401.709375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 324.5,
+                "y": 445.509375,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "test": "table service start/open recovery and contextual selection at 390px",
+      "status": "passed",
+      "occlusions": [
+        {
+          "control": "<button class=\"ux2ProductName\" aria-label=\"Personalizar Fritas\"><strong>Fritas</strong></button>",
+          "before": {
+            "box": {
+              "x": 21,
+              "y": 737.203125,
+              "width": 220,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 109.1,
+                "y": 748.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 152.9,
+                "y": 748.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 726.896875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 770.696875,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 21,
+              "y": 410.203125,
+              "width": 220,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 109.1,
+                "y": 421.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 152.9,
+                "y": 421.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 399.896875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 131,
+                "y": 443.696875,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        },
+        {
+          "control": "<button aria-label=\"Adicionar Fritas\">+</button>",
+          "before": {
+            "box": {
+              "x": 330,
+              "y": 737.796875,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 327.6,
+                "y": 758.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 371.4,
+                "y": 758.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 736.896875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 780.696875,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 330,
+              "y": 402.796875,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 327.6,
+                "y": 423.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 371.4,
+                "y": 423.796875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 401.896875,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 349.5,
+                "y": 445.696875,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "test": "table service start/open recovery and contextual selection at 430px",
+      "status": "passed",
+      "occlusions": [
+        {
+          "control": "<button class=\"ux2ProductName\" aria-label=\"Personalizar Omelete\"><strong>Omelete</strong></button>",
+          "before": {
+            "box": {
+              "x": 21,
+              "y": 793.640625,
+              "width": 260,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 129.1,
+                "y": 805.234375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              },
+              {
+                "x": 172.9,
+                "y": 805.234375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              },
+              {
+                "x": 151,
+                "y": 783.334375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              },
+              {
+                "x": 151,
+                "y": 827.134375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 21,
+              "y": 480.640625,
+              "width": 260,
+              "height": 23.1875
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 129.1,
+                "y": 492.234375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 172.9,
+                "y": 492.234375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 151,
+                "y": 470.334375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 151,
+                "y": 514.134375,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        },
+        {
+          "control": "<button aria-label=\"Adicionar Omelete\">+</button>",
+          "before": {
+            "box": {
+              "x": 370,
+              "y": 794.234375,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 367.6,
+                "y": 815.234375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              },
+              {
+                "x": 411.4,
+                "y": 815.234375,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              },
+              {
+                "x": 389.5,
+                "y": 793.334375,
+                "owned": false,
+                "interceptor": "button.ux2Button.primary.block"
+              },
+              {
+                "x": 389.5,
+                "y": 837.134375,
+                "owned": false,
+                "interceptor": "div.ux2TaskFoot"
+              }
+            ]
+          },
+          "after": {
+            "box": {
+              "x": 370,
+              "y": 481.234375,
+              "width": 39,
+              "height": 42
+            },
+            "extended": true,
+            "inView": true,
+            "points": [
+              {
+                "x": 367.6,
+                "y": 502.234375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 411.4,
+                "y": 502.234375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 389.5,
+                "y": 480.334375,
+                "owned": true,
+                "interceptor": null
+              },
+              {
+                "x": 389.5,
+                "y": 524.134375,
+                "owned": true,
+                "interceptor": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

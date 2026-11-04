@@ -205,8 +205,8 @@ for (const state of ["empty", "loading", "error", "long", "warnings"] as State[]
 test("management hash navigation selects each real section", async ({ page }) => {
   await fixture(page); await page.goto("/manage");
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
-  await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(5);
-  await expect(page.getByRole("navigation").locator("svg[aria-hidden=true]")).toHaveCount(5);
+  await expect(page.getByRole("navigation", { name: "Navegação da Gerência", exact: true }).getByRole("link")).toHaveCount(5);
+  await expect(page.getByRole("navigation", { name: "Navegação da Gerência", exact: true }).locator("svg[aria-hidden=true]")).toHaveCount(5);
   await page.getByRole("navigation").getByRole("link", { name: "Gestão", exact: true }).click();
   await expect(page.getByRole("link", { name: "Impressoras", exact: true })).toHaveAttribute("href", "/manage/printing");
   for (const name of ["Operação", "Financeiro", "Cardápio", "Gestão", "Agora"]) {
@@ -592,7 +592,10 @@ for (const width of [360, 430, 768]) test(`management hierarchy and enlarged nav
   const pulse = await financial.boundingBox();
   expect(alert!.y).toBeLessThan(pulse!.y);
   const grid = await page.locator(".metricGrid").boundingBox();
-  expect(pulse!.width).toBe(grid!.width);
+  // Spec034 S2c: financial metric leads, stacked on mobile and paired on desktop.
+  const operational = await page.locator(".operationalMetric").filter({ hasNot: page.locator(".metricLabel") }).boundingBox();
+  if (width < 768) { expect(pulse!.width).toBe(grid!.width); expect(pulse!.y).toBeLessThan(operational!.y); }
+  else { expect(pulse!.width).toBe(operational!.width); expect(pulse!.y).toBe(operational!.y); expect(pulse!.x).toBeLessThan(operational!.x); }
   expect(await financial.locator("strong").evaluate(el => getComputedStyle(el).fontSize)).toBe("34px");
   const nav = page.getByRole("navigation", { name: "Navegação da Gerência" });
   const boxes = await nav.getByRole("link").evaluateAll(links => links.map(link => {

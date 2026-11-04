@@ -18,24 +18,24 @@ async function setup(page: Page, surface = "attendance") {
     : { status: 503, json: { code: "TEMPORARY", message: "Leitura indisponível" } }));
   await page.goto(`/${surface}`);
   if (surface === "attendance") await openOtherTabs(page);
-  await page.getByRole("button", { name: /^Comanda de teste ·/ }).click();
+  await page.getByRole("button", { name: /^Comanda de teste\s/ }).click();
   if (surface === "attendance") {
     await addCatalogItem(page, "Fritas");
-    await page.locator(".attendanceOrderDialog").getByRole("button", { name: /^Pedido atual/ }).click();
+    await page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Ver resumo", exact: true }).click();
   } else await page.getByRole("button", { name: /^Fritas/ }).click();
   return { attempts, failReadback: () => { readback = false; }, restoreReadback: () => { readback = true; } };
 }
 for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]) test(`Staff order lost response reload immutable recovery ${surface} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   const state = await setup(page, surface);
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   const saved = await page.evaluate(k => sessionStorage.getItem(k), key); expect(saved).toBeTruthy();
   await page.reload();
   const verify = page.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
   expect(state.attempts).toHaveLength(1);
   if (surface === "pos") await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
-  else await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
+  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
   await layoutAndA11y(page); await page.screenshot({ path: `../../visual-artifacts/spec026/t05-order-${surface}-${width}.png`, fullPage: true });
   state.failReadback(); await verify.click();
   await expect(page.getByText("Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro.", { exact: true })).toBeVisible();
@@ -48,12 +48,12 @@ for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]
     await page.getByLabel("Nome ou apelido", { exact: true }).fill("Nova comanda de teste");
     await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeEnabled();
   }
-  else await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeEnabled();
+  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeEnabled();
 });
 
 for (const failure of ["different-session", "revoked", "changed-envelope"]) test(`Order recovery blocks ${failure}`, async ({ page }) => {
   const state = await setup(page);
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   if (failure === "changed-envelope") await page.evaluate(k => { const i = JSON.parse(sessionStorage.getItem(k)!); i.payload.lines[0].quantity = 9; sessionStorage.setItem(k, JSON.stringify(i)); }, key);
   else await page.route("**/api/auth/me", route => route.fulfill(failure === "revoked"
@@ -62,7 +62,8 @@ for (const failure of ["different-session", "revoked", "changed-envelope"]) test
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
   await expect(page.getByRole("alert").filter({ hasText: failure === "different-session" ? "sessão original" : failure === "revoked" ? "Confira sua sessão" : "Resultado ainda" })).toBeVisible();
   expect(state.attempts).toHaveLength(1);
-  await expect(page.getByRole("button", { name: "Descartar rascunho", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "＋ Adicionar itens", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Descartar rascunho", exact: true })).toHaveCount(0);
 });
 for (const failure of ["invalid", "write-failure"]) test(`Order storage blocks ${failure} before POST`, async ({ page }) => {
   await page.addInitScript(({ key, failure }) => {
@@ -72,9 +73,9 @@ for (const failure of ["invalid", "write-failure"]) test(`Order storage blocks $
   if (failure === "invalid") {
     await fixture(page, "normal", true); await page.goto("/attendance");
     await expect(page.getByText("Não foi possível preservar o pedido neste navegador. Confira o histórico antes de continuar.", { exact: true })).toBeVisible();
-    await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeDisabled();
   } else {
-    const state = await setup(page); await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+    const state = await setup(page); await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
     await expect(page.getByText("Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.", { exact: true })).toBeVisible();
     expect(state.attempts).toHaveLength(0);
   }
@@ -82,23 +83,25 @@ for (const failure of ["invalid", "write-failure"]) test(`Order storage blocks $
 test("Initial known rejection allows review but recovered rejection preserves intent", async ({ page }) => {
   const state = await setup(page);
   await page.route("**/api/attendance/tabs/tab-test/orders/confirm/", route => route.fulfill({ status: 409, json: { code: "PRODUCTS_NOT_CONFIRMABLE", message: "Revise os itens" } }));
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByText("Revise os itens", { exact: true })).toBeVisible();
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeNull();
+  await expect(page.getByRole("button", { name: "＋ Adicionar itens", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click(); await page.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(page.getByRole("button", { name: "Descartar rascunho", exact: true })).toBeEnabled();
   await page.unroute("**/api/attendance/tabs/tab-test/orders/confirm/");
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   await page.route("**/api/attendance/tabs/tab-test/orders/confirm/", route => route.fulfill({ status: 409, json: { code: "PRODUCTS_NOT_CONFIRMABLE", message: "Revise os itens" } }));
   await page.reload(); await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
   await expect(page.getByText("Revise os itens", { exact: true })).toBeVisible();
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeTruthy(); expect(state.attempts).toHaveLength(1);
-  await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
+  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
 });
 
 test("Attendance pending order recovers from POS through original gateway", async ({ page }) => {
   const state = await setup(page);
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   const paths: string[] = [];
   page.on("request", request => { if (request.url().includes("/orders/confirm/")) paths.push(new URL(request.url()).pathname); });
@@ -111,7 +114,7 @@ test("Attendance pending order recovers from POS through original gateway", asyn
 
 for (const surface of ["attendance", "pos"]) test(`Pending order remains recoverable after closed tab reload ${surface}`, async ({ page }) => {
   const state = await setup(page, surface);
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   const saved = await page.evaluate(k => sessionStorage.getItem(k), key);
   await page.route(/\/api\/(attendance|pos)\/tabs\/tab-test\/$/, route => route.fulfill({ json: {

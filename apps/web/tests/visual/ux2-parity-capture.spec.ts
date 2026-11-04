@@ -23,7 +23,7 @@ for(const width of [360,390,430,1280]) test(`UX2 comparison captures ${width}`,a
  const geometry=await numbers.evaluate(element=>[...element.children].map(child=>{const r=child.getBoundingClientRect();return {x:r.x,y:r.y,bottom:r.bottom};}));
  expect(geometry[1].x).toBeGreaterThan(geometry[0].x);expect(geometry[1].y).toBeLessThan(geometry[0].bottom);
  await page.screenshot({path:`${out}/web-catalog-${width}.png`,fullPage:true});await w.getByRole('button',{name:'Ver resumo',exact:true}).click();await expect(w.getByRole('button',{name:'Editar',exact:true})).toHaveCount(0);
- await expect(w.getByRole('button',{name:'Descartar rascunho',exact:true})).toHaveCount(0);
+ await expect(w.getByRole('button',{name:'Descartar rascunho',exact:true})).toBeEnabled();
  await expect(w.locator('.ux2CardNote strong')).toContainText('Marina · Comanda');
  await expect(w.locator('.ux2CardNote p')).toHaveText('Mesa 08 · Rascunho ainda não enviado');
  await page.screenshot({path:`${out}/web-review-${width}.png`,fullPage:true});

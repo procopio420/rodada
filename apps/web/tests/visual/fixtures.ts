@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 export const viewports = [
@@ -46,6 +46,15 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     const cash = state === "empty" ? [] : [{ id: "cash-test", label: state === "long" ? longName : "Caixa de teste", active_shift: state === "warnings" ? null : shift, pending_review_shift: state === "warnings" ? pending : null }];
     const detail = { ...tab, ...(state === "warnings" ? { state: "REQUIRES_ACTION", action_reasons: ["SPENDING_LIMIT"], approval_requested: true, consumption_blocked: true } : {}), display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
     let body: unknown;
+    // Passive observers have their own bounded endpoints; they do not mutate
+    // fixture orders, financial state or session freshness. Test-specific routes
+    // registered after fixture() still take precedence (including failures).
+    if (route.request().method() === "POST" && url.pathname === "/api/attendance-telemetry")
+      return route.fulfill({ status: 202, json: { accepted: true, duplicate: false } });
+    if (route.request().method() === "POST" && url.pathname === "/api/production-screen-observation")
+      return route.fulfill({ status: 202, json: { accepted: true, first_seen: 0, duplicate: 0, expired: 0 } });
+    if (route.request().method() === "GET" && url.pathname === "/api/pos/hospitality/table-groups/")
+      return route.fulfill({ json: { results: [] } });
     if (url.pathname.endsWith("/realtime/snapshot/")) return route.fulfill({ json: { schema_version: 1, cursor: "visual-test:0" } });
     // A finite response is disconnected realtime. ready+EOF would briefly render
     // ONLINE on every jittered retry, moving alert warnings during screenshots.
@@ -99,27 +108,68 @@ export async function stable(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+/** Measure extended hit targets in an exposed position, retaining obstruction evidence. */
+export async function touchTargetAudit(page: Page) {
+  return page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => {
+    const measure = (el: Element, labelTarget = false) => {
+      const box = el.getBoundingClientRect(), target = getComputedStyle(el, "::after");
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
+      return {
+        box: { x: box.x, y: box.y, width: box.width, height: box.height },
+        extended: labelTarget ? box.width >= 44 && box.height >= 44 : target.content !== "none" && target.position === "absolute" && parseFloat(target.width) >= 44 && parseFloat(target.height) >= 44,
+        inView: x >= 22 && x <= innerWidth - 22 && y >= 22 && y <= innerHeight - 22,
+        points: [[x-21.9,y],[x+21.9,y],[x,y-21.9],[x,y+21.9]].map(([px,py]) => {
+          const hit = document.elementFromPoint(px,py);
+          return { x: px, y: py, owned: hit === el || !!hit && el.contains(hit), interceptor: hit && hit !== el && !el.contains(hit) ? `${hit.tagName.toLowerCase()}${hit.id ? `#${hit.id}` : ""}${[...hit.classList].map(name => `.${name}`).join("")}` : null };
+        }),
+      };
+    };
+    const violations: { control: string; reason: string; before: ReturnType<typeof measure>; after?: ReturnType<typeof measure> }[] = [];
+    const recoveredOcclusions: { control: string; before: ReturnType<typeof measure>; after: ReturnType<typeof measure> }[] = [];
+    const dialogs = [...document.querySelectorAll("dialog:modal")];
+    const top = document.activeElement?.closest("dialog:modal") ?? dialogs.at(-1);
+    for (const el of elements) {
+      if (top && !top.contains(el)) continue;
+      const { width, height } = el.getBoundingClientRect();
+      if (!(width > 0 && height > 0 && (width < 44 || height < 44))) continue;
+      // A native checkbox/radio label activates its associated control across
+      // the row. Require real geometry and hit ownership; a nearby label or a
+      // label containing a different interactive control cannot count.
+      const label = el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type)
+        ? [...el.labels ?? []].find(candidate => {
+          const box = candidate.getBoundingClientRect();
+          return candidate.control === el && box.width >= 44 && box.height >= 44 &&
+            ![...candidate.querySelectorAll("a, button, input, select, textarea, [role=button]")].some(control => control !== el);
+        }) : undefined;
+      const target = label ?? el;
+      const before = measure(target, !!label);
+      if (!before.extended) { violations.push({ control: el.outerHTML, reason: "target below 44px", before }); continue; }
+      if (!before.inView || before.points.every(point => point.owned)) continue;
+      // Fixed footers can temporarily cover a line in a scrolling catalog.
+      // Recheck all four points after exposing it; persistent obstructions fail.
+      const positions: { el: HTMLElement; top: number; left: number }[] = [];
+      for (let parent = target.parentElement; parent; parent = parent.parentElement)
+        positions.push({ el: parent, top: parent.scrollTop, left: parent.scrollLeft });
+      try {
+        target.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        const after = measure(target, !!label);
+        if (!after.extended || !after.inView || after.points.some(point => !point.owned))
+          violations.push({ control: el.outerHTML, reason: "44px target remains obstructed", before, after });
+        else recoveredOcclusions.push({ control: el.outerHTML, before, after });
+      } finally {
+        for (const position of positions.reverse()) position.el.scrollTo({ top: position.top, left: position.left, behavior: "instant" });
+      }
+    }
+    return { violations, recoveredOcclusions };
+  });
+}
+
 export async function layoutAndA11y(page: Page, receiptPreview = false) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow, "horizontal overflow").toBe(false);
-  const smallControls = await page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => elements.filter(el => {
-    const dialogs = [...document.querySelectorAll("dialog:modal")];
-    const focused = document.activeElement?.closest("dialog:modal");
-    const top = focused ?? dialogs.at(-1); if (top && !top.contains(el)) return false;
-    const box = el.getBoundingClientRect();
-    if (!(box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44))) return false;
-    // Painted prototype controls may extend their pointer target with ::after.
-    // Require the full target size and verify hit ownership when it is in view.
-    const target = getComputedStyle(el, "::after");
-    if (target.content === "none" || target.position !== "absolute" || !(parseFloat(target.width) >= 44) || !(parseFloat(target.height) >= 44)) return true;
-    const x = box.x + box.width / 2, y = box.y + box.height / 2;
-    if (x < 22 || x > innerWidth - 22 || y < 22 || y > innerHeight - 22) return false;
-    return [[x-21.9,y],[x+21.9,y],[x,y-21.9],[x,y+21.9]].some(([px,py]) => {
-      const hit = document.elementFromPoint(px,py);
-      return hit !== el && !el.contains(hit);
-    });
-  }).map(el => el.outerHTML));
-  expect(smallControls, "important controls must be at least 44 × 44 px").toEqual([]);
+  const targets = await touchTargetAudit(page);
+  expect(targets.violations, "important controls must expose a 44 × 44 px hit target").toEqual([]);
+  if (targets.recoveredOcclusions.length) await test.info().attach("touch-target-occlusions", { body: JSON.stringify(targets.recoveredOcclusions, null, 2), contentType: "application/json" });
   const builder = new AxeBuilder({ page });
   // Receipt iframes deliberately prohibit scripts. Audit the surrounding controls here;
   // their immutable document content is checked separately without injecting frame scripts.

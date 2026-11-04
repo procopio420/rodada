@@ -1,5 +1,10 @@
 # Etapa 2 — ensaio integrado do piloto Web
 
+Atualização posterior: a limitação de cartão deste candidato motivou a
+[slice local da etapa 3](pilot-stage3-external-terminal-2026-11-03.md).
+Resultados e bloqueios abaixo continuam vinculados ao SHA da etapa 2;
+implementação local posterior não reescreve essa fotografia nem declara GO.
+
 Data: 03/11/2026. **CONCLUIDA como ensaio local, com impedimentos explícitos.**
 Os três complementos foram executados: turno por UI no recorte CASH, 90 s sem
 rede no navegador após commit de pedido/CASH e corrida de disponibilidade entre

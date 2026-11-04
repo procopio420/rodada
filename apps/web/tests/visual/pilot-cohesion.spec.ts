@@ -13,7 +13,7 @@ for(const width of [360,390,430]) test(`Gerência reveals one section and return
   await page.getByRole("navigation").getByRole("link",{name:"Cardápio",exact:true}).click();
   await page.getByRole("link",{name:"Cardápio e nomes dos produtos",exact:true}).click();
   await expect(page.getByRole("heading",{name:"Cardápio",exact:true}).first()).toBeVisible();
-  await page.getByRole("link",{name:"Voltar à Gerência →",exact:true}).click();
+  await page.getByRole("link",{name:"Voltar ao Cardápio",exact:true}).click();
   await expect(page.getByRole("heading",{name:"Produtos do cardápio"})).toBeVisible();
   await page.goBack();await expect(page.getByRole("heading",{name:"Cardápio",exact:true}).first()).toBeVisible();
   await page.goForward();await expect(page.getByRole("heading",{name:"Produtos do cardápio"})).toBeVisible();

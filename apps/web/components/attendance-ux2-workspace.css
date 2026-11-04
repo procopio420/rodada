@@ -22,6 +22,7 @@
 
 .ux2ContentWorkspace{display:flex;flex-direction:column}.ux2ContentWorkspace>.ux2Workspace{order:1}.ux2ReceiptHost{order:2}.ux2ContentWorkspace:has(>.ux2ReceiptHost:not([hidden]))>.ux2Workspace{padding-bottom:0}.ux2ReceiptEntry{padding:0 20px 128px}.ux2PaymentMethods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 16px}.ux2PaymentMethods button{border:1px solid var(--color-border-strong);border-radius:8px;background:var(--color-surface-2);color:var(--color-text-muted);min-height:52px;padding:9px 6px;font-size:12px;font-weight:750}.ux2PaymentMethods [aria-pressed="true"]{border-color:var(--color-accent);color:var(--color-accent)}.ux2PaymentHelp{font-size:12px;color:var(--color-text-muted);margin:6px 0 22px!important}.ux2Payment form>.ux2Button+.ux2Button{margin-top:8px}.ux2Payment .field input{font-family:var(--font-mono)}
 .ux2PaymentMethods button{font-size:14px;color:var(--color-text)}.ux2PaymentMethods [aria-pressed="true"]{color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-accent)}.ux2Payment .field label{text-transform:none;letter-spacing:0}
+.ux2ExternalConfirmation{display:flex;align-items:center;gap:var(--space-2);min-height:44px}.ux2ExternalConfirmation input{width:44px;height:44px;flex:0 0 44px;accent-color:var(--color-accent)}
 
 /* Preserve approved painted dimensions while extending pointer targets. */
 .ux2Pills button::after{content:"";position:absolute;inset:-3px -1px}

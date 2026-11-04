@@ -1,3 +1,4 @@
+import { refreshAttendance } from "./attendance-actions";
 import { addCatalogItem } from "./category-actions";
 import { openOtherTabs, closeAttendanceTab, selectAttendanceTab, attendanceDraft } from "./attendance-actions";
 import { expect, test } from "@playwright/test";
@@ -18,25 +19,25 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360,3
  await page.route(/\/api\/pos\/tabs\/[^/]+\/pricing\/$/, route => route.fulfill({ json: { version: 1, policy: { service_basis_points: 0 }, history: [], charges: [] } }));
  await page.goto(`/${surface}`); if (surface === "attendance") await openOtherTabs(page);
  if (surface === "attendance") {
-   await page.getByRole("button", { name: /^Page 0 ·/ }).click();
+   await page.getByRole("button", { name: /^Page 0\s/ }).click();
    await addCatalogItem(page, "Fritas"); await closeAttendanceTab(page);
    const search = page.getByLabel("Buscar mesa ou comanda", { exact: true });
    await search.fill("joao");
    await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeVisible();
    await expect(page.getByRole("button", { name: /Comanda SAME-B/ })).toBeVisible();
    await expect(page.getByRole("button", { name: /^Page / })).toHaveCount(0);
-   failAttendanceRead = true; await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+   failAttendanceRead = true; await refreshAttendance(page);
    await expect(page.getByRole("alert").filter({ hasText: "Failed to fetch" })).toBeVisible();
    await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeVisible();
-   failAttendanceRead = false; await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+   failAttendanceRead = false; await refreshAttendance(page);
    await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeEnabled();
    await search.fill(""); await openOtherTabs(page);
    await expect(page.getByRole("button", { name: /Comanda UNNAMED/ })).toBeVisible();
-   await selectAttendanceTab(page, /^Page 0 ·/); await attendanceDraft(page);
+   await selectAttendanceTab(page, /^Page 0\s/); await attendanceDraft(page);
    await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await layoutAndA11y(page);
    return;
  }
- await page.getByRole("button", { name: /^Page 0 ·/ }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
+ await page.getByRole("button", { name: /^Page 0\s/ }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
  await page.getByRole("button", { name: "Próxima página", exact: true }).click(); await expect(page.getByText("Página 2", { exact: true })).toBeVisible();
  const input = page.getByLabel("Buscar comanda por apelido"); await input.fill("joao"); await input.press("Enter");
  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();

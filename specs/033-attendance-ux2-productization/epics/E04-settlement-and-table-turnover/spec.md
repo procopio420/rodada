@@ -1,5 +1,9 @@
 # Epic E04 — Conta, pagamento parcial, Tab CLOSED e giro da mesa
 
+Slice Web da etapa 3 (03/11/2026): [contrato de cartão externo manual](external-terminal/spec.md),
+incluindo método EXTERNAL_TERMINAL, confirmação explícita, recovery e BFF fechado
+por método; implementação/aceite próprios, sem PSP ou mudança de ledger.
+
 **Prioridade P0** · Owner: POS/Payments/Cash/Hospitality + interfaces Web/Compose · baseline de E06-01. **Somente contrato.**
 
 ## Reuso obrigatório

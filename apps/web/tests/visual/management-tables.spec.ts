@@ -16,7 +16,8 @@ for (const width of [360,390,430,1280]) test(`Management table inventory at ${wi
  const occupied=page.locator(".tableInventoryRow").filter({hasText:"Mesa 01"});
  await expect(occupied.getByRole("button",{name:"Retirar de uso"})).toBeDisabled();
  await occupied.getByText("Ver comandas de Mesa 01").click(); await expect(occupied.getByText("Conta A",{exact:true})).toBeVisible(); await expect(occupied.getByText("Encerrada",{exact:true})).toHaveCount(0);
- await page.getByLabel("Quantidade de mesas para trabalhar").fill("1"); await page.getByLabel("Mesa 02",{exact:true}).check();
+ await page.getByLabel("Quantidade de mesas para trabalhar").fill("1");
+ await page.getByRole("group", { name: "Selecione 1 mesas disponíveis para retirar", exact: true }).getByLabel("Mesa 02", { exact: true }).check();
  await page.getByRole("button",{name:"Revisar quantidade"}).click(); await page.getByRole("dialog").getByRole("button",{name:"Confirmar",exact:true}).click();
  await expect(page.getByText("Alteração confirmada. Lista reconsultada.")).toBeVisible(); expect(bodies).toEqual([{target_count:1,expected_count:2,retire_ids:["free"]}]);
  const free=page.locator(".tableInventoryRow").filter({hasText:"Mesa 02"});

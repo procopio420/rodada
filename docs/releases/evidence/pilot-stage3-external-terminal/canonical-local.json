@@ -1,0 +1,185 @@
+{
+  "captured_at_utc": "2026-11-03T23:09:25.588968+00:00",
+  "candidate": "58dda307691bdff0addc49ac29a497c2a469fa64",
+  "environment": "isolated local PostgreSQL rodada_web_e2e; synthetic fixtures only",
+  "tab_count": 10,
+  "tabs": [
+    {
+      "tab_id": "4a673964-15c8-4bc7-a487-b60337fefa8e",
+      "fixture": "External gateway",
+      "state": "OPEN",
+      "payments": [],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "dc889c91-6059-43fa-821b-adf791bf1ef3",
+      "fixture": "External happy 360",
+      "state": "CLOSED",
+      "payments": [
+        {
+          "id": "e246a6f3-07e6-4a9c-808b-1fa610cd0275",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        },
+        {
+          "id": "6bc4e74b-31c3-42ab-9ee8-1c3279fd14d1",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 1500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "d0188d01-332c-495a-9292-06b5587fb49c",
+      "fixture": "External happy 390",
+      "state": "CLOSED",
+      "payments": [
+        {
+          "id": "78a2ca6d-a490-4a8b-a2c1-be7cc515d029",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        },
+        {
+          "id": "4c42a89c-ba56-42bc-9d67-3bbb673230b9",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 1500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "25e0d76c-82da-4719-904f-4255995c9bc3",
+      "fixture": "External happy 430",
+      "state": "CLOSED",
+      "payments": [
+        {
+          "id": "68d696ed-ff07-4564-814a-94d024467076",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        },
+        {
+          "id": "49accf00-fb7a-46a7-b97e-982427a63f82",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 1500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "f68365f4-e0f1-4242-81fb-4d22d42d4c3b",
+      "fixture": "External mixed receipt",
+      "state": "CLOSED",
+      "payments": [
+        {
+          "id": "a4b1478d-c44b-4757-9001-8e49021f589b",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        },
+        {
+          "id": "dac672f5-3978-4c68-9e8c-7f4f3d439197",
+          "method": "CASH",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        },
+        {
+          "id": "8abe9197-034a-4d91-b27a-51db3ce3a7e1",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 1000,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 1
+    },
+    {
+      "tab_id": "e6916536-bfc7-4dae-b232-ec7e309bf119",
+      "fixture": "External recovery ack",
+      "state": "OPEN",
+      "payments": [
+        {
+          "id": "d02ff1a0-b5b0-4d39-ac9c-f8a07119bed6",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "05fa70b6-2a89-41ef-8295-f571d519581c",
+      "fixture": "External recovery invalid-envelope",
+      "state": "OPEN",
+      "payments": [
+        {
+          "id": "e9febcaa-7623-4cbd-a0ad-254572e16ed6",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "5f3dc8ad-2d99-49d4-9d43-d7ec5a75d695",
+      "fixture": "External recovery readback",
+      "state": "OPEN",
+      "payments": [
+        {
+          "id": "245252b0-9411-40b7-b052-917f6cc9530f",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "4a6ca887-9825-4313-af2f-ec20e1cc7855",
+      "fixture": "External recovery session",
+      "state": "OPEN",
+      "payments": [
+        {
+          "id": "754d18b4-c099-4f66-bae1-e265194c362a",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    },
+    {
+      "tab_id": "94851828-77e2-4b10-b2f9-8128240b49f2",
+      "fixture": "External revoked session",
+      "state": "OPEN",
+      "payments": [
+        {
+          "id": "d207eaee-fc4d-4f42-b4eb-4dded7a315b5",
+          "method": "EXTERNAL_TERMINAL",
+          "amount_cents": 500,
+          "status": "CONFIRMED",
+          "received_by_id": "ddb0ab93-b912-4d60-9d75-6c49d582928c"
+        }
+      ],
+      "cash_movement_count": 0
+    }
+  ]
+}

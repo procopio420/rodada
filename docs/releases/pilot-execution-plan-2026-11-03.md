@@ -195,6 +195,14 @@ definidos e aceite humano explícito. Publicação não equivale a aceite operac
 
 ## Quadro de acompanhamento
 
+### Checkpoint de 04/11/2026
+
+- Etapas 1 e 2 concluídas no escopo aprovado e como ensaio integrado. [PR #324](https://github.com/procopio420/rodada/pull/324)
+- Etapa 3 em execução. Cartão externo implementado e validado localmente, com CI Web e Knowledge Base aprovadas no SHA publicado `783869db`. A revisão R3 autenticada segue pendente. [PR #325](https://github.com/procopio420/rodada/pull/325)
+- Etapa 4 em execução. Backup, restauração, troca de build Web e retenção passaram em ensaio local. A versão anterior preserva a intenção de cartão externo, cuja recuperação exige retorno a uma versão compatível. Faltam confirmar o ambiente, comprovar agenda e entrega de alerta e ensaiar a reversão no alvo aprovado. [Evidência e proposta operacional](pilot-stage4-local-rehearsal-2026-11-04.md)
+- Etapa 5 com observação parcial no iPhone na demo. O Atendimento confirmou o pedido, mas o Bar falhou ao carregar a fila mesmo após nova tentativa. A homologação física do candidato do PR #325 permanece `NOT_RUN`. [Checklist Web](pilot-stage5-web-homologation-checklist-2026-11-04.md)
+- Etapa 6 planejada. Produção segue `NO-GO`.
+
 Atualizar somente com execução real. Usar PLANEJADA, EM_EXECUCAO, BLOQUEADA,
 EM_APROVACAO ou CONCLUIDA. Para retomada, anexar SHA, ambiente, evidência e
 pedido humano que autorizou a execução; não copiar tokens/segredos/PII.
@@ -209,6 +217,18 @@ pedido humano que autorizou a execução; não copiar tokens/segredos/PII.
 | 6 — Publicação/piloto | PLANEJADA | Autorizações e GO pendentes | Usuário/release |
 
 ## Evidência desta preparação documental
+
+### Etapa 3 iniciada — 03/11/2026, slice cartão externo
+
+Usuário autorizou executar o próximo gap: cartão externo pela interface.
+[Contrato E04](../../specs/033-attendance-ux2-productization/epics/E04-settlement-and-table-turnover/external-terminal/spec.md)
+preparado antes do código; [relatório da slice](pilot-stage3-external-terminal-2026-11-03.md).
+Branch local `codex/pilot-stage3-external-card`, base `7d416837`, código `afae48a1`,
+teste `58dda307`. EXTERNAL_TERMINAL manual, confirmação externa explícita,
+parcial/integral, replay/readback e CASH legado testados. Etapa3 **EM_EXECUCAO**:
+visual amplo FAIL (785 PASS/155 FAIL; 152 também na base e três instáveis) e
+aprovação R3 autenticada REVIEW_BLOCKED;
+NO-GO produção. Nenhum deploy/merge ou outra slice iniciado.
 
 ### Fechamento dos complementos — 03/11/2026, etapa 2
 
