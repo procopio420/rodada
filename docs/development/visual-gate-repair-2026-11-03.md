@@ -69,4 +69,35 @@ conta e lacunas de asserção no rascunho repetido); corrigidos e enviados novam
 ao mesmo contexto revisor. Aprovação autenticada GitHub ainda não comprovada.
 
 Rodadas diagnósticas interrompidas ou limitadas por falhas não são gate PASS.
-Resultados finais, SHA validado e limitações serão registrados após a execução.
+Resultados e limites estão registrados abaixo.
+
+## Validação de 04/11/2026
+
+- `0e589fa11e3b68463a4b870262c73692ea8c4880`: build e 9 focais PASS.
+  Visual integral: **940 PASS / 4 FAIL** (944 casos, Chromium, 4 workers,
+  7,6 min). As quatro falhas ocorreram no mesmo seletor de inventário da
+  Gerência: dois fieldsets usavam o nome acessível “Mesa 02”.
+- `82a9f8d2a3abd9bbb9679c1a12d73b725b10ad5a`: seletor restrito ao fieldset de
+  retirada, com payload exato e readback preservados. Auditoria de toque mede
+  a área do label nativo associado a checkbox/radio, exige ≥44×44 e ownership,
+  sem aceitar label com outro controle interativo. Teste demonstra clique fora
+  do glifo que marca o checkbox e reprovação quando o label é reduzido.
+  Focal: **9 PASS**, seis inventário e três auditoria.
+- [Pontos de toque no catálogo](../releases/evidence/pilot-stage3-external-terminal/visual-repair-touch-targets.json):
+  quatro jornadas, interceptores do rodapé antes da rolagem e os quatro pontos
+  pertencentes ao controle após expô-lo. Fixture sintética, sem dados de bar.
+- `npm run test:integration -- attendance-external-terminal.spec.ts
+  attendance-settlement-recovery.spec.ts pos-cash-receipt.spec.ts
+  tab-location-move.spec.ts`: **26 PASS** em PostgreSQL17 descartável no código
+  `0e589fa1`. O delta até `82a9f8d2` é só de testes visuais, sem mudança do produto.
+  Inclui 10 cartão externo, 15 CASH/settlement e 1 movimentação real. Banco encerrado.
+- A revisão de outro contexto confirmou os P2 corrigidos e devolveu
+  `NO_FINDINGS_WITH_GAPS` para `82a9f8d2`; não executou suites nem aprovou no GitHub.
+  A aprovação autenticada permanece `REVIEW_BLOCKED`. O script qualificado exige
+  PR fora de rascunho com base `main`; #325 ainda depende do #324.
+
+A rodada final em `82a9f8d2` encerrou com **945 PASS / 0 FAIL / 0 skip** em 7,5 min,
+com `npm run test:visual -- --workers=4`. Typecheck, build e lint das fontes
+alteradas passaram. [Manifesto de validação](../releases/evidence/pilot-stage3-external-terminal/visual-repair-summary.json).
+Os PNGs históricos reescritos pela suíte foram copiados para `.local/pilot-stage3`
+e restaurados aos bytes versionados; nenhuma tolerância ou baseline foi reduzida.

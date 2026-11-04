@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-04",
+  "pr": 325,
+  "branch": "codex/pilot-stage3-external-card",
+  "verified_source_sha": "82a9f8d2a3abd9bbb9679c1a12d73b725b10ad5a",
+  "repair_base_sha": "cd576bd1c6b40f0d4a86da9cb55ed1ec42d6acb7",
+  "environment": "Windows, Chromium Playwright 1.58.2, local synthetic fixtures",
+  "visual_full": {
+    "command": "npm run test:visual -- --workers=4",
+    "total": 945,
+    "pass": 945,
+    "fail": 0,
+    "skipped": 0,
+    "duration_minutes": 7.5,
+    "log_sha256": "587a8277765f680353c7bca6f2c7c6b8d744fd8e03a37e635bdb0c15c2725d01"
+  },
+  "visual_previous": {
+    "sha": "0e589fa11e3b68463a4b870262c73692ea8c4880",
+    "pass": 940,
+    "fail": 4,
+    "cause": "Ambiguous table inventory checkbox selector"
+  },
+  "real_integration": {
+    "sha": "0e589fa11e3b68463a4b870262c73692ea8c4880",
+    "environment": "Isolated loopback PostgreSQL 17.11, real Web BFF and Django",
+    "pass": 26,
+    "fail": 0,
+    "external_terminal": 10,
+    "cash_and_settlement": 15,
+    "move_location": 1,
+    "log_sha256": "1e1c78621ccab1fb73ea2ea4c298c23f6ab92de713c913558f58853fbae387b9",
+    "product_diff_to_verified_sha": false
+  },
+  "typecheck": "PASS",
+  "build": "PASS",
+  "eslint_changed_sources": "PASS",
+  "independent_review": "NO_FINDINGS_WITH_GAPS",
+  "authenticated_r3": "REVIEW_BLOCKED",
+  "production": "NO_GO",
+  "changed_repair_paths": [
+    "apps/web/components/attendance-ux2.css",
+    "apps/web/components/attendance-web.tsx",
+    "apps/web/components/order-workspace.tsx",
+    "apps/web/tests/visual/attendance-actions.ts",
+    "apps/web/tests/visual/attendance.spec.ts",
+    "apps/web/tests/visual/fixtures.ts",
+    "apps/web/tests/visual/management-tables.spec.ts",
+    "apps/web/tests/visual/order-intent.spec.ts",
+    "apps/web/tests/visual/parity.spec.ts",
+    "apps/web/tests/visual/pilot-cohesion.spec.ts",
+    "apps/web/tests/visual/repeat-order.spec.ts",
+    "apps/web/tests/visual/tab-drafts.spec.ts",
+    "apps/web/tests/visual/tab-location-move.spec.ts",
+    "apps/web/tests/visual/tab-pagination.spec.ts",
+    "apps/web/tests/visual/tab-search.spec.ts",
+    "apps/web/tests/visual/table-entry.spec.ts",
+    "apps/web/tests/visual/table-service.spec.ts",
+    "apps/web/tests/visual/touch-target-audit.spec.ts",
+    "apps/web/tests/visual/ux2-parity-capture.spec.ts",
+    "docs/development/visual-gate-repair-2026-11-03.md"
+  ]
+}

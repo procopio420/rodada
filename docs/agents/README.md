@@ -1,10 +1,11 @@
 # Rodada — mapa da Knowledge Base para AI Agents
 
 Etapa 3, cartão externo Web: [implementação e gates locais](../releases/pilot-stage3-external-terminal-2026-11-03.md),
-branch `codex/pilot-stage3-external-card`; gate visual integral FAIL e aprovação R3
+[PR #325](https://github.com/procopio420/rodada/pull/325), branch
+`codex/pilot-stage3-external-card`; gate visual integral 945 PASS e aprovação R3
 autenticada REVIEW_BLOCKED. Não confundir com homologação ou publicação do produto.
 
-Retomada em outro computador: [handoff do PR #324](../releases/pilot-handoff-2026-11-03.md), etapas 1–2 entregues, próxima etapa 3; cartão pela UI pendente, NO-GO produção.
+Retomada em outro computador: [handoff do PR #324](../releases/pilot-handoff-2026-11-03.md), etapas 1–2 entregues; cartão pela UI segue no #325, NO-GO produção.
 
 Etapa 1 do PR #324: [escopo aprovado do piloto Web](../releases/pilot-stage-1-scope-2026-11-03.md), aprovado pelo usuário em 03/11/2026; não comprova homologação ou GO de produção.
 

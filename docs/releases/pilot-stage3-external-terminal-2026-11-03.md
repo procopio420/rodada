@@ -1,6 +1,15 @@
 # Etapa 3 — recebimento de cartão externo no Atendimento Web
 
-Data: 03/11/2026. **Implementado e testado localmente; NO-GO produção.**
+**Atualização de 04/11/2026:** [PR #325](https://github.com/procopio420/rodada/pull/325)
+em rascunho sobre #324. Gate visual integral **945 PASS / 0 FAIL**, no código
+`82a9f8d2`; **26 PASS** de integração PostgreSQL no mesmo código de produto.
+[Correção e validação](../development/visual-gate-repair-2026-11-03.md) e
+[manifesto](evidence/pilot-stage3-external-terminal/visual-repair-summary.json).
+R3 autenticado permanece `REVIEW_BLOCKED`; **NO-GO produção**. O fluxo do revisor
+qualificado exige PR fora de rascunho e com base main. Próximo responsável:
+mantenedor do #324 e revisor GitHub independente do #325.
+
+Fotografia inicial de 03/11/2026 (preservada):
 Gate visual completo FAIL (785 PASS / 155 FAIL), comparação dirigida concluída;
 aprovação R3 autenticada permanece REVIEW_BLOCKED. Não confundir revisão de agente com aprovação GitHub.
 
@@ -108,15 +117,14 @@ código subsequente exige reavaliação do novo diff.
 
 ## Limites e continuidade
 
-Etapa3 não significa concluir todos os gaps do piloto. Gate visual amplo está
-FAIL, com comparação registrada; correção de fixtures/seletores/instabilidades
-amplas deve ser uma slice própria, sem remover teste ou relaxar tolerância.
+Etapa3 não significa concluir todos os gaps do piloto. O gate visual amplo
+falhou na rodada inicial, com comparação registrada acima. A atualização de
+04/11 documenta sua correção e a nova rodada integral.
 CI remota, operador físico/maquininha real, fiscal, rede real, R3 autenticado,
 backup/restore/rollback e retenção continuam pendentes. Android não foi alterado
 ou homologado. Não houve merge/deploy/publicação de produto.
 
-Próximo responsável: mantenedor prioriza a dívida do gate visual e providencia
-revisão R3 autenticada antes de merge. Código do recurso local concluído; etapa3
+Próximo responsável: mantenedor providencia revisão R3 autenticada antes de merge. Código do recurso local concluído; etapa3
 permanece EM_EXECUCAO pelos gates e pela priorização dos outros gaps. Etapas4–6 e
 qualquer ampliação da etapa3 seguem dependências/autorizações do plano.
 
