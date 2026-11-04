@@ -9,10 +9,12 @@ async function setup(page: Page) {
  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { results: [
   { id: "table-context", label: "Pátio 24", status: "OCCUPIED", active_occupancy: { id: "occupancy-context", tabs } }, { id: "other-table", label: "25", status: "AVAILABLE" }
  ] } }));
+ await page.route(/\/api\/attendance\/tabs\/[0-9a-f-]+\/(\?.*)?$/, route => route.fulfill({ json: tabs.find(tab => new URL(route.request().url()).pathname.includes(tab.id)) }));
  // The target Tabs are deliberately absent from the first page of Contas.
- await page.goto("/attendance"); await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+ await page.goto("/attendance"); await page.getByRole("button", { name: "Mesas", exact: true }).click();
  await stable(page); await page.getByLabel("Buscar mesa ou comanda").fill("mesa patio 24"); await expect(page.getByRole("heading", { name: "Mesa 25", exact: true })).toHaveCount(0);
  await page.getByRole("button", { name: /Mesa Pátio 24 Ocupada/ }).click();
+ await expect(page.locator(".ux2TabRowAmount").first()).toContainText("R$ 0,00");
  return tabs;
 }
 for (const width of [360,390,430]) test(`table entry and return preserve isolated drafts and focus at ${width}`, async ({ page }) => {
@@ -31,7 +33,8 @@ for (const width of [360,390,430]) test(`table entry and return preserve isolate
  await open(ids[1]).click(); await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
  await closeAttendanceTab(page); await open(ids[0]).click(); await attendanceDraft(page);
  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
- expect(contexts).toHaveLength(3); for (const params of contexts) { expect(params.get("occupancy_id")).toBe("occupancy-context"); expect(params.get("table_id")).toBe("table-context"); }
+ // Three explicit entries plus canonical balance reads when returning to the table.
+ expect(contexts.length).toBeGreaterThanOrEqual(3); for (const params of contexts) { expect(params.get("occupancy_id")).toBe("occupancy-context"); expect(params.get("table_id")).toBe("table-context"); }
  await layoutAndA11y(page);
 });
 for (const width of [360,390,430]) test(`table conflict does not replace the existing destination at ${width}`, async ({ page }) => {
@@ -40,17 +43,17 @@ for (const width of [360,390,430]) test(`table conflict does not replace the exi
  const open = page.locator(`button[data-tab-id="${ids[0]}"]`);
  await open.click(); await addCatalogItem(page, "Fritas"); await attendanceDraft(page); await closeAttendanceTab(page);
  fail = true; await open.click(); await expect(page.getByRole("alert").filter({ hasText: "O vínculo" })).toBeVisible();
- await expect(page.locator(".attendanceOrderDialog")).not.toBeVisible();
+ await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true })).not.toBeVisible();
  fail = false; await open.click(); await attendanceDraft(page);
- await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await expect(page.getByRole("heading", { name: "Mesmo apelido", exact: true })).toBeVisible();
+ await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await expect(page.locator(".ux2CardNote strong")).toContainText("Mesmo apelido · Comanda 11111111");
 });
 test("ambiguous order blocks return to the originating table", async ({ page }) => {
  const tabs = await setup(page);
  await page.route(/\/api\/attendance\/tabs\/[0-9a-f-]+\/(\?.*)?$/, route => route.fulfill({ json: tabs[0] }));
  await page.route(`**/api/attendance/tabs/${ids[0]}/orders/confirm/`, route => route.abort());
  await page.locator(`button[data-tab-id="${ids[0]}"]`).click(); await addCatalogItem(page, "Fritas"); await attendanceDraft(page);
- await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
- await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled(); await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true, includeHidden: true })).toBeDisabled();
+ await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
+ await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled(); await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
 });
 
 test("table entry is serialized and blocks navigation while reading", async ({ page }) => {
@@ -60,7 +63,7 @@ test("table entry is serialized and blocks navigation while reading", async ({ p
  });
  await page.locator(`button[data-tab-id="${ids[0]}"]`).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
  await expect.poll(() => reads).toBe(1);
- await expect(page.getByRole("button", {name:"Mesas e comandas",exact:true,includeHidden:true})).toBeDisabled(); await expect(page.getByRole("button", {name:"Sair",exact:true})).toBeDisabled();
+ await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden(); await expect(page.getByRole("button", {name:"Opções do atendimento",exact:true})).toBeDisabled();
  await expect(page.locator(`button[data-tab-id="${ids[1]}"]`)).toBeDisabled();
  release!(); await expect(page.getByRole("heading", {name:"Mesmo apelido",exact:true})).toBeFocused(); expect(reads).toBe(1);
 });

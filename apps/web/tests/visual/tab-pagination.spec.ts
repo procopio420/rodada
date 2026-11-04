@@ -1,3 +1,4 @@
+import { refreshAttendance } from "./attendance-actions";
 import { addCatalogItem } from "./category-actions";
 import { openOtherTabs, closeAttendanceTab, selectAttendanceTab, attendanceDraft } from "./attendance-actions";
 import { expect, test } from "@playwright/test";
@@ -16,19 +17,19 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360, 
  await page.route(/\/api\/pos\/tabs\/page-\d+\/pricing\/$/, route => route.fulfill({ json: { version: 1, policy: { service_basis_points: 0 }, history: [], charges: [] } }));
  await page.goto(`/${surface}`); if (surface === "attendance") await openOtherTabs(page);
  if (surface === "attendance") {
-   await expect(page.getByRole("button", { name: /^Comanda \d+ ·/ })).toHaveCount(tabs.length);
-   await page.getByRole("button", { name: /^Comanda 1 ·/ }).click();
+   await expect(page.getByRole("button", { name: /^Comanda \d+\s/ })).toHaveCount(tabs.length);
+   await page.getByRole("button", { name: /^Comanda 1\s/ }).click();
    await addCatalogItem(page, "Fritas"); await attendanceDraft(page);
    await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
    await closeAttendanceTab(page);
-   fail = true; await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+   fail = true; await refreshAttendance(page);
    await expect(page.getByRole("alert").filter({ hasText: "Failed to fetch" })).toBeVisible();
-   await expect(page.getByRole("button", { name: /^Comanda \d+ ·/ })).toHaveCount(tabs.length);
-   fail = false; await page.getByRole("button", { name: "Atualizar", exact: true }).click();
-   await expect(page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1} ·`) })).toBeEnabled();
-   await selectAttendanceTab(page, new RegExp(`^Comanda ${pageSize+1} ·`)); await attendanceDraft(page);
+   await expect(page.getByRole("button", { name: /^Comanda \d+\s/ })).toHaveCount(tabs.length);
+   fail = false; await refreshAttendance(page);
+   await expect(page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1}\\s`) })).toBeEnabled();
+   await selectAttendanceTab(page, new RegExp(`^Comanda ${pageSize+1}\\s`)); await attendanceDraft(page);
    await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
-   await selectAttendanceTab(page, /^Comanda 1 ·/); await attendanceDraft(page);
+   await selectAttendanceTab(page, /^Comanda 1\s/); await attendanceDraft(page);
    await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await layoutAndA11y(page);
    return;
  }
@@ -42,17 +43,17 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360, 
   expect(box?.height).toBeGreaterThanOrEqual(44);
  }
  await pagination.screenshot({ path: `test-results/pagination-${surface}-${width}.png` });
- await expect(page.getByRole("button", { name: /^Comanda \d+ ·/ })).toHaveCount(pageSize);
- await page.getByRole("button", { name: /^Comanda 1 ·/ }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
+ await expect(page.getByRole("button", { name: /^Comanda \d+\s/ })).toHaveCount(pageSize);
+ await page.getByRole("button", { name: /^Comanda 1\s/ }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
  fail = true; await page.getByRole("button", { name: "Próxima página", exact: true }).click();
  await expect(page.getByText("Não foi possível atualizar. Os dados podem estar desatualizados.")).toBeVisible();
  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();
  await page.getByRole("button", { name: "Próxima página", exact: true }).click();
- await expect(page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1} ·`) })).toBeVisible();
+ await expect(page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1}\\s`) })).toBeVisible();
  await expect(page.getByRole("button", { name: "Próxima página", exact: true })).toBeDisabled();
  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
- await page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1} ·`) }).click(); await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
- await page.getByRole("button", { name: "Página anterior", exact: true }).click(); await page.getByRole("button", { name: /^Comanda 1 ·/ }).click();
+ await page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1}\\s`) }).click(); await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
+ await page.getByRole("button", { name: "Página anterior", exact: true }).click(); await page.getByRole("button", { name: /^Comanda 1\s/ }).click();
  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await layoutAndA11y(page);
 });
 test("history reaches a closed tab on the next page", async ({ page }) => {
@@ -75,11 +76,11 @@ test("an older refresh cannot replace the newly selected page", async ({ page })
   if (!offset && ++reads === 2) await new Promise<void>(resolve => { release = resolve; });
   await route.fulfill({ json: { results: [tab(offset ? "Second page" : "First page")], next_offset: offset ? null : 200 } });
  });
- await page.goto("/pos"); await expect(page.getByRole("button", { name: /^First page ·/ })).toBeVisible();
+ await page.goto("/pos"); await expect(page.getByRole("button", { name: /^First page\s/ })).toBeVisible();
  await page.clock.runFor(15000); await expect.poll(() => !!release).toBe(true);
  await page.getByRole("button", { name: "Próxima página", exact: true }).click();
- await expect(page.getByRole("button", { name: /^Second page ·/ })).toBeVisible();
+ await expect(page.getByRole("button", { name: /^Second page\s/ })).toBeVisible();
  const oldResponse = page.waitForResponse(response => /\/api\/pos\/tabs\/$/.test(response.url()));
  release!(); await oldResponse;
- await expect(page.getByRole("button", { name: /^Second page ·/ })).toBeVisible(); await expect(page.getByText("Página 2", { exact: true })).toBeVisible();
+ await expect(page.getByRole("button", { name: /^Second page\s/ })).toBeVisible(); await expect(page.getByText("Página 2", { exact: true })).toBeVisible();
 });

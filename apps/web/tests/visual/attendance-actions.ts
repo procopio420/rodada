@@ -2,6 +2,21 @@ import { expect, type Page } from "@playwright/test";
 
 export const attendanceWorkspace = (page: Page) => page.getByRole("region", { name: "Comanda selecionada", exact: true });
 
+export async function refreshAttendance(page: Page) {
+  await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
+  await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Atualizar", exact: true }).click();
+}
+
+export async function attendanceBill(page: Page) {
+  const workspace = attendanceWorkspace(page);
+  await expect(workspace).toBeVisible();
+  for (let step = 0; step < 2 && !await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).isVisible(); step++)
+    await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+  await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+  await expect(workspace.getByRole("heading", { name: "Fechar a conta.", exact: true })).toBeVisible();
+  return workspace;
+}
+
 export async function openOtherTabs(page: Page) {
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await expect(page.getByRole("region", { name: "Outras comandas", exact: true })).toBeVisible();
@@ -32,7 +47,9 @@ export async function attendanceDraft(page: Page) {
   await expect(workspace).toBeVisible();
   if (await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).isVisible())
     await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
-  await workspace.getByRole("button", { name: "Ver resumo", exact: true }).click();
+  const summary = workspace.getByRole("button", { name: "Ver resumo", exact: true });
+  if (await summary.isVisible()) await summary.click();
+  else await expect(workspace.getByRole("button", { name: "Adicione itens para enviar", exact: true })).toBeVisible();
   return workspace;
 }
 

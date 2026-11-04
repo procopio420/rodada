@@ -31,11 +31,16 @@ async function setup(page: Page) {
   ] } }));
   return state;
 }
+async function openMove(page: Page) {
+  const button = page.getByRole("button", { name: "Mover comanda · Comanda móvel", exact: true });
+  if (!await button.isVisible()) await page.getByText("Opções da mesa", { exact: true }).click();
+  await button.click();
+}
 async function open(page: Page) {
   await page.goto("/attendance"); await stable(page);
-  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa A Ocupada/ }).click();
-  await page.getByRole("button", { name: "Mover comanda", exact: true }).click();
+  await openMove(page);
   await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
 }
 const result = { operation_id: operationId, source: { id: tabId, version: 2, occupancy_id: ob } };
@@ -49,7 +54,7 @@ for (const width of [360,390,430]) {
     await page.locator(`button[data-tab-id="${tabId}"]`).click();
     await addCatalogItem(page, "Fritas"); await attendanceDraft(page);
     await closeAttendanceTab(page);
-    await page.getByRole("button", {name:"Mover comanda",exact:true}).click();
+    await openMove(page);
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled(); await page.getByLabel("Mesa de destino").selectOption(ob); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");
     await page.getByRole("button", {name:"Confirmar movimento",exact:true}).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
     await expect(page.getByText("Movimento confirmado. Local atual: mesa B.",{exact:true})).toBeVisible();
@@ -65,7 +70,7 @@ for (const width of [360,390,430]) {
     await page.route(`**/api/attendance/tabs/${tabId}/operations/`, route => { requests.push(route.request().postData()!); state.moved=true; return requests.length === 1 ? route.abort() : route.fulfill({json:result}); });
     await open(page); await page.getByLabel("Mesa de destino").selectOption(ob); await page.getByRole("button", {name:"Confirmar movimento",exact:true}).click();
     await expect(page.getByRole("button", {name:"Verificar mesmo movimento",exact:true})).toBeEnabled();
-    await expect(page.getByRole("button", {name:"Mesas e comandas",exact:true,includeHidden:true})).toBeDisabled(); await expect(page.getByRole("button", {name:"Sair",exact:true})).toBeDisabled();
+    await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden(); await expect(page.getByRole("button", {name:"Opções do atendimento",exact:true})).toBeDisabled();
     await page.keyboard.press("Escape"); await expect(page.getByRole("dialog", { name: "Mover comanda", exact: true })).toBeVisible();
     await page.reload(); await stable(page); await expect(page.getByRole("button", {name:"Verificar mesmo movimento",exact:true})).toBeEnabled(); expect(requests).toHaveLength(1);
     state.failReadback=true; await page.getByRole("button", {name:"Verificar mesmo movimento",exact:true}).click(); await expect(page.getByText(/Resultado ainda não confirmado/)).toBeVisible();
@@ -89,9 +94,9 @@ test("storage failure prevents a location POST", async ({page}) => {
 });
 test("stale origin cannot reach confirmation", async ({page}) => {
   const state=await setup(page); state.contextError=true;
-  await page.goto("/attendance"); await stable(page); await page.getByRole("button",{name:"Mesas e comandas",exact:true}).click();
+  await page.goto("/attendance"); await stable(page); await page.getByRole("button",{name:"Mesas",exact:true}).click();
   await page.getByRole("button", { name: /Mesa A Ocupada/ }).click();
-  await page.getByRole("button",{name:"Mover comanda",exact:true}).click();
+  await openMove(page);
   await expect(page.getByText("O vínculo mudou. Atualize as mesas.",{exact:true})).toBeVisible(); await expect(page.getByRole("button",{name:"Confirmar movimento",exact:true})).toBeDisabled();
 });
 
@@ -106,7 +111,7 @@ test("definitive first rejection clears intent and requires a reviewed new choic
   await expect(page.getByText("Destino não está ativo.",{exact:true})).toBeVisible();
   expect(await page.evaluate(key=>sessionStorage.getItem(key),storage)).toBeNull(); await expect(page.getByRole("button",{name:"Confirmar movimento",exact:true})).toBeDisabled();
   await page.getByRole("dialog", { name: "Mover comanda", exact: true }).getByRole("button",{name:"Voltar",exact:true}).click();
-  await page.getByRole("button",{name:"Mover comanda",exact:true}).click(); await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
+  await openMove(page); await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
   await page.getByLabel("Mesa de destino").selectOption(ob); await page.getByRole("button",{name:"Confirmar movimento",exact:true}).click();
   await expect(page.getByText("Movimento confirmado. Local atual: mesa B.",{exact:true})).toBeVisible();
   expect(requests).toHaveLength(2); expect(JSON.parse(requests[0]).idempotency_key).not.toBe(JSON.parse(requests[1]).idempotency_key);
@@ -125,7 +130,7 @@ test("rejected replay keeps original intent frozen", async ({page}) => {
 test("corrupt persisted movement prevents sending and operational navigation", async ({page}) => {
   await setup(page); await page.addInitScript(key=>sessionStorage.setItem(key,'{"schema":1}'),storage);
   await page.goto("/attendance"); await expect(page.getByText(/Não foi possível preservar o movimento/)).toBeVisible();
-  await expect(page.getByRole("button",{name:"Mesas e comandas",exact:true,includeHidden:true})).toBeDisabled(); await expect(page.getByRole("button",{name:"Sair",exact:true})).toBeDisabled();
+  for (const name of ["Agora", "Pedir", "Mesas"]) await expect(page.getByRole("button", { name, exact: true })).toBeDisabled(); await expect(page.getByRole("button",{name:"Opções do atendimento",exact:true})).toBeDisabled();
 });
 
 test("completed replay reports current unassigned location without recreating assignment", async ({page}) => {

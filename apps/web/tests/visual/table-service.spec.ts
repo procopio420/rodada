@@ -22,7 +22,8 @@ test("attendance requires a tab name and selects an available table before openi
   await dialog.getByLabel("Nome ou apelido", { exact: true }).fill("João");
   await expect(open).toBeEnabled();
   await open.click();
-  await expect(page.getByRole("heading", { name: "Comanda de teste", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
+  await expect(page.getByText(/Comanda de teste.*Destino fixo/)).toBeVisible();
   await expect(page.locator('.notice[data-state="info"]')).toHaveCount(0);
   await layoutAndA11y(page);
 });
@@ -114,7 +115,8 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
-  await expect(page.getByRole("heading", { name: "Comanda de teste", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
+  await expect(page.getByText(/Comanda de teste.*Destino fixo/)).toBeVisible();
   expect(opens).toHaveLength(2); expect(opens[0]).toEqual(opens[1]);
   expect(opens[0]).toMatchObject({ expected_generation: 1, display_label: "João" });
   await layoutAndA11y(page);
@@ -159,10 +161,10 @@ test("draft and committed order with lost response retain original Tab and paylo
   await page.locator('button[data-tab-id="tab-test"]').click();
   await page.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await page.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
-  await expect(page.getByRole("button", { name: /Enviar 1 item ·/ })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /Enviar 1 item\s/ })).toBeEnabled();
   await page.reload();
-  await expect(page.getByRole("button", { name: /Enviar 1 item ·/ })).toBeEnabled();
-  await page.getByRole("button", { name: /Enviar 1 item ·/ }).click();
+  await expect(page.getByRole("button", { name: /Enviar 1 item\s/ })).toBeEnabled();
+  await page.getByRole("button", { name: /Enviar 1 item\s/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeVisible();
