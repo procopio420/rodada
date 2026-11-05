@@ -1,6 +1,29 @@
 import { test, expect } from "@playwright/test";
 import { fixture, layoutAndA11y, stable } from "./fixtures";
 
+test("management can save spending policy with API available and realtime disconnected", async ({ page }) => {
+  await fixture(page, "normal", true);
+  let policy = { venue_id: "venue-test", mode: "ENFORCE", version: 1, fallback: false, updated_at: null };
+  const commands: unknown[] = [];
+  await page.route("**/api/pos/house-account/enforcement/", route => {
+    if (route.request().method() === "PUT") {
+      commands.push(route.request().postDataJSON());
+      policy = { ...policy, mode: "WARN_ONLY", version: 2 };
+    }
+    return route.fulfill({ json: policy });
+  });
+  await page.goto("/manage/spending-policy");
+  await expect(page.getByText(/Reconectando · API pode continuar disponível/)).toBeVisible();
+  await page.getByLabel("Modo do limite operacional").selectOption("WARN_ONLY");
+  await page.getByLabel("Motivo da alteração").fill("Teste de reconexão");
+  await page.getByLabel("Confirme seu PIN").fill("2468");
+  await page.getByRole("button", { name: "Confirmar alteração da política" }).click();
+  await expect(page.getByRole("heading", { name: "Em vigor: Só alertar" })).toBeVisible();
+  expect(commands).toEqual([expect.objectContaining({
+    mode: "WARN_ONLY", expected_version: 1, expected_venue_id: "venue-test", expected_session_id: "session-test",
+  })]);
+});
+
 const areas = [
   { name: "Agora", title: "O que precisa de atenção", hash: "", links: ["Abrir Atendimento", "Abrir Caixa"] },
   { name: "Operação", title: "Operação", hash: "operacao", links: ["Atendimento e mesas", "Comandas e pedidos", "Organizar mesas", "Giro e limpeza das mesas", "Abrir Bar", "Abrir Cozinha"] },
@@ -9,13 +32,17 @@ const areas = [
   { name: "Gestão", title: "Gestão", hash: "gestao", links: ["Mesas, zonas e equipe", "Clientes e conta da casa", "Alertas e prazos", "Impressoras", "Minha sessão"] },
 ];
 
-for (const width of [360, 390, 430, 1280]) test(`management settings descriptive links and keyboard ${width}`, async ({ page }) => {
+for (const width of [360, 390, 430, 1024, 1280, 1680]) test(`management settings descriptive links and keyboard ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 932 });
   await fixture(page);
   const writes: string[] = [];
   page.on("request", request => { if (!["GET", "HEAD"].includes(request.method()) && request.url().includes("/api/")) writes.push(request.url()); });
   await page.goto("/manage#gestao");
   const settings = page.locator("#gestao");
+  const nav = page.getByRole("navigation", { name: "Navegação da Gerência" });
+  await expect(nav).toHaveCSS("position", width >= 1024 ? "sticky" : "fixed");
+  expect(await settings.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(" ").length))
+    .toBe(width >= 1280 ? 3 : width >= 1024 ? 2 : 1);
   const rows = settings.locator(".managementDestination");
   await expect(rows).toHaveCount(6);
   await expect(settings.getByRole("link", { name: "Políticas de consumo", exact: true })).toHaveAttribute("href", "/manage/spending-policy");

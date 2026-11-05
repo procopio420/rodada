@@ -39,7 +39,7 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
  await form.getByRole("button", { name: "Confirmar remoção" }).click();
  if (outcome === "lost") {
   await expect(form.getByRole("button", { name: "Verificar mesma remoção" })).toBeEnabled();
-  await expect(attendanceWorkspace(page).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(attendanceWorkspace(page).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true })).toBeDisabled();
   await page.keyboard.press("Escape");
   await expect(form).toBeVisible();

@@ -169,7 +169,7 @@ for (const width of [360, 390, 430]) test(`Attendance draft blocks a new full re
   await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
   await addCatalogItem(page,product.name);
   await expect(workspace.getByRole("button",{name:/^Enviar 1 item/})).toBeEnabled();
-  await workspace.getByRole("button",{name:"Voltar",exact:true}).click();
+  await workspace.getByRole("button",{name:/^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/}).click();
   await workspace.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();
   const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});
   await receipt.getByRole("button",{name:/^Receber R/}).click();

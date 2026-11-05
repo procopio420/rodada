@@ -39,6 +39,22 @@ type Table = { id: string; label: string; status: string; active_occupancy: { id
 const money = (value = 0) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
+function OperationChart({ rows, scale, label }: {
+  rows: { label: string; value: number; color: string }[];
+  scale: number;
+  label: string;
+}) {
+  return <div className={operationStyles.chart} role="group" aria-label={label}>
+    {rows.map(row => <div key={row.label} className={`dataRow ${operationStyles.chartRow}`}>
+      <span>{row.label}</span>
+      <strong>{row.value.toLocaleString("pt-BR")}</strong>
+      <div className={operationStyles.chartTrack} aria-hidden="true">
+        <span style={{ width: `${scale ? 100 * row.value / scale : 0}%`, backgroundColor: row.color }} />
+      </div>
+    </div>)}
+  </div>;
+}
+
 async function getResults<T>(path: string): Promise<T[]> {
   const result = await apiCall<{ results: T[] }>(path);
   if (!result.response.ok) throw new Error(asApiError(result.body).message);
@@ -125,11 +141,23 @@ export default function ManagementPage() {
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
   const activeCash = cashPoints.filter((point) => point.active_shift);
+  const expectedAmounts = activeCash.flatMap(point => point.active_shift?.expected_cents ?? []);
+  const cashScale = Math.max(0, ...expectedAmounts.map(value => Math.abs(value)));
+  const hasNegativeCash = expectedAmounts.some(value => value < 0);
   const activeTables = tables.filter((table) => table.status === "OCCUPIED");
+  const productionCounts = [
+    { label: "Bar em preparo", value: bar.filter(item => item.state !== "READY").length, color: "var(--color-accent)" },
+    { label: "Cozinha em preparo", value: kitchen.filter(item => item.state !== "READY").length, color: "var(--color-info)" },
+    { label: "Prontos para entrega", value: deliveries.length, color: "var(--color-success)" },
+  ];
+  const hallCounts = [
+    { label: "Mesas ocupadas", value: activeTables.length, color: "var(--color-info)" },
+    { label: "Mesas em limpeza", value: tables.filter(table => table.status === "CLEANING").length, color: "var(--color-accent)" },
+  ];
   const pendingCash = cashPoints.filter(point => point.pending_review_shift);
   const attentionTabs = openTabs.filter(tab => tab.state === "REQUIRES_ACTION");
 
-  return <main className={`appShell managementShell${section === "gestao" ? " managementSettingsShell" : ""}`}>
+  return <main className={`appShell managementShell managementOverview${section === "gestao" ? " managementSettingsShell" : ""}`}>
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
       <OperationalHeading as="h1" icon={currentSection.icon}>{currentSection.title}</OperationalHeading>
@@ -175,23 +203,42 @@ export default function ManagementPage() {
     <nav className={styles.shortcuts} aria-labelledby="now-shortcuts-title"><h2 id="now-shortcuts-title">Acessos rápidos</h2><div className={styles.links}><Link className="buttonSecondary" href="/attendance">Abrir Atendimento</Link><Link className="buttonSecondary" href="/cash">Abrir Caixa</Link></div></nav>
     </>}
     {section === "operacao" && <>
+    <div className={operationStyles.overview}>
     <section className={`panel ${operationStyles.production}`} id="operacao" aria-labelledby="production-delivery-title"><ManagementSectionHeader icon="operation" id="production-delivery-title">Produção e entrega</ManagementSectionHeader>
-      <div className={operationStyles.counts}>
-      <div className="dataRow"><span>Bar em preparo</span><strong>{bar.filter(item => item.state !== "READY").length}</strong></div>
-      <div className="dataRow"><span>Cozinha em preparo</span><strong>{kitchen.filter(item => item.state !== "READY").length}</strong></div>
-      <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
-      </div>
+      <OperationChart label="Comparação das filas" rows={productionCounts} scale={Math.max(...productionCounts.map(row => row.value))} />
       <details className={operationStyles.deliveries}><summary>Ver mais das entregas ({deliveries.length})</summary>{!deliveries.length && <p className="muted">Nenhuma entrega no último estado consultado.</p>}<ul aria-label="Entregas prontas">{deliveries.map((task) => <li key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong className={operationStyles.age}>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></li>)}</ul></details>
       <div className={operationStyles.links}><Link className="buttonSecondary" href="/bar">Abrir Bar</Link><Link className="buttonSecondary" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <section className={`panel ${operationStyles.production}`} id="hall-summary" aria-labelledby="hall-summary-title"><ManagementSectionHeader icon="table" id="hall-summary-title">Salão</ManagementSectionHeader><div className={`${operationStyles.counts} ${operationStyles.hallCounts}`}><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter(table => table.status === "CLEANING").length}</strong></div></div><div className={operationStyles.links}><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/manage/tables">Organizar mesas</Link><Link className="buttonSecondary" href="/manage/table-turnover">Giro e limpeza das mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
+    <section className={`panel ${operationStyles.production}`} id="hall-summary" aria-labelledby="hall-summary-title">
+      <ManagementSectionHeader icon="table" id="hall-summary-title">Salão</ManagementSectionHeader>
+      <p className={operationStyles.caption}>{tables.length.toLocaleString("pt-BR")} {tables.length === 1 ? "mesa no total" : "mesas no total"}</p>
+      <OperationChart label="Proporção das mesas" rows={hallCounts} scale={tables.length} />
+      <div className={operationStyles.links}><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/manage/tables">Organizar mesas</Link><Link className="buttonSecondary" href="/manage/table-turnover">Giro e limpeza das mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div>
+    </section>
+    </div>
     {unavailable.length ? <details className={`panel ${operationStyles.unavailable}`} data-management-unavailable><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary><ul aria-label="Itens indisponíveis">{unavailable.map(product => <li key={product.id}>{product.name}</li>)}</ul></details> : null}
     </>}
-    {section === "financeiro" && <div id="financeiro">
-      <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-cash-title"><ManagementSectionHeader icon="wallet" id="finance-cash-title">Caixa e fechamento</ManagementSectionHeader><div className={financeStyles.cashPoints}>
-        {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
-        </div><ManagementFinanceLinks group="cash" />
+    {section === "financeiro" && <div id="financeiro" className={financeStyles.overview}>
+      <section className={`panel ${financeStyles.group} ${financeStyles.cashGroup}`} aria-labelledby="finance-cash-title">
+        <ManagementSectionHeader icon="wallet" id="finance-cash-title">Caixa e fechamento</ManagementSectionHeader>
+        {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : <>
+          <p className={financeStyles.caption}>Saldo esperado por caixa</p>
+          <div className={financeStyles.cashPoints} role="group" aria-label="Saldo esperado por caixa">
+            {activeCash.map(point => {
+              const cents = point.active_shift?.expected_cents;
+              const width = cents === undefined || !cashScale ? 0 : (hasNegativeCash ? 50 : 100) * Math.abs(cents) / cashScale;
+              return <div className={`dataRow ${financeStyles.cashRow}`} key={point.id}>
+                <span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span>
+                <strong>{cents === undefined ? "Ver caixa" : money(cents)}</strong>
+                {cents !== undefined && <div className={financeStyles.cashTrack} data-centered={hasNegativeCash} aria-hidden="true">
+                  <span data-negative={cents < 0} style={{ width: `${width}%`, insetInlineStart: `${hasNegativeCash ? 50 - (cents < 0 ? width : 0) : 0}%` }} />
+                </div>}
+              </div>;
+            })}
+          </div>
+        </>}
+        <ManagementFinanceLinks group="cash" />
       </section>
       <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-adjustments-title"><ManagementSectionHeader icon="receipt" id="finance-adjustments-title">Ajustes e aprovações</ManagementSectionHeader><ManagementFinanceLinks group="adjustments" /></section>
       <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-reports-title"><ManagementSectionHeader icon="sales" id="finance-reports-title">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos e produtos por período operacional.</p><ManagementFinanceLinks group="reports" /></section>

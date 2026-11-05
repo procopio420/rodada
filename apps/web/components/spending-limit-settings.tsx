@@ -70,9 +70,10 @@ export function SpendingLimitSettings() {
     setSaving(false); setReadable(false); setPin(""); setMessage("Entre novamente para conferir a política.");
   } });
   const canEdit = !!me && ["MANAGER", "OWNER"].includes(me.membership.role) && me.capabilities.includes("venue.configure");
+  const apiUnavailable = connectivity.state === "OFFLINE";
   async function save(event: FormEvent) {
     event.preventDefault();
-    if (!me || !policy || !canEdit || !readable || busy.current || connectivity.state !== "ONLINE" || (!editor && !intent.current)) return;
+    if (!me || !policy || !canEdit || !readable || busy.current || apiUnavailable || (!editor && !intent.current)) return;
     if (!intent.current && !editor!.reason.trim()) { setMessage("Informe um motivo para alterar a política."); return; }
     const originalContext = scope(me), epoch = generation.current;
     const current = () => active.current && epoch === generation.current && context.current === originalContext;
@@ -128,7 +129,8 @@ export function SpendingLimitSettings() {
         <label className="field"><span>Motivo da alteração</span><input maxLength={240} required value={pending?.reason ?? editor!.reason} onChange={event => setEditor({ ...editor!, reason: event.target.value })} /></label>
       </fieldset>
       <label className="field"><span>Confirme seu PIN</span><input type="password" inputMode="numeric" autoComplete="off" maxLength={12} required disabled={saving || !readable} value={pin} onChange={event => setPin(event.target.value)} /></label>
-      <button className="buttonPrimary" type="submit" disabled={saving || !readable || connectivity.state !== "ONLINE"}>{saving ? "Verificando…" : pending ? "Verificar mesma alteração" : "Confirmar alteração da política"}</button>
+      {apiUnavailable && <p className="notice" role="status">Aguarde a API reconectar para confirmar a alteração.</p>}
+      <button className="buttonPrimary" type="submit" disabled={saving || !readable || apiUnavailable}>{saving ? "Verificando…" : pending ? "Verificar mesma alteração" : "Confirmar alteração da política"}</button>
     </form>}
   </>;
 }

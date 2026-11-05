@@ -3,8 +3,8 @@
 ## Contrato
 Refinamento visual solicitado em 2026-10-23: seletor interno compacto sem duas
 caixas concorrentes; status de conexão em badge textual, cabeçalho com noite,
-estado vazio centralizado com ícone e orientação. Atualização em rodapé discreto;
-regras de cálculo/fuso/corte em disclosure acessível. Sem alterar dados ou polling.
+estado vazio centralizado com ícone e orientação. Data da noite, horário e
+ação de atualizar no cabeçalho. O cálculo fica documentado nesta spec.
 
 Adicionar seletor interno Resumo / Mais vendidos ao painel Agora, preservando
 alertas e cinco destinos globais. Reutilizar componentes, cores e tipografia.
@@ -13,8 +13,18 @@ noite (dia operacional retornado pela API, com fuso e corte do Venue).
 Usar calendar e reports existentes, protegidos por management.reports.read.
 Agregar snapshots do mesmo product_id; nome histórico da primeira linha do
 relatório; ordenar quantidade decrescente, desempate por nome PT-BR e ID.
-Exibir posição, nome e unidades; informar que cancelamentos e ajustes não são
+Exibir posição, nome e unidades lançadas. Cancelamentos e ajustes não são
 deduzidos. Não apresentar essas quantidades como vendas líquidas ou recebimentos.
+Exibir colunas verticais proporcionais ao maior volume da lista, com nomes e
+quantidades escritos. Em telas estreitas, o gráfico de itens rola na horizontal
+dentro do painel. Exibir uma pizza com unidades por categoria, incluindo produtos
+fora dos dez primeiros. Usar as categorias atuais do cardápio, ignorar o
+agrupador Todos e mostrar itens sem categoria em Outros. Se a consulta do
+cardápio falhar, sinalizar indisponibilidade apenas no gráfico de categorias.
+Usar a mesma cor para a categoria na pizza e nas colunas, independentemente
+da posição no ranking. Compactar os painéis mantendo nomes e valores visíveis.
+Durante a reconexão do canal ao vivo, indicar a atualização periódica enquanto
+houver leitura bem-sucedida.
 Revalidar via SSE existente e polling de segurança a cada 15s enquanto aberto,
 inclusive mudança de dia operacional. Exibir última atualização, loading,
 vazio confirmado, erro/retry e conexão degradada. Erro limpa o ranking para não

@@ -41,13 +41,22 @@ Cabeçalho identifica a tarefa; ações utilitárias são compactas e têm nome 
 Atualizar e histórico não competem visualmente com a tarefa principal.
 Freshness permanece verdadeiro, mesmo quando a área contém apenas navegação.
 
+Em telas a partir de 1024 px, a Gerência usa uma área de leitura mais
+larga e coloca as cinco áreas numa barra superior fixa durante a rolagem.
+Os grupos de Gestão aparecem em duas colunas no notebook e três em
+monitores a partir de 1280 px. Em telas menores, manter a coluna única
+e a navegação inferior. Preservar links diretos, ordem de teclado e retorno
+de foco. As regras de acesso e operação seguem as specs proprietárias.
+Na barra superior, cada área tem contorno e superfície próprios. A área ativa
+ganha contorno de destaque e o foco por teclado permanece visível.
+
 ## Categorias e fluxos
 
 | Área | Trabalho principal | Direção proposta |
 | --- | --- | --- |
 | Agora | Identificar e abrir exceção | Alertas acionáveis antes de pulso; fatos e próxima ação visíveis |
-| Operação | Localizar gargalo e abrir contexto | Produção/entrega e salão com resumos e destinos claros, sem listas extensas abertas por padrão |
-| Financeiro | Escolher revisão, caixa ou consulta | Separar grupos de tarefas; valores canônicos, pendências e confirmações preservados |
+| Operação | Localizar gargalo e abrir contexto | Barras compactas para filas de produção e entrega e ocupação do salão, com números explícitos e listas de detalhes recolhidas |
+| Financeiro | Escolher revisão, caixa ou consulta | Comparar saldos esperados por caixa em barras compactas e manter atalhos separados por tarefa |
 | Cardápio | Criar ou editar produto | Manter uma criação e o editor por categorias; harmonizar página, estados e retorno |
 | Gestão | Encontrar configuração ou acesso | Estabelecimento e pessoas; configurações da operação; acesso |
 

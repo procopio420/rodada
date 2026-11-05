@@ -7,7 +7,7 @@ async function leaveAttendanceContext(page: Page) {
   for (let step = 0; step < 3 && await workspace.isVisible(); step++) {
     const continueCatalog = workspace.getByRole("button", { name: "← Continuar escolhendo itens", exact: true });
     if (await continueCatalog.isVisible()) await continueCatalog.click();
-    await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+    await workspace.getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   }
   await expect(workspace).not.toBeVisible();
   const table = page.locator(".ux2TablePage");

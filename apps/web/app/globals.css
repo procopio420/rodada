@@ -457,6 +457,47 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 
 .managementNavigation a span { max-width: 100%; overflow-wrap: anywhere; }
 
+@media (min-width: 1024px) {
+  .appShell.managementShell { max-width: 1200px; padding-bottom: var(--space-6); }
+  .appShell.managementOverview { max-width: 1440px; }
+  .managementOverview .managementNavigation {
+    position: sticky;
+    inset: 0 auto auto;
+    max-width: none;
+    min-height: 0;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-1);
+    gap: var(--space-2);
+    border: 0;
+    border-radius: var(--radius-md);
+  }
+  .managementOverview .managementNavigation a {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .managementOverview .managementNavigation a:hover {
+    border-color: var(--color-text-muted);
+  }
+  .managementOverview .managementNavigation .surfaceNavActive {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)) !important;
+  }
+  .managementOverview .managementNavigation .surfaceNavActive::before { content: none; }
+  .managementOverview .managementNavigation .surfaceNavActive .operationalIcon { color: var(--color-accent); }
+  .managementOverview [id] { scroll-margin-top: calc(var(--management-nav-height, 0px) + var(--space-4)); }
+  .managementSettings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) {
+  .managementSettings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 /* Spec023 shared Web hierarchy; operational states and document output stay canonical. */
 .operationalHeading { display: flex; align-items: center; gap: var(--space-2); }
 .operationalHeadingText { min-width: 0; }
@@ -500,7 +541,7 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .productionShell .attendanceCategoryGrid > button { display: flex; flex-direction: column; align-items: flex-start; min-height: var(--touch-primary); padding: var(--space-3); overflow-wrap: anywhere; }
 .productionShell .attendanceCategoryGrid small { color: var(--color-text-muted); }
 .productionShell .attendanceCategoryDialog[open] { display: flex; flex-direction: column; gap: var(--space-2); }
-.productionShell .attendanceCategoryDialog > .posProducts { min-height: 0; overflow-y: auto; align-content: start; overscroll-behavior: contain; }
+.productionShell .attendanceCategoryDialog > .posProducts { min-height: 0; overflow-y: auto; grid-auto-rows: max-content; align-content: start; overscroll-behavior: contain; }
 .productionShell .attendanceCategoryDialog .posProduct { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
 .productionShell .attendanceCategoryDialog .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
 

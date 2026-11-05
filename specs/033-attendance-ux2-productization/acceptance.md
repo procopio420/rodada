@@ -40,6 +40,8 @@ não marca AC global, não valida Android/físico e não resolve cartão pela UI
 ## E01: identidade e contexto
 - [ ] AC-01 Staff toca chamada QR com Tab/Occupancy válida e chega à comanda exata na Web e no Android; outra comanda na mesma mesa nunca é escolhida por label.
 - [ ] AC-02 Mesa→Tab→pedido/conta e Voltar preservam destino, drafts A→B→A, posição/foco e chamadas pendentes; balcão e multi-Tab funcionam.
+- [ ] AC-02a No Atendimento Web, Voltar indica o destino e funciona por toque e teclado. Em celular, arrastar horizontalmente para a direita volta e para a esquerda revisita a próxima tela já aberta da mesma comanda. Gestos não enviam pedidos nem interferem com formulários, rolagem vertical ou operação bloqueada.
+- [ ] AC-02b No Atendimento Web, a navegação indica a área ativa, o cabeçalho da comanda separa identidade e status, e os cartões de entrega destacam destino, resumo e confirmação. Conferir leitura e foco de 360 px a desktop.
 - [ ] AC-03 Sessão revogada, Venue trocado, ocupação encerrada ou geração antiga não abre a Tab; há fallback seguro sem inventar ID.
 
 ## E02: pedido
@@ -52,6 +54,8 @@ não marca AC global, não valida Android/físico e não resolve cartão pela UI
 - [ ] AC-08 Agora separa SERVICE/BILL e READY, cada fila com contadores e freshness independente, 50 tarefas sem extravasamento mobile.
 - [ ] AC-09 Service QR navega para Tab, Bill QR para conta; quando não há identidade válida, escolha explícita / erro seguro; navegar não assume nem conclui tarefa.
 - [ ] AC-10 READY abre o item/destino canônico, mantém provenance e permite ação autorizada sem obrigar confirmação apenas para métricas.
+- [ ] AC-10a No Web, tarefas prontas do mesmo destino e comanda canônicos aparecem juntas com resumo compacto. Confirmar entrega registra o grupo mostrado. Ao tocar no cliente, é possível escolher somente os itens entregues. Itens sem identidade canônica ficam separados.
+- [ ] AC-10b O grupo usa o comando individual existente. Cada tarefa é revalidada e sai da fila após leitura DONE/DELIVERED. Mudança de destino, responsável ou resultado não confirmado interrompe o envio dos itens restantes e deixa a pendência visível.
 - [ ] AC-11 Task em posse de outro staff, mesa movida, sessão antiga, concorrência e timeout não permitem mutation indevida nem fazem tarefa sumir por navegar.
 
 ## E04: conta e mesa

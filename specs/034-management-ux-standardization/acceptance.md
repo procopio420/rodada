@@ -1,5 +1,7 @@
 # Aceite — Spec 034
 
+- [ ] Responsividade da Gerência: conferir coluna única e navegação inferior em celular, duas colunas em 1024 px e três em 1280 px ou mais, com navegação superior e retorno de foco visível.
+
 **Estado original do planejamento:** NOT_RUN. Evidências incrementais de S1a/S1b
 estão nos relatórios próprios; nenhum aceite global é declarado por esta tabela.
 Fixtures controladas são evidência visual, não prova de integração/produção.
@@ -86,9 +88,19 @@ Gerente consulta contadores existentes de Bar/Cozinha/prontos e abre detalhes po
 
 ### S2c — Salão e itens indisponíveis
 
+Refinamento visual de Operação: Produção e entrega usa barras horizontais
+comparadas com o maior contador exibido. Salão usa a proporção do total de
+mesas listadas. Todos os valores permanecem escritos, inclusive zero.
+Em desktop os painéis ficam lado a lado, com leitura em coluna no celular.
+
 RecorteR2 visual. Região Salão nomeada, mesmos contadores de ocupadas/limpeza e quatro destinos existentes, agrupamento Surface2 e atalhos em uma coluna mobile/duas desktop. Itens indisponíveis permanecem expansíveis, com mesma condição/filtro e nomes completos em lista semântica. Não alterar APIs, cache, permissões, cálculo, eventos ou comandos. Vazio confirmado conserva zeros no Salão e ausência do bloco indisponíveis; erro inicial não mostra resumo; snapshot antigo mantém aviso existente. Aceite360/390/430/1280 com12nomes longos, teclado/foco, alvos44px, axe/overflow/CSSzoom2 local e nenhuma escrita; regressõesS2a/S2b/navegação. Zoom nativo/leitor de tela/aceite humano pendentes.
 
 ### S3a — entrada Financeiro
+
+Refinamento de apresentação: mostrar o saldo esperado confirmado em cada
+caixa ativo e sua barra numa escala comum. Valores negativos partem para a
+esquerda do zero, e o fallback Ver caixa permanece sem barra. Desktop exibe
+caixa e atalhos lado a lado. Mobile conserva a leitura em uma coluna.
 
 Recorte de apresentação dos três grupos existentes e cinco destinos: caixa/turnos, fechamento, correções/estornos, serviço/descontos/aprovações e relatórios. Reutilizar padrão de destino descritivo de Gestão, nomes acessíveis preservados e descrições curtas. Nomear regiões e melhorar quebra dos resumos de caixas no mobile. Preservar literalmente seleção de caixas ativos, valores, fallback Ver caixa, mensagens, estados e destinos. Sem comandos novos, indicadores, autorização, cache, API ou cálculo. Não confundir contagem com pagamento confirmado. Loading/erro inicial não mostra totais; vazio e snapshot antigo conservam contrato atual. Aceite360/390/430/1280 com caixaOPEN/COUNTING/zero/valor ausente, nomes longos, cinco destinos, teclado/axe/alvos44px/CSSzoom2 e nenhuma escrita; regressões de navegação/Operação/Agora. R3 conservador por apresentação financeira, revisão independente obrigatória; integração real/gate autenticado e aceite humano permanecem pendentes.
 

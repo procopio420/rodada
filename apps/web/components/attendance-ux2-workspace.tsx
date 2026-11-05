@@ -11,6 +11,10 @@ import "./attendance-ux2-workspace.css";
 type Product = OrderingProduct & { active: boolean; availability: string; category?: string };
 type Line = { product: Product; quantity: number; selection: Selection };
 export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
+const backLabels: Record<AttendanceSurface, string> = {
+  tab: "Voltar à comanda", catalog: "Voltar ao cardápio", draft: "Voltar ao resumo",
+  bill: "Voltar à conta", limit: "Voltar ao limite",
+};
 export function AttendanceUx2Workspace({ hidden = false, tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
   hidden?: boolean; tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[]; spending_limit_mode?: "WARN_ONLY" | "ENFORCE" };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
@@ -25,8 +29,33 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
   const setQuery = (value: string) => onCatalogState ? onCatalogState({query:value,category}) : setLocalQuery(value);
   const setCategory = (value: string) => onCatalogState ? onCatalogState({query,category:value}) : setLocalCategory(value);
   const surfaceRef = useRef<HTMLElement>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const [history, setHistory] = useState<{ pages: AttendanceSurface[]; index: number }>(() => ({ pages: [surface], index: 0 }));
+  const currentHistory = history.pages[history.index] === surface ? history : { pages: [surface], index: 0 };
+  if (currentHistory !== history) setHistory(currentHistory);
+  const { pages, index } = currentHistory;
+  const previous = pages[index - 1] ?? (surface === "draft" ? "catalog" : surface === "tab" ? undefined : "tab");
+  const navigate = (destination: AttendanceSurface) => {
+    if (destination === surface) return;
+    const earlierIndex = pages.slice(0, index).lastIndexOf(destination);
+    setHistory(earlierIndex >= 0 ? { pages, index: earlierIndex } : { pages: [...pages.slice(0, index + 1), destination], index: index + 1 });
+    onSurface(destination);
+  };
+  const move = (direction: -1 | 1) => {
+    if (locked || hidden || pending) return;
+    const destination = pages[index + direction];
+    if (destination) {
+      setHistory({ pages, index: index + direction });
+      onSurface(destination);
+    } else if (direction === -1) {
+      if (!previous) onBack();
+      else {
+        setHistory({ pages: [previous, ...pages], index: 0 });
+        onSurface(previous);
+      }
+    }
+  };
   useEffect(() => { surfaceRef.current?.querySelector<HTMLHeadingElement>("h1")?.focus(); }, [surface]);
-  useEffect(() => { const back = (event: KeyboardEvent) => { if (event.key !== "Escape" || locked || (event.target instanceof Element && event.target.closest("dialog[open]"))) return; event.preventDefault(); if (surface === "tab") onBack(); else onSurface(surface === "draft" ? "catalog" : "tab"); }; window.addEventListener("keydown", back); return () => window.removeEventListener("keydown", back); }, [surface, locked, onBack, onSurface]);
   const count = lines.reduce((sum, line) => sum + line.quantity, 0);
   const closed = ["CLOSED", "CANCELLED"].includes(tab.state);
   const categories = ["", ...new Set(products.filter(product => product.active).map(attendanceCategory))];
@@ -34,8 +63,30 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
   const reference = tabReference(tab);
   const destination = `${tab.display_label || reference} · ${tableLocationLabel(tab.table_label)}`;
   const latest = tab.orders?.at(-1);
-  return <section hidden={hidden} ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada">
-    <button className="ux2Back" disabled={locked} onClick={() => surface === "tab" ? onBack() : onSurface(surface === "draft" ? "catalog" : "tab")}><span aria-hidden="true">‹</span> Voltar</button>
+  return <section hidden={hidden} ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada"
+    onKeyDown={event => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      event.preventDefault();
+      move(-1);
+    }}
+    onTouchStart={event => {
+      swipeStart.current = null;
+      if (locked || pending || event.touches.length !== 1 || !(event.target instanceof Element)
+        || event.target.closest("button, a, input, select, textarea, label, [contenteditable], dialog")) return;
+      const touch = event.touches[0];
+      if (touch.clientX < 24 || touch.clientX > window.innerWidth - 24) return;
+      swipeStart.current = { x: touch.clientX, y: touch.clientY };
+    }}
+    onTouchCancel={() => { swipeStart.current = null; }}
+    onTouchEnd={event => {
+      const start = swipeStart.current;
+      swipeStart.current = null;
+      if (!start || event.touches.length || event.changedTouches.length !== 1) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
+      if (Math.abs(dx) >= 72 && Math.abs(dx) > 2 * Math.abs(dy)) move(dx > 0 ? -1 : 1);
+    }}>
+    <button className="ux2Back" disabled={locked || pending} onClick={() => move(-1)}><span aria-hidden="true">←</span>{previous ? backLabels[previous] : "Voltar às mesas e comandas"}</button>
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
       <div className="ux2Context"><div><h1 tabIndex={-1}>{tab.display_label || reference}</h1><p>{tableLocationLabel(tab.table_label)} · {closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
@@ -46,7 +97,7 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
     {!fresh && <p className="ux2Notice" role="status">Dados desatualizados. Atualize antes de enviar.</p>}
     {pending && <div className="ux2Unknown" role="status"><strong>Envio sem confirmação</strong><p>A intenção original está preservada. Não envie outro pedido.</p><button className="ux2Button primary" disabled={confirming} onClick={onSend}>Verificar mesmo pedido</button></div>}
     {surface === "tab" && <>
-      <div className="ux2ActionCluster"><button className="ux2Button primary" disabled={locked || closed || pending} onClick={() => onSurface("catalog")}>＋ Adicionar itens</button><div className="ux2TwoActions"><button className="ux2Button ghost" disabled={locked || closed || pending || !latest} onClick={onRepeat}>↻ Mais uma rodada</button><button className="ux2Button ghost" disabled={locked} onClick={() => onSurface("bill")}>{closed ? "Ver conta encerrada" : "Conferir / fechar conta"}</button></div></div>
+      <div className="ux2ActionCluster"><button className="ux2Button primary" disabled={locked || closed || pending} onClick={() => navigate("catalog")}>＋ Adicionar itens</button><div className="ux2TwoActions"><button className="ux2Button ghost" disabled={locked || closed || pending || !latest} onClick={onRepeat}>↻ Mais uma rodada</button><button className="ux2Button ghost" disabled={locked} onClick={() => navigate("bill")}>{closed ? "Ver conta encerrada" : "Conferir / fechar conta"}</button></div></div>
       <AttendanceOrderStatus orders={tab.orders ?? []} fresh={fresh} />
       <div className="ux2BillPeek"><span><label>Saldo em aberto</label><small>Sem incluir rascunhos não enviados</small></span><strong>{money(tab.exposure_cents)}</strong></div>
       {credit}
@@ -61,7 +112,7 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
       <div className="ux2SectionHead"><h2>Cardápio</h2><small>{filtered.length} ITENS</small></div>
       {filtered.map(product => { const quantity = lines.filter(line => line.product.id === product.id).reduce((sum, line) => sum + line.quantity, 0); return <div className="ux2CatalogLine" data-product-id={product.id} key={product.id}><div><button className="ux2ProductName" aria-label={`Personalizar ${product.name}`} disabled={locked || !fresh || product.availability !== "AVAILABLE"} onClick={event => onCustomize(product, event.currentTarget)}><strong>{product.name}</strong></button><small>{money(product.price_cents)}{product.availability !== "AVAILABLE" && " · Indisponível"}</small></div><div className="ux2Quantity"><button aria-label={`Remover ${product.name}`} disabled={locked || !quantity} onClick={() => onReduce(product)}>−</button><output aria-label={`Quantidade de ${product.name}`}>{quantity}</output><button aria-label={`Adicionar ${product.name}`} disabled={locked || !fresh || product.availability !== "AVAILABLE" || quantity >= 99} onClick={event => onAdd(product, event.currentTarget)}>+</button></div></div>; })}
       {!filtered.length && <div className="ux2Empty">Nenhum produto corresponde à pesquisa. Limpe a busca para ver o cardápio inteiro.</div>}
-      {count > 0 && <div className="ux2DraftSummary"><span><strong>{count} item(ns) · {money(total)}</strong><small>Destino: {reference}{tab.table_label ? ` · ${tableLocationLabel(tab.table_label)}` : " · Balcão"}</small></span><button className="ux2Button ghost" disabled={locked} onClick={() => onSurface("draft")}>Ver resumo</button></div>}
+      {count > 0 && <div className="ux2DraftSummary"><span><strong>{count} item(ns) · {money(total)}</strong><small>Destino: {reference}{tab.table_label ? ` · ${tableLocationLabel(tab.table_label)}` : " · Balcão"}</small></span><button className="ux2Button ghost" disabled={locked} onClick={() => navigate("draft")}>Ver resumo</button></div>}
       <p className="ux2Notice">O pedido é enviado somente ao tocar em <strong>Enviar</strong>. Valores e itens são revalidados pela API.</p>
     </>}
     {surface === "draft" && <>
@@ -70,10 +121,10 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
       {!count && <div className="ux2Empty">O pedido está vazio.</div>}
       <div className="ux2AmountLine"><small>Total do novo pedido</small><strong>{money(total)}</strong></div>{credit}
       {count > 0 && <button className="ux2Button ghost block" disabled={locked || pending || confirming} onClick={onDiscard}>Descartar rascunho</button>}
-      <button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("catalog")}>← Continuar escolhendo itens</button>
+      <button className="ux2Button ghost block" disabled={locked} onClick={() => navigate("catalog")}>← Continuar escolhendo itens</button>
     </>}
     {surface === "bill" && bill}
-    {surface === "limit" && <>{credit}<div className="ux2SectionHead"><h2>Regra do estabelecimento</h2></div><p className="ux2Notice">{tab.spending_limit_mode === "WARN_ONLY" ? "Só alertar (WARN_ONLY). Ultrapassar a referência gera aviso; o servidor continua validando o pedido e demais regras." : "Bloquear pedidos (ENFORCE). Excesso exige recebimento parcial ou aprovação autorizada."} Somente a Gerência altera a política canônica.</p><div className="ux2SectionHead"><h2>Garantia financeira</h2></div><p className="ux2Notice">Nenhuma garantia verificada foi informada. Limite operacional e aprovação não representam caução, Pix ou cartão confirmado.</p><button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("bill")}>Conferir conta</button></>}
+    {surface === "limit" && <>{credit}<div className="ux2SectionHead"><h2>Regra do estabelecimento</h2></div><p className="ux2Notice">{tab.spending_limit_mode === "WARN_ONLY" ? "Só alertar (WARN_ONLY). Ultrapassar a referência gera aviso; o servidor continua validando o pedido e demais regras." : "Bloquear pedidos (ENFORCE). Excesso exige recebimento parcial ou aprovação autorizada."} Somente a Gerência altera a política canônica.</p><div className="ux2SectionHead"><h2>Garantia financeira</h2></div><p className="ux2Notice">Nenhuma garantia verificada foi informada. Limite operacional e aprovação não representam caução, Pix ou cartão confirmado.</p><button className="ux2Button ghost block" disabled={locked} onClick={() => navigate("bill")}>Conferir conta</button></>}
     {!closed && !pending && (surface === "catalog" || surface === "draft" || (surface === "tab" && count > 0)) && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canSend || locked} onClick={onSend}>{confirming ? "Confirmando…" : count ? `Enviar ${count} ${count === 1 ? "item" : "itens"} · ${money(total)}` : "Adicione itens para enviar"}</button></div>}
   </section>;
 }

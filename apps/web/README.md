@@ -111,9 +111,9 @@ and idempotency key in memory. Reload recovery is outside this slice.
 Em Gerência → Agora → Mais vendidos, o gerente consulta os dez produtos com
 maior quantidade bruta lançada no dia operacional atual. O calendário da API
 determina a noite; o ranking agrega snapshots por produto e atualiza por SSE
-e consulta de segurança a cada 15 segundos enquanto visível. Cancelamentos e
-ajustes não são deduzidos; a explicação está em “Como é calculado”. Não é um
-ranking de receita líquida ou recebimentos. Consultas exigem a permissão de
+e consulta de segurança a cada 15 segundos enquanto visível. O cabeçalho
+mostra a noite e o horário da última atualização. O ranking usa quantidades
+brutas, antes de cancelamentos e ajustes. Consultas exigem a permissão de
 relatórios existente, sem novas mutações ou permissões.
 Contrato e evidências: [Spec 007 — Mais vendidos](../../specs/007-management-cockpit/best-sellers.md).
 

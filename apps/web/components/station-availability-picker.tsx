@@ -21,8 +21,9 @@ export function StationAvailabilityPicker({ products, target, blocked, busy, ret
   const [category, setCategory] = useState<string | null>(null);
   const [picked, setPicked] = useState<AvailabilityProduct | null>(null);
   const verb = target === "UNAVAILABLE" ? "Indisponibilizar" : "Reativar";
+  const search = normalizeCatalogSearch(query);
   const eligible = products.filter(p => p.active !== false && p.availability !== target);
-  const filtered = eligible.filter(p => normalizeCatalogSearch(p.name).includes(normalizeCatalogSearch(query)));
+  const filtered = eligible.filter(p => normalizeCatalogSearch(p.name).includes(search));
   const categories = [...new Set(filtered.map(attendanceCategory))].sort(compareAttendanceCategories);
   const visible = filtered.filter(p => category === null || category === "" || attendanceCategory(p) === category);
   const current = picked ? products.find(p => p.id === picked.id) : undefined;
@@ -41,7 +42,7 @@ export function StationAvailabilityPicker({ products, target, blocked, busy, ret
         : <button className="buttonPrimary" disabled={busy || changed || blocked(picked)} onClick={() => onConfirm(picked, target)}>{busy ? "Confirmando…" : `Sim, ${verb.toLowerCase()}`}</button>}
     </> : <>
       <div className="field"><label htmlFor="station-availability-search">Buscar item no cardápio</label><input id="station-availability-search" type="search" value={query} onChange={event => setQuery(event.target.value)} /></div>
-      {category === null ? <nav className="attendanceCategoryGrid" aria-label="Categorias da disponibilidade">
+      {category === null && !search ? <nav className="attendanceCategoryGrid" aria-label="Categorias da disponibilidade">
         {!!filtered.length && <button className="buttonSecondary" onClick={() => setCategory("")}><strong>Todos</strong><small>{filtered.length} itens</small></button>}
         {categories.map(name => <button className="buttonSecondary" key={name} onClick={() => setCategory(name)}><strong>{name}</strong><small>{filtered.filter(p => attendanceCategory(p) === name).length} itens</small></button>)}
       </nav> : <div className="posProducts">
@@ -50,7 +51,7 @@ export function StationAvailabilityPicker({ products, target, blocked, busy, ret
           <ProductIcon name={product.name} icon={product.icon} /><strong>{product.name}</strong>
         </button>)}
       </div>}
-      {!visible.length && <p role="status">{query.trim() ? "Nenhum item encontrado nesta categoria." : target === "UNAVAILABLE" ? "Nenhum item disponível nesta estação." : "Nenhum item indisponível nesta estação."}</p>}
+      {!visible.length && <p role="status">{search ? (category ? "Nenhum item encontrado nesta categoria." : "Nenhum item encontrado.") : target === "UNAVAILABLE" ? "Nenhum item disponível nesta estação." : "Nenhum item indisponível nesta estação."}</p>}
     </>}
   </ActionDialog>;
 }

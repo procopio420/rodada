@@ -54,11 +54,11 @@ for (const width of [360, 390, 430, 1280]) test(`canonical shell journey and con
   await workspace.getByRole('button', { name: 'Ver resumo', exact: true }).click();
   await expect(workspace.getByText('1× Chopp Pilsen', { exact: true })).toBeVisible();
   await capture('review');
-  await workspace.getByRole('button', { name: 'Voltar', exact: true }).click();
+  await workspace.getByRole('button', { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await expect(workspace.getByRole('button', { name: /Enviar 1 item/ })).toBeEnabled();
-  await workspace.getByRole('button', { name: 'Voltar', exact: true }).click();
+  await workspace.getByRole('button', { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await expect(workspace.getByRole('heading', { name: 'Marina', exact: true })).toBeVisible();
-  await workspace.getByRole('button', { name: 'Voltar', exact: true }).click();
+  await workspace.getByRole('button', { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await expect(page.getByRole('heading', { name: 'Mesa 08', exact: true })).toBeVisible();
   expect(domainWrites).toEqual([]);
 });

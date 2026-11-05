@@ -477,7 +477,9 @@ UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continua
 ## Bar: seletor de disponibilidade — 2026-10-17
 
 - Tela inicial sem lista integral; indisponibilizar/reativar abrem categorias + Todos.
+- Com catálogo longo, a grade rola dentro do seletor. Cada cartão contém o ícone e o nome completo sem sobrepor a linha seguinte, em celular e desktop.
 - Busca e categorias não incluem outra estação nem produto inativo; contagens reais.
+- A busca inicial mostra os produtos enquanto se digita, sem abrir uma categoria. Busca sem correspondência tem feedback e limpar o campo retorna às categorias.
 - Cancelar não envia POST; confirmação nomeada envia só o produto escolhido.
 - APPLIED + readback retorna ao início; rejeição/erro/resposta perdida não simula sucesso.
 - Repetição conserva payload/chave; mudanças de versão/estado bloqueiam seleção antiga.
