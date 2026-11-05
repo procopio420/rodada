@@ -1,9 +1,18 @@
 /* PR212 ec26e26b: page surfaces consume existing semantic palette. */
 .ux2Workspace{padding:24px 20px 128px;color:var(--color-text);font:500 15px/1.45 var(--font-body);min-width:0}
 .ux2Workspace h1{font-size:34px;line-height:1.05;letter-spacing:-.055em;font-weight:900;margin:0 0 10px}.ux2Workspace h2{font-size:18px;font-weight:800;letter-spacing:-.025em;margin:0}.ux2Workspace p{margin:0}
-.ux2Back{display:flex;align-items:center;gap:8px;min-height:44px;margin:-12px 0 23px;background:none;border:0;color:var(--color-text-muted);padding:0;font-size:14px}.ux2Back span{font-size:22px}
+.ux2Back{display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-min);margin:0 0 var(--space-4);padding:var(--space-2) var(--space-3);border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface-2);color:var(--color-text);font-size:var(--text-sm);font-weight:800;cursor:pointer}.ux2Back span{color:var(--color-accent);font-size:var(--text-lg)}.ux2Back:hover{border-color:var(--color-accent)}
+@media (pointer:coarse){.ux2Workspace{touch-action:pan-y pinch-zoom}}
 .ux2Eyebrow{text-transform:uppercase;letter-spacing:.15em;color:var(--color-accent);font-weight:850;font-size:10px;margin-bottom:9px}
 .ux2Context{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:21px}.ux2Context h1{margin-bottom:2px}.ux2Context p{font-size:13px;color:var(--color-text-muted)}.ux2Tag{font-weight:760;font-size:11px;padding:6px 8px;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:5px;white-space:nowrap}.ux2Lede{color:var(--color-text-muted);line-height:1.45;margin-bottom:23px!important;font-size:14px}
+.ux2Context {
+  flex-wrap: wrap;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+.ux2Context > div { flex: 1 1 12rem; min-width: 0; }
+.ux2Context h1 { overflow-wrap: anywhere; margin-bottom: var(--space-1); }
+.ux2Context > .ux2Tag { border-radius: var(--radius-pill); white-space: normal; }
 .ux2Button{border:1px solid var(--color-border-strong);border-radius:10px;min-height:52px;padding:12px 15px;color:var(--color-text);background:var(--color-surface-2);font-weight:800;font-size:15px;text-align:center;cursor:pointer}.ux2Button:hover{border-color:var(--color-accent)}.ux2Button.primary{border-color:var(--color-text);color:var(--color-on-accent);background:var(--color-text);font-size:17px}.ux2Button.ghost{background:transparent}.ux2Button.block{width:100%}.ux2Workspace button:disabled{opacity:.4;cursor:not-allowed}.ux2Workspace :focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
 .ux2ActionCluster{display:grid;gap:10px}.ux2TwoActions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.ux2BillPeek{padding:17px 0 19px;border-block:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;margin:17px 0 19px;gap:12px}.ux2BillPeek strong{font:750 21px var(--font-mono)}.ux2BillPeek label{display:block;color:var(--color-text-muted);font-size:12px}.ux2BillPeek small{display:block;color:var(--color-text-subtle);font-size:11px}
 .ux2Notice{border:1px solid var(--color-border-strong);background:var(--color-surface-1);color:var(--color-text-muted);border-radius:9px;padding:13px;margin:16px 0!important;font-size:12px;line-height:1.5}.ux2Notice strong{color:var(--color-text)}.ux2Toast{background:var(--color-success);color:var(--color-on-accent);padding:13px 14px;border-radius:10px;margin-bottom:18px!important;font-size:13px;font-weight:780}.ux2Unknown{background:var(--color-surface-1);border:1px solid var(--color-border-strong);border-left:3px solid var(--color-accent);padding:15px 16px;margin:13px 0 17px;border-radius:8px}.ux2Unknown p{font-size:12px;color:var(--color-text-muted);margin:8px 0}.ux2Unknown button{width:100%}
@@ -32,6 +41,3 @@
 .ux2FixedDestination{text-transform:uppercase;font-size:11px;letter-spacing:.06em;font-weight:800}
 
 /* PR212 delivery detail: same page hierarchy; production supplies every state. */
-.ux2DeliveryContext{border-left:3px solid var(--color-accent);background:var(--color-surface-1);padding:13px 15px;margin-bottom:18px;border-radius:0 8px 8px 0}.ux2DeliveryContext strong{display:block;font-size:14px}.ux2DeliveryContext p{color:var(--color-text-muted);font-size:12px;margin:5px 0 8px}.ux2DeliveryPage .ux2ReviewRow>span{flex-shrink:0}
-@media(max-width:375px){.ux2Shell:has(.ux2DeliveryPage) .ux2Header{padding-inline:15px}}
-.ux2DeliveryPage h2{line-height:1.45;letter-spacing:-.025em}.ux2DeliveryPage .ux2TaskFoot{margin-top:0}

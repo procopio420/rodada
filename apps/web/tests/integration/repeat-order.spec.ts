@@ -47,7 +47,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await selectExistingAttendanceTab(page, `Repeat ${width}`);
   await page.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await page.getByLabel("Buscar produto").fill("Bar E2E item"); await addCatalogItem(page, "Bar E2E item");
-  await page.locator(".ux2Workspace").getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.locator(".ux2Workspace").getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await page.locator(".ux2Workspace").getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
   const draft = page.getByRole("region", { name: "Comanda selecionada" });
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();

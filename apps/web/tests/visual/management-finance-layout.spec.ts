@@ -13,6 +13,7 @@ for (const width of [360, 390, 430, 1280]) test(`finance entry readable ${width}
     { id: "cash-open", label: "Caixa de teste com identificação extensa", active_shift: { status: "OPEN", expected_cents: 123456 } },
     { id: "cash-counting", label: "Caixa em conferência de teste", active_shift: { status: "COUNTING", expected_cents: 0 } },
     { id: "cash-no-total", label: "Caixa sem total informado", active_shift: { status: "OPEN" } },
+    { id: "cash-negative", label: "Caixa com saldo negativo", active_shift: { status: "OPEN", expected_cents: -123456 } },
   ] } }));
   const writes: string[] = [];
   page.on("request", request => { if (request.url().includes("/api/") && !["GET", "HEAD"].includes(request.method())) writes.push(request.url()); });
@@ -25,6 +26,12 @@ for (const width of [360, 390, 430, 1280]) test(`finance entry readable ${width}
   const phase = process.env.RODADA_S3A_BASELINE === "1" ? "before" : "after";
   await page.screenshot({ path: `../../visual-artifacts/spec034-finance/${phase}-${width}.png`, fullPage: true });
   if (phase === "before") return;
+  const chart = finance.getByRole("group", { name: "Saldo esperado por caixa" });
+  const rows = chart.locator(".dataRow");
+  await expect(rows.nth(0).locator("[aria-hidden] > span")).toHaveAttribute("style", /width: 50%; inset-inline-start: 50%/);
+  await expect(rows.nth(1).locator("[aria-hidden] > span")).toHaveAttribute("style", /width: 0%/);
+  await expect(rows.nth(2).locator("[aria-hidden] > span")).toHaveCount(0);
+  await expect(rows.nth(3).locator("[data-negative=true]")).toHaveAttribute("style", /width: 50%; inset-inline-start: 0%/);
   for (const [name, href] of destinations) {
     const link = finance.getByRole("link", { name, exact: true });
     await expect(link).toHaveAttribute("href", href);

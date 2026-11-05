@@ -3,7 +3,7 @@
 import "./attendance-ux2.css";
 import Image from "next/image";
 import { money } from "./product-customization";
-import { currentTaskTarget, type StaffTask } from "@/lib/client/dispatch-target";
+import { currentTaskTarget } from "@/lib/client/dispatch-target";
 import { OperationalIcon } from "@/components/operational-icon";
 import { tabPrimaryLabel, tabReference } from "@/lib/client/tab-identity";
 
@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { StaffAuthScreen } from "@/components/staff-auth-screen";
 import { normalizeCatalogSearch } from "@/lib/client/attendance-catalog";
-import { AttendanceDeliveryPage, type DeliveryTask } from "@/components/attendance-delivery-page";
+import { AttendanceDeliveryGroup, AttendanceDeliveryPage, groupDeliveries, type DeliveryQueueItem, type DeliveryTask } from "@/components/attendance-delivery-page";
 import { AttendanceTaskContext } from "@/components/attendance-task-context";
 import { OrderWorkspace, type TableTabSelection } from "@/components/order-workspace";
 import { ServiceRequestQueue } from "@/components/service-request-queue";
@@ -23,7 +23,7 @@ import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-a
 type Occupancy = { id: string; generation: number; responsibility_version: number; responsible_staff_id: string | null; responsible_staff?: { id: string; display_name: string }; unassigned_service_attention?: string; unassigned_guest_order_count?: number; oldest_unassigned_guest_order_at?: string; tabs?: { id: string; display_label: string; display_reference?: string; opened_at?: string; state?: string }[] };
 type Table = { id: string; label: string; status: string; zone?: { id: string; label: string }; active_occupancy?: Occupancy };
 type ServiceIntent = { path: string; payload: Record<string, unknown> };
-type Delivery = StaffTask & { id: string; product_name: string; quantity: number; tab_label: string; destination_label: string; age_seconds: number };
+type Delivery = DeliveryQueueItem;
 type Tab = { id: string; display_label: string; table_label?: string | null; last_table_label?: string | null; exposure_cents?: number };
 const labels: Record<string, string> = { AVAILABLE: "Disponível", OCCUPIED: "Ocupada", DIRTY: "Aguardando limpeza", CLEANING: "Em limpeza", OUT_OF_SERVICE: "Fora de serviço" };
 async function request<T>(path: string, payload?: object): Promise<T> {
@@ -60,6 +60,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const clearTaskOrigin = useCallback(() => { setOriginTaskId(null); setOriginTabId(null); setOriginTaskType(null); }, []);
   const [closeContextRequest, setCloseContextRequest] = useState(0);
   const [activeTask, setActiveTask] = useState<DeliveryTask | null>(null);
+  const deliveryQueueHeading = useRef<HTMLHeadingElement>(null);
   const [serviceCount, setServiceCount] = useState<number | null>(null);
   const [historyRequest, setHistoryRequest] = useState(0);
   const [openingAt, setOpeningAt] = useState<Table | null>(null);
@@ -204,12 +205,13 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   }
   async function openTask(id: string) {
     if (busy || pendingOrder || intent || recoveryBlocked) return;
+    const trigger = document.activeElement as HTMLElement | null;
     setBusy(true); setError("");
     try {
       const task = await request<DeliveryTask>(`dispatch/tasks/${id}/`);
       if (task.id !== id) throw new Error("Identidade da tarefa divergente. Atualize a fila.");
       if (!["OPEN", "CLAIMED"].includes(task.state)) throw new Error("Esta tarefa já mudou. Atualize a fila.");
-      if (task.task_type === "DELIVERY") { setWorkspaceReturnFocus(document.activeElement as HTMLElement | null); setActiveTask(task); return; }
+      if (task.task_type === "DELIVERY") { setWorkspaceReturnFocus(trigger); setActiveTask(task); return; }
       const list = await request<{results: Table[]}>("hospitality/tables/");
       setTables(list.results);
       const target = currentTaskTarget(task, list.results);
@@ -226,6 +228,14 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       } else setRequestedTab(current => ({id: target.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: "Sem mesa"}));
     } catch (failure) { setError(failure instanceof Error ? failure.message : "Não foi possível abrir a tarefa."); }
     finally { setBusy(false); }
+  }
+  function finishDeliveryGroup(completed: string[], failure: string) {
+    const ids = new Set(completed);
+    setDeliveries(current => current.filter(delivery => !ids.has(delivery.id)));
+    setMessage(completed.length ? `${completed.length} item(ns) com entrega confirmada.` : "");
+    setError(failure);
+    void refresh(undefined, true);
+    requestAnimationFrame(() => deliveryQueueHeading.current?.focus());
   }
   function claim(table: Table) {
     const occupancy = table.active_occupancy!;
@@ -271,15 +281,15 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   }
   return <main className="appShell attendanceShell ux2Shell">
     <header className="ux2Header"><Image src="/brand/wordmark.svg" alt="Rodada" width="113" height="42" /><button className="ux2Meta ux2OperatorButton" aria-label="Opções do atendimento" aria-haspopup="dialog" disabled={busy || tableOpening || recoveryBlocked || moveLocked || pendingOrder || !!intent} onClick={() => setOperatorMenu(true)}><b>{session.venue.name}</b><span>{loading ? "Atualizando…" : online ? session.staff.display_name : "Desatualizado · verifique a conexão"}</span></button></header>
-    <div className={`ux2Content${orderContext || activeTask ? " ux2ContentWorkspace" : ""}`}>
+    <div className={`ux2Content${orderContext ? " ux2ContentWorkspace" : ""}`}>
     {error && !selectedTable && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && !selectedTable && <p className="notice" data-state="success" role="status">{message}</p>}
     {intent && !openingAt && !takeoverAt && !moving && <div className="notice" data-state="warning" role="status"><p>Verificando atendimento. A intenção original está preservada.</p><button className="buttonPrimary" disabled={busy || !online || recoveryBlocked || pendingOrder} onClick={() => void serviceCommand()}>Verificar mesma intenção</button></div>}
-    {screen === "now" && !orderContext && !activeTask && <section className="ux2Now">
+    {screen === "now" && !orderContext && <section className="ux2Now">
       <div className="ux2Eyebrow">Fila operacional</div><h1>Agora</h1>
       <div className="ux2NowSwitch" role="group" aria-label="Tipo de trabalho"><button aria-pressed={nowMode === "service"} onClick={() => setNowMode("service")}>Atendimentos <span>{serviceCount ?? "—"}</span></button><button aria-pressed={nowMode === "delivery"} onClick={() => setNowMode("delivery")}>Entregas <span>{deliveryFresh ? deliveries.length : "—"}</span></button></div>
       <div hidden={nowMode !== "service"}><ServiceRequestQueue staffId={session.staff.id} ux2 onCountChange={setServiceCount} onOpenTask={id => void openTask(id)} />
       {attention.map(table => <article className="ux2Attention" key={table.active_occupancy!.id}><h3>Mesa {table.label}</h3>{serviceInfo(table)}<button className="buttonSecondary" disabled={busy || pendingOrder || !!intent || recoveryBlocked} onClick={() => { setSelectedTable(table.id); setScreen("tables"); }}>Ver mesa</button></article>)}</div>
-      <div hidden={nowMode !== "delivery"}><div className="ux2QueueHead"><h2>Prontos para levar</h2></div><p className="ux2Summary">Fila separada do atendimento. Itens confirmados pelo Bar e pela Cozinha.</p>{deliveryError && <div className="ux2Notice" role="status"><strong>Entregas desatualizadas.</strong><p>{deliveryError}</p><button className="ux2Button ghost block" onClick={() => void refreshDelivery()}>Atualizar entregas</button></div>}{deliveryLoading ? <p role="status">Carregando entregas…</p> : !deliveries.length && deliveryFresh ? <div className="ux2Empty">Nenhuma tarefa nesta fila. Selecione a outra categoria para conferir.</div> : deliveries.map(delivery => <article className="ux2QueueItem" key={delivery.id}><div className="ux2QueueTop"><span className="ux2Delivery">PEDIDO PRONTO</span><span>· {Math.floor(delivery.age_seconds / 60)} min</span></div><strong className="ux2QueueTitle">{delivery.quantity || 1}× {delivery.product_name}</strong><div className="ux2QueueDetail"><span>{delivery.destination_label || "Sem mesa"} · {delivery.tab_label || "Comanda"}</span></div><button className="ux2QueueOpen" disabled={busy || pendingOrder || !!intent || recoveryBlocked || !online} onClick={() => void openTask(delivery.id)}>Ver entrega ›</button></article>)}</div>
+      <div hidden={nowMode !== "delivery"}><div className="ux2QueueHead"><h2 ref={deliveryQueueHeading} tabIndex={-1}>Prontos para levar</h2></div>{deliveryError && <div className="ux2Notice" role="status"><strong>Entregas desatualizadas.</strong><p>{deliveryError}</p><button className="ux2Button ghost block" onClick={() => void refreshDelivery()}>Atualizar entregas</button></div>}{deliveryLoading ? <p role="status">Carregando entregas…</p> : !deliveries.length && deliveryFresh ? <div className="ux2Empty">Nenhuma tarefa nesta fila. Selecione a outra categoria para conferir.</div> : groupDeliveries(deliveries).map(([key, items]) => { const delivery = items[0]; return items.length > 1 ? <AttendanceDeliveryGroup key={key} items={items} staffId={session.staff.id} request={request} disabled={busy || pendingOrder || !!intent || recoveryBlocked || !online || !deliveryFresh} onLockChange={setBusy} onResult={finishDeliveryGroup} /> : <article className="ux2QueueItem ux2DeliveryRow" key={delivery.id}><div><div className="ux2QueueTop"><span className="ux2Delivery">{delivery.destination_label || "Sem mesa"}</span><span>· {Math.floor(delivery.age_seconds / 60)} min</span></div><strong className="ux2QueueTitle">{delivery.quantity || 1}× {delivery.product_name}</strong><div className="ux2QueueDetail"><span>{delivery.tab_label || "Comanda"}{delivery.fulfillment_station === "BAR" ? " · Bar" : delivery.fulfillment_station === "KITCHEN" ? " · Cozinha" : ""}</span></div></div><button className="ux2Button ghost" disabled={busy || pendingOrder || !!intent || recoveryBlocked || !online} onClick={() => void openTask(delivery.id)}>Registrar entrega</button></article>; })}</div>
     </section>}
     {originTaskId && selectedTable && !orderContext && <AttendanceTaskContext key={originTaskId} taskId={originTaskId} staffId={session.staff.id} recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} navigationLocked={pendingOrder} onBack={() => { if (!pendingOrder) { setSelectedTable(null); setScreen("now"); clearTaskOrigin(); } }} />}
     <OrderWorkspace presentation="ux2" requestedSurface={requestedSurface} onContextChange={contextChanged} closeContextRequest={closeContextRequest} contextualTaskNode={originTaskId && originTabId === orderContext?.tabId ? <AttendanceTaskContext key={originTaskId} taskId={originTaskId} staffId={session.staff.id} recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} navigationLocked={pendingOrder} onBack={() => { if (!pendingOrder) { setCloseContextRequest(value => value + 1); setSelectedTable(null); setScreen("now"); clearTaskOrigin(); } }} /> : undefined} returnFocus={workspaceReturnFocus} tableMode onOpenFailure={failOrderOpen} tableSelection={tableSelection} onTableSelectionResult={tableSelectionResult} onRecoveryNeeded={revealOrder} onDialogClose={closeOrder} withoutPayments recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} onPendingChange={setPendingOrder} requestedTabId={requestedTab?.id} requestedTabSequence={requestedTab?.sequence} destinationLabel={requestedTab?.destination} createRequest={createRequest} historyRequest={historyRequest} />
@@ -318,8 +328,8 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     </ActionDialog>}
     {takeoverAt?.active_occupancy && <ActionDialog title="Assumir atendimento?" locked={busy || !!intent} onClose={() => setTakeoverAt(null)}><p>{takeoverAt.active_occupancy.responsible_staff?.display_name} está responsável. Você também pode atender sem assumir.</p><button className="buttonPrimary" disabled={busy || !!intent || !online} onClick={() => void serviceCommand(`hospitality/occupancies/${takeoverAt.active_occupancy!.id}/responsibility/claim/`, { expected_responsibility_version: takeoverAt.active_occupancy!.responsibility_version, mode: "TAKE_OVER" })}>Confirmar transferência de atendimento</button>{intent && <button className="buttonPrimary" disabled={busy || !online} onClick={() => void serviceCommand()}>Verificar mesma intenção</button>}<button className="buttonSecondary" disabled={busy || !!intent} onClick={() => setTakeoverAt(null)}>Atender sem assumir</button></ActionDialog>}
   <TabLocationMove selection={moveSelection} tables={tables} onClose={closeMove} onLockChange={setMoveLocked} onConfirmed={() => refresh(undefined, true)} />
-    </div><nav hidden={!!orderContext || !!selectedTable || !!activeTask} className="ux2BottomNav" aria-label="Navegação principal"><button aria-current={screen === "now" ? "page" : undefined} disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => setScreen("now")}><span className="ux2Glyph" aria-hidden="true">◷</span>Agora</button><button className="ux2Middle" disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => { clearTaskOrigin(); setPickingOrder(true); setRequestedSurface("catalog"); setDestinationPicker(true); }}><span className="ux2Glyph" aria-hidden="true">＋</span>Pedir</button><button aria-current={screen === "tables" ? "page" : undefined} disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => { clearTaskOrigin(); setPickingOrder(false); setRequestedSurface("tab"); setScreen("tables"); }}><span className="ux2Glyph" aria-hidden="true">▦</span>Mesas</button></nav>
-    {activeTask && <AttendanceDeliveryPage key={activeTask.id} initialTask={activeTask} staffId={session.staff.id} request={request} onLockChange={setBusy} onConfirmed={() => void refresh(undefined, true)} onBack={() => { setActiveTask(null); void refresh(); requestAnimationFrame(() => workspaceReturnFocus?.focus()); }} />}
+    </div><nav hidden={!!orderContext || !!selectedTable} className="ux2BottomNav" aria-label="Navegação principal"><button aria-current={screen === "now" ? "page" : undefined} disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => setScreen("now")}><span className="ux2Glyph" aria-hidden="true">◷</span>Agora</button><button className="ux2Middle" disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => { clearTaskOrigin(); setPickingOrder(true); setRequestedSurface("catalog"); setDestinationPicker(true); }}><span className="ux2Glyph" aria-hidden="true">＋</span>Pedir</button><button aria-current={screen === "tables" ? "page" : undefined} disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => { clearTaskOrigin(); setPickingOrder(false); setRequestedSurface("tab"); setScreen("tables"); }}><span className="ux2Glyph" aria-hidden="true">▦</span>Mesas</button></nav>
+    {activeTask && <AttendanceDeliveryPage key={activeTask.id} initialTask={activeTask} staffId={session.staff.id} request={request} returnFocus={workspaceReturnFocus} onLockChange={setBusy} onConfirmed={() => { setActiveTask(null); setBusy(false); setDeliveries(current => current.filter(delivery => delivery.id !== activeTask.id)); setMessage("Entrega concluída"); void refresh(undefined, true); requestAnimationFrame(() => deliveryQueueHeading.current?.focus()); }} onBack={() => { setActiveTask(null); void refresh(); }} />}
     {operatorMenu && <ActionDialog title="Opções do atendimento" onClose={() => setOperatorMenu(false)}><button className="buttonSecondary" disabled={busy || loading} onClick={() => { setOperatorMenu(false); void refresh(); }}>Atualizar</button><button className="buttonSecondary" disabled={busy || pendingOrder || !!intent} onClick={() => void logout()}>Sair</button></ActionDialog>}
     {destinationPicker && <ActionDialog title="Onde vamos pedir?" onClose={() => setDestinationPicker(false)}><p>Selecione uma mesa ou comanda para adicionar itens.</p><button className="buttonPrimary" onClick={() => { setDestinationPicker(false); setScreen("tables"); }}>Escolher mesa ou comanda</button>{session.capabilities.includes("tab.open") && <button className="buttonSecondary" onClick={event => { setWorkspaceReturnFocus(event.currentTarget); setDestinationPicker(false); clearTaskOrigin(); setRequestedSurface("tab"); orderOrigin.current = {screen:"tables",tableId:null}; setCreateRequest(current => current + 1); }}>Nova comanda sem mesa</button>}</ActionDialog>}
   </main>;

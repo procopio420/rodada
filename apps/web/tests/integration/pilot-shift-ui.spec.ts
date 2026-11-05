@@ -80,12 +80,18 @@ test("entire pilot shift through Web UI with two Tabs and read-only verification
     await page.getByRole("button", { name: /^Entregas / }).click();
     const tasks = (await read(page, "dispatch/delivery/")).results;
     expect(tasks).toHaveLength(3);
-    for (let i = 0; i < 3; i++) {
-      await page.getByRole("button", { name: "Ver entrega ›", exact: true }).first().click();
-      const delivery = page.getByRole("region", { name: "Levar pedido.", exact: true });
-      await delivery.getByRole("button", { name: "Confirmar entrega", exact: true }).click();
-      await expect(delivery.getByText("Entrega concluída", { exact: true })).toBeVisible();
-      await delivery.getByRole("button", { name: "Voltar à fila", exact: true }).click();
+    let remaining = tasks.length;
+    while (remaining > 0) {
+      const row = page.locator(".ux2DeliveryRow").first();
+      const group = row.getByRole("button", { name: "Confirmar entrega", exact: true });
+      if (await group.isVisible()) await group.click();
+      else {
+        await row.getByRole("button", { name: "Registrar entrega", exact: true }).click();
+        await page.getByRole("dialog", { name: "Registrar entrega", exact: true }).getByRole("button", { name: "Confirmar entrega", exact: true }).click();
+      }
+      await expect.poll(async () => (await read(page, "dispatch/delivery/")).results.length).toBeLessThan(remaining);
+      remaining = (await read(page, "dispatch/delivery/")).results.length;
+      await expect(page.getByRole("button", { name: `Entregas ${remaining}`, exact: true })).toBeVisible();
     }
     expect((await read(page, "dispatch/delivery/")).results).toHaveLength(0);
 

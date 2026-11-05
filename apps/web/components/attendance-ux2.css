@@ -20,3 +20,37 @@
 
 .ux2OperatorButton::after{content:"";position:absolute;min-width:44px;min-height:44px;width:100%;height:100%;left:50%;top:50%;transform:translate(-50%,-50%)}
 
+.ux2Header { background: var(--color-surface-1); }
+.ux2OperatorButton { padding-inline: var(--space-2); border-radius: var(--radius-md); }
+.ux2OperatorButton:hover:not(:disabled) { background: var(--color-surface-2); }
+.ux2BottomNav button[aria-current="page"] {
+  background: var(--color-surface-2);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+.ux2BottomNav button[aria-current="page"] .ux2Glyph { color: var(--color-accent); }
+
+.ux2QueueItem.ux2DeliveryRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 0;
+  margin-block: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-1);
+}
+.ux2DeliveryRow .ux2QueueTitle { overflow-wrap: anywhere; }
+.ux2DeliveryRow > .ux2Button {
+  max-width: 9rem;
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  font-size: var(--text-sm);
+}
+.ux2DeliveryCustomer { border-radius: var(--radius-sm); }
+.ux2DeliveryCustomer .ux2QueueDetail { display: block; overflow-wrap: anywhere; }
+.ux2DeliveryChoices { display: grid; margin-block: var(--space-2); }
+.ux2DeliveryChoices label { display: flex; align-items: center; gap: var(--space-2); min-height: var(--touch-min); }
+.ux2DeliveryChoices input { flex: none; accent-color: var(--color-accent); }

@@ -53,7 +53,7 @@ test("ambiguous order blocks return to the originating table", async ({ page }) 
  await page.route(`**/api/attendance/tabs/${ids[0]}/orders/confirm/`, route => route.abort());
  await page.locator(`button[data-tab-id="${ids[0]}"]`).click(); await addCatalogItem(page, "Fritas"); await attendanceDraft(page);
  await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
- await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled(); await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
+ await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled(); await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
 });
 
 test("table entry is serialized and blocks navigation while reading", async ({ page }) => {

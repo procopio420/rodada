@@ -11,7 +11,7 @@ export async function attendanceBill(page: Page) {
   const workspace = attendanceWorkspace(page);
   await expect(workspace).toBeVisible();
   for (let step = 0; step < 2 && !await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).isVisible(); step++)
-    await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+    await workspace.getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
   await expect(workspace.getByRole("heading", { name: "Fechar a conta.", exact: true })).toBeVisible();
   return workspace;
@@ -31,7 +31,7 @@ export async function openAttendanceTab(page: Page, id = "tab-test") {
 export async function closeAttendanceTab(page: Page) {
   const workspace = attendanceWorkspace(page);
   for (let step = 0; step < 3 && await workspace.isVisible(); step++)
-    await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+    await workspace.getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await expect(workspace).not.toBeVisible();
 }
 

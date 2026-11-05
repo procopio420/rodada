@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { consumeManagementReturn, rememberManagementOrigin, type ManagementOrigin } from "@/lib/client/management-return";
+import { consumeManagementReturn, rememberManagementOrigin, restoreManagementFocus, type ManagementOrigin } from "@/lib/client/management-return";
 import { DeveloperLink } from "./developer-link";
 import { OperationalIcon, type OperationalIconName } from "./operational-icon";
 
@@ -28,11 +28,7 @@ export function ManagementSettings() {
     const frame = requestAnimationFrame(() => {
       const origin = document.getElementById(`management-destination-${saved.id}`);
       if (!origin) return;
-      window.scrollTo({ top: saved.scroll, behavior: "instant" });
-      origin.focus({ preventScroll: true });
-      const bounds = origin.getBoundingClientRect();
-      const nav = document.querySelector(".managementNavigation")?.getBoundingClientRect();
-      if (bounds.top < 0 || bounds.bottom > (nav?.top ?? innerHeight)) origin.scrollIntoView({ block: "center", behavior: "instant" });
+      restoreManagementFocus(origin, saved.scroll);
     });
     return () => cancelAnimationFrame(frame);
   }, []);

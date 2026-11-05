@@ -12,6 +12,7 @@
 - [ ] **AC-004** GET de configuração de `Venue A` nunca devolve policy de `Venue B`, mesmo usando UUID/hostname/parâmetros manipulados.
 - [ ] **AC-005** Apenas gerente com `venue.configure` **e PIN/reautenticação recente** consegue PUT; waiter, cashier sem capability, Guest, sessão revogada e cross-Venue recebem acesso negado.
 - [ ] **AC-006** PUT com `mode`, `expected_version`, motivo e idempotency key retorna modo + versão persistidos; audit tem before/after/ator/venue/tempo/versão. Replay idêntico não cria segundo efeito/audit; reuse divergente e CAS antigo retornam 409 adequados.
+- O formulário permite tentar salvar com a API disponível mesmo sem conexão de eventos ao vivo. Reautenticação, versão esperada e confirmação pelo servidor continuam obrigatórias. Se a API estiver indisponível, o formulário explica por que a confirmação está desativada.
 
 ## Decisão de venda e ledger
 
@@ -26,6 +27,8 @@
 - [ ] **AC-015** Produtos indisponíveis, estações desabilitadas, Venue incorreto, Tab SETTLING/CLOSED, auth ausente, correções pendentes e demais restrições independentes continuam protegidos nos dois modos, mesmo com limite alto.
 
 ## Estado e compatibilidade
+
+- Atendimento Web UX2 em `WARN_ONLY`: acima da referência projetada, Enviar abre a confirmação sem enviar. Voltar preserva o rascunho e Continuar envia pelo fluxo existente. No limite exato ou abaixo, o envio segue direto.
 
 - [ ] **AC-016** `financial_position` retorna `spending_limit_mode`, `spending_limit_policy_version`, `limit_exceeded` e semântica correta de `limit_warning` / `consumption_blocked`; em WARN_ONLY não há falso `consumption_blocked` por excesso.
 - [ ] **AC-017** WARN_ONLY com **somente** `SPENDING_LIMIT` não força Tab a REQUIRES_ACTION; causas separadas (`REFUND_REQUIRED`, `OTHER_ACTION_REQUIRED`, review gerencial etc.) persistem e não podem ser bypassadas.

@@ -21,3 +21,14 @@ export function consumeManagementReturn(): { id: ManagementOrigin; scroll: numbe
     return saved;
   } catch { return null; }
 }
+
+export function restoreManagementFocus(origin: HTMLElement, scroll: number) {
+  window.scrollTo({ top: scroll, behavior: "instant" });
+  origin.focus({ preventScroll: true });
+  const bounds = origin.getBoundingClientRect();
+  const nav = document.querySelector(".managementNavigation")?.getBoundingClientRect();
+  const overlapsNav = nav && bounds.top < nav.bottom && bounds.bottom > nav.top;
+  if (bounds.top < 0 || bounds.bottom > innerHeight || overlapsNav) {
+    origin.scrollIntoView({ block: "center", behavior: "instant" });
+  }
+}

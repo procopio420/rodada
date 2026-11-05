@@ -46,11 +46,11 @@ for (const width of [360, 390, 430, 1280]) test(`50 persisted READY and 50 calls
   await page.getByRole("button", { name: "Entregas 50", exact: true }).click();
   const delivery = queues.delivery.at(-1);
   await expect(page.locator(".ux2QueueItem:visible")).toHaveCount(50);
-  await page.locator(".ux2QueueItem:visible").filter({ hasText: delivery.tab_label }).getByRole("button", { name: "Ver entrega ›", exact: true }).click();
-  const detail = page.getByRole("region", { name: "Levar pedido.", exact: true });
+  await page.locator(".ux2QueueItem:visible").filter({ hasText: delivery.tab_label }).getByRole("button", { name: "Registrar entrega", exact: true }).click();
+  const detail = page.getByRole("dialog", { name: "Registrar entrega", exact: true });
   await expect(detail.getByText(`${delivery.quantity}× ${delivery.product_name}`, { exact: true })).toBeVisible();
   await expect(detail).toContainText(delivery.tab_display_reference);
-  await detail.getByRole("button", { name: "Voltar sem entregar", exact: true }).click();
+  await detail.getByRole("button", { name: "Voltar", exact: true }).click();
   failing = true;
   await expect(page.getByRole("button", { name: "Entregas —", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Atendimentos —", exact: true })).toBeVisible({ timeout: 20_000 });

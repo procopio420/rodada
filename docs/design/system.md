@@ -142,6 +142,12 @@ Base: docs/design/ux-friction-audit-2026-10-12.md, auditoria Android de 13/10 (p
 
 ## Linguagem visual
 
+No gráfico de categorias da Gerência, a legenda associa cada cor ao nome,
+ao total e ao percentual. Além dos tokens de dados, as fatias usam cores
+auxiliares `#ef817d`, `#45bfb4`, `#dfa6dc`, `#a4bf64`, `#ab9cf7`,
+`#d4a16c`, `#71c4e7` e `#ebad88`. A cor da categoria é estável entre
+a pizza e as colunas, com âmbar reservado a Cervejas.
+
 Rodada usa uma estética de bar noturno: neutros quentes, contraste alto e acento tungstênio/âmbar.
 
 A identidade deve parecer robusta, rápida e humana — não fintech fria nem software corporativo.

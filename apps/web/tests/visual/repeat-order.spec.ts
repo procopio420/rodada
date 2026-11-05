@@ -45,7 +45,7 @@ async function review(page: Page) {
   return region;
 }
 async function originalDraft(page: Page) {
-  await page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await addCatalogItem(page, "Fritas", 0);
   return attendanceDraft(page);
 }

@@ -35,7 +35,7 @@ for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]
   const verify = page.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
   expect(state.attempts).toHaveLength(1);
   if (surface === "pos") await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
-  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled();
   await layoutAndA11y(page); await page.screenshot({ path: `../../visual-artifacts/spec026/t05-order-${surface}-${width}.png`, fullPage: true });
   state.failReadback(); await verify.click();
   await expect(page.getByText("Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro.", { exact: true })).toBeVisible();
@@ -48,7 +48,7 @@ for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]
     await page.getByLabel("Nome ou apelido", { exact: true }).fill("Nova comanda de teste");
     await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeEnabled();
   }
-  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeEnabled();
+  else await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeEnabled();
 });
 
 for (const failure of ["different-session", "revoked", "changed-envelope"]) test(`Order recovery blocks ${failure}`, async ({ page }) => {
@@ -96,7 +96,7 @@ test("Initial known rejection allows review but recovered rejection preserves in
   await page.reload(); await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
   await expect(page.getByText("Revise os itens", { exact: true })).toBeVisible();
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeTruthy(); expect(state.attempts).toHaveLength(1);
-  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled();
 });
 
 test("Attendance pending order recovers from POS through original gateway", async ({ page }) => {

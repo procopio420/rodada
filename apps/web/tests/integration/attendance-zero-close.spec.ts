@@ -90,7 +90,7 @@ test("delayed Close keeps the original account and blocks contextual Back",async
   await expect.poll(()=>arrived).toBe(true);
   try {
     const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});
-    await expect(workspace.getByRole("button",{name:"Voltar",exact:true})).toBeDisabled();
+    await expect(workspace.getByRole("button",{name:/^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/})).toBeDisabled();
     await expect(workspace.getByRole("button",{name:"Encerrar comanda",exact:true})).toBeDisabled();
     await page.keyboard.press("Escape");
     await expect(workspace).toContainText(tab.display_label);

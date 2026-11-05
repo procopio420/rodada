@@ -51,7 +51,7 @@ test("Escape dismisses personalization and restores its trigger", async ({ page 
  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
  await expect(workspace).toBeVisible();
  await expect(workspace.getByRole("button", { name: "Personalizar Fritas", exact: true })).toBeFocused();
- await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+ await workspace.getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
  await expect(workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true })).toBeVisible();
 });
 

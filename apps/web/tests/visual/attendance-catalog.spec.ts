@@ -27,7 +27,7 @@ for (const width of [360, 390, 430]) test(`Attendance categories and compact bil
   await expect(bill.getByText("Descontos")).toBeVisible();
   await expect(bill.getByText("Subtotal original")).toBeVisible();
   await expect(bill.getByText("R$ 72,00", { exact: true })).toBeVisible();
-  await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+  await workspace.getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ }).click();
   await addCatalogItem(page, "Amstel Long Neck");
   const categories = workspace.getByRole("group", { name: "Categorias", exact: true });
   await workspace.getByLabel("Buscar produto", { exact: true }).fill("");

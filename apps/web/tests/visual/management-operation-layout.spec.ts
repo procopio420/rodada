@@ -18,6 +18,10 @@ for (const width of [360, 390, 430, 1280]) test(`operation production and delive
   const phase = process.env.RODADA_S2B_BASELINE === "1" ? "before" : "after";
   await page.screenshot({ path: `../../visual-artifacts/spec034-operation/${phase}-${width}.png`, fullPage: true });
   if (phase === "before") return;
+  const chart = panel.getByRole("group", { name: "Comparação das filas" });
+  const ready = chart.locator(".dataRow").filter({ hasText: "Prontos para entrega" });
+  await expect(ready.locator("strong")).toHaveText("8");
+  await expect(ready.locator("[aria-hidden] > span")).toHaveAttribute("style", /width: 100%/);
   await expect(page.getByRole("region", { name: "Produção e entrega", exact: true })).toBeVisible();
   await expect(panel.getByRole("list", { name: "Entregas prontas" }).getByRole("listitem")).toHaveCount(8);
   await expect(panel.getByText("agora", { exact: true })).toBeVisible();
@@ -38,6 +42,8 @@ test("operation empty and failed initial read", async ({ page }) => {
   await page.goto("/manage#operacao");
   const panel = page.locator("#operacao");
   await expect(panel.getByText("Prontos para entrega", { exact: true })).toBeVisible();
+  const bars = panel.getByRole("group", { name: "Comparação das filas" }).locator("[aria-hidden] > span");
+  expect(await bars.evaluateAll(elements => elements.map(element => (element as HTMLElement).style.width))).toEqual(["0%", "0%", "0%"]);
   await panel.locator("summary").click();
   await expect(panel.getByText("Nenhuma entrega no último estado consultado.")).toBeVisible();
   await layoutAndA11y(page);

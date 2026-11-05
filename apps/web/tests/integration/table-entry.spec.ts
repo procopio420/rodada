@@ -41,13 +41,13 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
   await expect(page.locator(".ux2Workspace")).toBeVisible();
   await page.locator(".ux2Workspace").getByRole("button", {name:"＋ Adicionar itens",exact:true}).click();
   await page.locator(".ux2Workspace").getByLabel("Buscar produto").fill("Kitchen E2E item"); await addCatalogItem(page, "Kitchen E2E item");
-  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
-  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
+  await page.locator(".ux2Workspace").getByRole("button", {name:/^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/}).click();
+  await page.locator(".ux2Workspace").getByRole("button", {name:/^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/}).click();
   await expect(page.locator(".ux2TablePage").getByRole("heading",{name:`Mesa ${table.label}`,exact:true})).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
   await page.locator(`button[data-tab-id="${b.id}"]`).click();
   await expect(page.locator(".ux2Workspace")).not.toContainText("item(ns) não enviados");
   await expect(page.locator(".ux2Workspace").getByRole("button", {name:/^Enviar /})).toHaveCount(0);
-  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
+  await page.locator(".ux2Workspace").getByRole("button", {name:/^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/}).click();
   await expect(page.locator(`button[data-tab-id="${a.id}"]`)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
  }

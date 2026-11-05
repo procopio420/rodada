@@ -156,7 +156,7 @@ test("ambiguous order retry preserves payload after catalog changes", async ({ p
   await expect(page.getByRole("button", { name: "＋ Adicionar itens", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true })).toBeDisabled();
   await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
-  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled();
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [] } }));
   await page.clock.runFor(15000);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();

@@ -9,7 +9,7 @@
 
 Na Gerência, um responsável autorizado configura por **Venue** se pedidos que excederiam o limite operacional da comanda devem ser somente sinalizados ou rejeitados. O staff vê o consumo em uma barra **compacta** e informa o cliente quando conveniente, sem mudar de tela ou assumir aprovação gerencial para cada venda.
 
-- `WARN_ONLY`: ultrapassar o limite **não impede confirmação de pedido por esse motivo isolado**. O ledger registra integralmente o consumo; o atendente recebe alerta sem confirmação extra e continua a venda.
+- `WARN_ONLY`: ultrapassar o limite **não impede confirmação de pedido por esse motivo isolado**. O ledger registra integralmente o consumo e o atendente pode continuar a venda conforme o fluxo do canal.
 - `ENFORCE`: manter a rejeição transacional existente (`SPENDING_LIMIT_EXCEEDED`) **antes** de gravar Order, OrderItem ou Charge, com recuperação por pagamento parcial confirmado ou aprovação gerencial válida.
 - Ambos: exposição, limite efetivo, saldo, porcentagem e excedente continuam sendo calculados de dados canônicos; o limite não vira depósito nem garantia financeira.
 
@@ -91,7 +91,13 @@ Os paths são propostas; o integrador deve conciliar as rotas existentes em `app
 
 ## 6. Experiência por canal
 
-- **Atendimento Web e Android:** barra curta no contexto de Tab (perfil + exposição/limite) com status textual; no pedido mostrar impacto do draft listrado; em `WARN_ONLY`, botão Enviar disponível mesmo acima; em `ENFORCE`, desabilitar otimisticamente **sem confiar no cliente**, oferecer parcial ou pedir aprovação. Aviso não exige clique extra.
+No Atendimento Web UX2, em `WARN_ONLY`, ao enviar um rascunho que
+ultrapasse a referência projetada da comanda, mostrar o valor projetado e
+pedir ao garçom que escolha entre voltar ao pedido e continuar o envio.
+A confirmação é uma interação Web. O servidor segue aplicando a política
+vigente e as demais regras. A verificação de envio pendente usa a intenção original.
+
+- **Atendimento Web e Android:** barra curta no contexto de Tab (perfil + exposição/limite) com status textual; no pedido mostrar impacto do draft listrado; em `WARN_ONLY`, botão Enviar disponível mesmo acima; em `ENFORCE`, desabilitar otimisticamente **sem confiar no cliente**, oferecer parcial ou pedir aprovação. No Android o aviso continua informativo.
 - **Caixa:** mesmas projeções e regras. Recebimento parcial confirmado pode aumentar capacidade, sem encerrar automaticamente a Tab.
 - **Guest QR:** recebe aviso legível, não obtém alteração de política nem controle gerencial; resultado do servidor prevalece.
 - **Modo offline/stale:** nunca usar cache de modo/limite para autorizar bypass em `ENFORCE`. Recuperar intenção idempotente após reconexão e exibir o modo real do readback.

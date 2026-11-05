@@ -163,7 +163,7 @@ test("Ambiguous order cannot switch, collapse or discard its original draft", as
   await page.getByRole("button", { name: /^(Confirmar pedido|Enviar )/ }).click();
   const verify = page.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
   await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
-  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: /^Voltar (?:à comanda|ao cardápio|ao resumo|à conta|ao limite|às mesas e comandas)$/ })).toBeDisabled();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true })).toBeVisible();
   await expect(verify).toBeEnabled();

@@ -1,9 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 
-for (const width of [360,390,430,1280]) test(`UX2 pages preserve destination and direct send ${width}`, async ({page}) => {
+for (const { width, warn } of [
+ { width:360, warn:false }, { width:390, warn:false }, { width:430, warn:false }, { width:1280, warn:false },
+ { width:390, warn:true }, { width:1280, warn:true },
+]) test(`UX2 pages preserve destination and ${warn ? "confirm high value" : "send directly"} ${width}`, async ({page}) => {
  await page.setViewportSize({width,height:844}); await fixture(page,"normal",true);
- const tab={id:"tab-test",display_label:"Marina",table_label:"08",state:"OPEN",version:1,exposure_cents:5600,effective_limit_cents:20000,remaining_capacity_cents:14400,relationship_snapshot:"REGULAR",orders:[] as unknown[],payments:[]};
+ const tab={id:"tab-test",display_label:"Marina",table_label:"08",state:"OPEN",version:1,exposure_cents:5600,effective_limit_cents:warn?5600:20000,remaining_capacity_cents:warn?0:14400,spending_limit_mode:"WARN_ONLY",relationship_snapshot:"REGULAR",orders:[] as unknown[],payments:[]};
+ const screenshotSuffix = warn ? `${width}-warn` : width;
  await page.route("**/api/attendance/hospitality/tables/",route=>route.fulfill({json:{table_service_enabled:true,results:[{id:"table-test",label:"08",status:"OCCUPIED",active_occupancy:{id:"visit",generation:1,tabs:[tab]}}]}}));
  await page.route(/\/api\/attendance\/tabs\/tab-test\/(\?.*)?$/,route=>route.fulfill({json:tab}));
  const attempts:unknown[]=[];
@@ -17,10 +21,29 @@ for (const width of [360,390,430,1280]) test(`UX2 pages preserve destination and
  const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});
  await expect(workspace.getByRole("heading",{name:"Marina",exact:true})).toBeVisible();
  await expect(page.locator(".attendanceOrderDialog")).toHaveCount(0);
- await page.screenshot({path:`visual-artifacts/033/ux2-tab-${width}.png`,fullPage:true});
+ await page.screenshot({path:`visual-artifacts/033/ux2-tab-${screenshotSuffix}.png`,fullPage:true});
  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
  await workspace.getByRole("button",{name:"Adicionar Fritas",exact:true}).click();
  await expect(workspace.getByRole("button",{name:/Enviar 1 item/})).toBeEnabled();
+ if (width === 390 && !warn) {
+  const swipe = async (start: [number, number], end: [number, number]) => {
+   const target = workspace.getByRole("heading", { level: 1 });
+   await target.evaluate((element, { start, end }) => {
+    const touch = ([clientX, clientY]: [number, number]) => new Touch({ identifier: 1, target: element, clientX, clientY });
+    element.dispatchEvent(new TouchEvent("touchstart", { bubbles: true, touches: [touch(start)] }));
+    element.dispatchEvent(new TouchEvent("touchend", { bubbles: true, changedTouches: [touch(end)] }));
+   }, { start, end });
+  };
+  await expect(workspace.getByRole("button", { name: "Voltar à comanda" })).toBeVisible();
+  await swipe([90, 130], [175, 300]);
+  await expect(workspace.getByRole("heading", { name: "Adicionar itens." })).toBeVisible();
+  await swipe([90, 130], [240, 135]);
+  await expect(workspace.getByRole("heading", { name: "Marina", exact: true })).toBeFocused();
+  await swipe([240, 135], [90, 130]);
+  await expect(workspace.getByRole("heading", { name: "Adicionar itens." })).toBeFocused();
+  await expect(workspace.getByRole("button", { name: /Enviar 1 item/ })).toBeEnabled();
+  expect(attempts).toHaveLength(0);
+ }
  await workspace.getByRole("button",{name:"Ver resumo",exact:true}).click();
  await expect(workspace.getByText("1× Fritas",{exact:true})).toBeVisible();
  await workspace.getByRole("button",{name:"← Continuar escolhendo itens",exact:true}).click();
@@ -28,13 +51,23 @@ for (const width of [360,390,430,1280]) test(`UX2 pages preserve destination and
  await expect(workspace.getByText(/Nenhum produto corresponde/)).toBeVisible();
  await expect(workspace.getByRole("button",{name:/Enviar 1 item/})).toBeEnabled();
  await layoutAndA11y(page);
- await page.screenshot({path:`visual-artifacts/033/ux2-catalog-${width}.png`,fullPage:true});
+ await page.screenshot({path:`visual-artifacts/033/ux2-catalog-${screenshotSuffix}.png`,fullPage:true});
  await workspace.getByRole("button",{name:/Enviar 1 item/}).click();
+ if (warn) {
+  const warning = page.getByRole("dialog", { name: "Valor acima da referência" });
+  await expect(warning).toBeVisible();
+  expect(attempts).toHaveLength(0);
+  await warning.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(workspace.getByRole("button",{name:/Enviar 1 item/})).toBeFocused();
+  expect(attempts).toHaveLength(0);
+  await workspace.getByRole("button",{name:/Enviar 1 item/}).click();
+  await warning.getByRole("button", { name: "Continuar e enviar pedido" }).click();
+ }
  await expect(workspace.getByText("Pedido #canonical-order-033 confirmado",{exact:true})).toBeVisible();
  await expect(workspace.getByText("Cozinha · Na fila",{exact:true})).toBeVisible();
  await expect(workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true})).toBeVisible();
  expect(attempts).toHaveLength(1);
- await page.screenshot({path:`visual-artifacts/033/ux2-confirmed-${width}.png`,fullPage:true});
+ await page.screenshot({path:`visual-artifacts/033/ux2-confirmed-${screenshotSuffix}.png`,fullPage:true});
 });
 
 for(const kind of ["TAB","TABLE"] as const) test(`UX2 called task retains explicit actions for ${kind} target`,async({page})=>{
@@ -145,7 +178,7 @@ test("UX2 payment form retains an exit after a concurrent canonical close",async
  const tab={id:"tab-pay-race",display_label:"Marina",state:"OPEN",version:1,exposure_cents:2400,payments:[],orders:[]};
  await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:[{id:"race-table",label:"08",status:"OCCUPIED",active_occupancy:{id:"race-visit",generation:1,tabs:[tab]}}]}}));await page.route(/\/api\/attendance\/tabs\/tab-pay-race\/(\?.*)?$/,r=>r.fulfill({json:tab}));let mutations=0;await page.route("**/api/attendance/tabs/tab-pay-race/payments/",r=>{mutations++;return r.abort();});
  await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-pay-race"]').click();await page.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});await receipt.getByRole("button",{name:/^Receber R/}).click();
- tab.state="CLOSED";tab.exposure_cents=0;tab.version++;await page.clock.runFor(16000);await expect(receipt.getByText(/A comanda não está aberta para recebimento/)).toBeVisible();await expect(receipt.getByRole("button",{name:"Registrar recebimento",exact:true})).toBeDisabled();await receipt.getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Conta encerrada.",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Marina",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Mesa 08",exact:true})).toBeVisible();await page.locator(".ux2TablePage").getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("button",{name:"Mesas",exact:true})).toBeEnabled();expect(mutations).toBe(0);
+ tab.state="CLOSED";tab.exposure_cents=0;tab.version++;await page.clock.runFor(16000);await expect(receipt.getByText(/A comanda não está aberta para recebimento/)).toBeVisible();await expect(receipt.getByRole("button",{name:"Registrar recebimento",exact:true})).toBeDisabled();await receipt.getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("heading",{name:"Conta encerrada.",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar à comanda",exact:true}).click();await expect(page.getByRole("heading",{name:"Marina",exact:true})).toBeVisible();await page.getByRole("region",{name:"Comanda selecionada",exact:true}).getByRole("button",{name:"Voltar às mesas e comandas",exact:true}).click();await expect(page.getByRole("heading",{name:"Mesa 08",exact:true})).toBeVisible();await page.locator(".ux2TablePage").getByRole("button",{name:"Voltar",exact:true}).click();await expect(page.getByRole("button",{name:"Mesas",exact:true})).toBeEnabled();expect(mutations).toBe(0);
 });
 
 for (const width of [360, 390, 430, 1280]) test(`UX2 keyboard navigation and enlarged text remain usable at ${width}px`, async ({ page }) => {

@@ -7,6 +7,9 @@ Indisponibilizar item. Abrir seletor com busca, categorias e Todos primeiro;
 contagens e produtos limitados à estação BAR e ao estado elegível. Categoria
 abre grade de produtos; escolher produto abre confirmação pelo nome, sem
 quantidade ou carrinho. Cancelar/Voltar/Escape preserva dados e retorna uma camada.
+Ao digitar na busca inicial, mostrar diretamente os produtos correspondentes
+de todas as categorias elegíveis. Limpar a busca retorna às categorias. Dentro
+de uma categoria selecionada, a busca continua restrita àquela categoria.
 Confirmar usa o comando existente, versão capturada e intenção durável original.
 Somente recibo APPLIED após readback bem-sucedido fecha o seletor e retorna
 scroll/foco ao início do Bar. Falha, rejeição e resultado ambíguo permanecem

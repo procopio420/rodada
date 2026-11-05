@@ -2,18 +2,50 @@ import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
 import { chooseBarAvailability, closeBarAvailability } from "./station-availability-actions";
 
-async function setup(page: Page) {
+async function setup(page: Page, extraCount = 0) {
   await fixture(page, "normal", true);
   const catalog = [
     { ...products[2], category: "Bebidas", availability_version: 1 },
     { ...products[2], id: "juice", name: "Suco do catálogo", category: "Sucos", availability_version: 1 },
     { ...products[2], id: "inactive", name: "Produto inativo", active: false, category: "Bebidas", availability_version: 1 },
     { ...products[0], category: "Cozinha", availability_version: 1 },
+    ...Array.from({ length: extraCount }, (_, index) => ({
+      ...products[2], id: `long-${index}`, name: `Bebida especial com nome comprido ${index + 1}`,
+      category: "Bebidas", availability_version: 1,
+    })),
   ];
   await page.route("**/api/pos/catalog/products/", r => r.fulfill({ json: { results: catalog } }));
   await page.route("**/api/pos/production/BAR/", r => r.fulfill({ json: { results: [] } }));
   return catalog;
 }
+
+for (const width of [360, 390, 430, 946, 1280]) test(`Bar availability long catalog fits product cards at ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 720 });
+  await setup(page, 40);
+  await page.goto("/bar");
+  await page.getByRole("button", { name: "Indisponibilizar item", exact: true }).click();
+  await page.getByRole("button", { name: /^Todos/ }).click();
+  const dialog = page.getByRole("dialog");
+  const cards = dialog.getByRole("button", { name: /^Indisponibilizar Bebida especial/ });
+  await expect(cards).toHaveCount(40);
+  const layout = await cards.evaluateAll(buttons => {
+    const grid = buttons[0].parentElement!;
+    return {
+      scrollable: grid.scrollHeight > grid.clientHeight,
+      contentFits: buttons.every(button => {
+        const card = button.getBoundingClientRect();
+        return Array.from(button.children).every(child => {
+          const content = child.getBoundingClientRect();
+          return content.top >= card.top && content.bottom <= card.bottom && content.right <= card.right;
+        });
+      }),
+    };
+  });
+  await dialog.screenshot({ path: `test-results/bar-availability-long-${width}.png` });
+  expect(layout).toEqual({ scrollable: true, contentFits: true });
+  await cards.last().click();
+  await expect(dialog.getByRole("heading")).toHaveText("Indisponibilizar Bebida especial com nome comprido 40?");
+});
 
 for (const width of [360, 390, 430, 1280]) test(`Bar availability categories and confirmed return ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); const catalog = await setup(page);
@@ -51,6 +83,26 @@ for (const width of [360, 390, 430, 1280]) test(`Bar availability categories and
   await closeBarAvailability(page); expect(sends).toHaveLength(1);
 });
 
+test("Bar availability search opens matching products directly", async ({ page }) => {
+  await setup(page);
+  await page.goto("/bar");
+  await page.getByRole("button", { name: "Indisponibilizar item", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  const search = dialog.getByRole("searchbox");
+  const categories = dialog.getByRole("navigation", { name: "Categorias da disponibilidade" });
+  await search.fill("  CATALOGO  ");
+  await expect(categories).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Indisponibilizar Bebida de teste" })).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Indisponibilizar Suco do catálogo" }).click();
+  await expect(dialog.getByRole("heading")).toHaveText("Indisponibilizar Suco do catálogo?");
+  await dialog.getByRole("button", { name: "Voltar" }).click();
+  await expect(search).toHaveValue("  CATALOGO  ");
+  await search.fill("Produto inativo");
+  await expect(dialog.getByRole("status")).toHaveText("Nenhum item encontrado.");
+  await search.clear();
+  await expect(categories).toBeVisible();
+});
+
 test("Bar availability category search shows empty feedback", async ({ page }) => {
   await setup(page); await page.goto("/bar");
   await page.getByRole("button", { name: "Indisponibilizar item", exact: true }).click();
@@ -58,9 +110,8 @@ test("Bar availability category search shows empty feedback", async ({ page }) =
   await page.getByLabel("Buscar item no cardápio", { exact: true }).fill("Bebida");
   await expect(page.getByText("Nenhum item encontrado nesta categoria.")).toBeVisible();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
-  await page.getByRole("navigation", { name: "Categorias da disponibilidade" }).getByRole("button", { name: /^Todos/ }).click();
   await expect(page.getByRole("button", { name: "Indisponibilizar Bebida de teste", exact: true })).toBeVisible();
-  await page.keyboard.press("Escape"); await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Indisponibilizar item", exact: true })).toBeFocused();
 });
 
